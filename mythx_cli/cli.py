@@ -44,10 +44,16 @@ def cli(ctx, **kwargs):
 
     ctx.obj = dict(kwargs)
     if kwargs["access_token"] is not None:
-        ctx.obj["client"] = Client(access_token=kwargs["access_token"], staging=kwargs["staging"])
+        ctx.obj["client"] = Client(
+            access_token=kwargs["access_token"], staging=kwargs["staging"]
+        )
     else:
         # default to trial user client
-        ctx.obj["client"] = Client(eth_address="0x0000000000000000000000000000000000000000", password="trial", staging=kwargs["staging"])
+        ctx.obj["client"] = Client(
+            eth_address="0x0000000000000000000000000000000000000000",
+            password="trial",
+            staging=kwargs["staging"],
+        )
 
     # TODO: Set logger to debug if needed
 
