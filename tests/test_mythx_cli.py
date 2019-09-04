@@ -4,11 +4,9 @@
 """Tests for `mythx_cli` package."""
 
 import pytest
-
 from click.testing import CliRunner
 
-from mythx_cli import mythx_cli
-from mythx_cli import cli
+from mythx_cli import cli, mythx_cli
 
 
 @pytest.fixture
@@ -32,7 +30,7 @@ def test_command_line_interface():
     runner = CliRunner()
     result = runner.invoke(cli.main)
     assert result.exit_code == 0
-    assert 'mythx_cli.cli.main' in result.output
-    help_result = runner.invoke(cli.main, ['--help'])
+    assert "mythx_cli.cli.cli" in result.output
+    help_result = runner.invoke(cli.cli, ["--help"])
     assert help_result.exit_code == 0
-    assert '--help  Show this message and exit.' in help_result.output
+    assert "--help  Show this message and exit." in help_result.output
