@@ -6,7 +6,7 @@
 import pytest
 from click.testing import CliRunner
 
-from mythx_cli import cli, mythx_cli
+from mythx_cli import cli
 
 
 @pytest.fixture
