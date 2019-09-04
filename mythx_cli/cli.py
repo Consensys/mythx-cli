@@ -28,6 +28,7 @@ from mythx_cli.payload import (
 @click.option(
     "--staging/--production",
     default=False,
+    hidden=True,
     envvar="MYTHX_STAGING",
     help="Use the MythX staging environment",
 )
@@ -43,10 +44,10 @@ def cli(ctx, **kwargs):
 
     ctx.obj = dict(kwargs)
     if kwargs["access_token"] is not None:
-        ctx.obj["client"] = Client(access_token=kwargs["access_token"])
+        ctx.obj["client"] = Client(access_token=kwargs["access_token"], staging=kwargs["staging"])
     else:
         # default to trial user client
-        ctx.obj["client"] = Client()
+        ctx.obj["client"] = Client(eth_address="0x0000000000000000000000000000000000000000", password="trial", staging=kwargs["staging"])
 
     # TODO: Set logger to debug if needed
 
@@ -85,26 +86,22 @@ def find_solidity_files(project_dir):
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "full"]))
+@click.option("--mode", type=click.Choice(["quick", "full"]), default="quick")
 @click.pass_obj
 def analyze(ctx, target, async_flag, mode):
-    if async_flag:
-        click.echo("Submitting job and printing UUID")
-    else:
-        click.echo("Waiting for execution to finish")
-
     jobs = []
 
     if not target:
-        if Path("truffle-config.json").exists() or Path("truffle.js").exists():
+        if Path("truffle-config.js").exists() or Path("truffle.js").exists():
             files = find_truffle_artifacts(Path.cwd())
             if not files:
                 raise click.exceptions.UsageError(
                     "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
                 )
-            click.echo(
-                "Detected Truffle project with files:\n{}".format("\n".join(files))
-            )
+            # TODO: debug log
+            # click.echo(
+            #     "Detected Truffle project with files:\n{}".format("\n".join(files))
+            # )
             for file in files:
                 jobs.append(generate_truffle_payload(file))
 
@@ -121,13 +118,13 @@ def analyze(ctx, target, async_flag, mode):
     else:
         for target_elem in target:
             if target_elem.startswith("0x"):
-                click.echo("Identified target {} as bytecode".format(target_elem))
+                # click.echo("Identified target {} as bytecode".format(target_elem))
                 jobs.append(generate_bytecode_payload(target_elem))
                 continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
-                click.echo(
-                    "Trying to interpret {} as a solidity file".format(target_elem)
-                )
+                # click.echo(
+                #     "Trying to interpret {} as a solidity file".format(target_elem)
+                # )
                 jobs.append(generate_solidity_payload(target_elem))
                 continue
             else:
@@ -137,12 +134,23 @@ def analyze(ctx, target, async_flag, mode):
                     )
                 )
 
-    # TODO: On submission, update dicts with mode
+    uuids = []
+    with click.progressbar(jobs) as bar:
+        for job in bar:
+            # attach execution mode, submit, poll
+            job.update({"analysis_mode": mode})
+            resp = ctx["client"].analyze(**job)
 
-    # TODO: Submit job to API, honour rate limits
+            if async_flag:
+                # don't wait for completion, just print UUID
+                uuids.append(resp.uuid)
+                continue
+            else:
+                # TODO: Polling
+                uuids.append(resp.uuid)
 
-    # TODO: Poll for results or exit if --async
-    print(jobs)
+    for uuid in uuids:
+        click.echo(uuid)
 
 
 @cli.command(name="list")
