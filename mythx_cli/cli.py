@@ -11,6 +11,8 @@ from mythx_cli.payload import (
     generate_solidity_payload,
     generate_bytecode_payload,
 )
+import time
+from mythx_cli.formatter import FORMAT_RESOLVER
 
 
 @click.group()
@@ -35,7 +37,8 @@ from mythx_cli.payload import (
 @click.option(
     "--format",
     "fmt",
-    type=click.Choice(["json", "pretty"]),
+    default="simple",
+    type=click.Choice(["json", "simple"]),
     help="The format to display the results in",
 )
 @click.pass_context
@@ -114,7 +117,6 @@ def analyze(ctx, target, async_flag, mode):
         elif list(glob("*.sol")):
             files = find_solidity_files(Path.cwd())
             click.echo("Found Solidity files to submit:\n{}".format("\n".join(files)))
-            # TODO: Assemble Solidity file payload
             for file in files:
                 jobs.append(generate_solidity_payload(file))
         else:
@@ -146,41 +148,57 @@ def analyze(ctx, target, async_flag, mode):
             # attach execution mode, submit, poll
             job.update({"analysis_mode": mode})
             resp = ctx["client"].analyze(**job)
+            uuids.append(resp.uuid)
 
-            if async_flag:
-                # don't wait for completion, just print UUID
-                uuids.append(resp.uuid)
-                continue
-            else:
-                # TODO: Polling
-                uuids.append(resp.uuid)
+    if async_flag:
+        click.echo("\n".join(uuids))
+        return
 
     for uuid in uuids:
-        click.echo(uuid)
+        while not ctx["client"].analysis_ready(uuid):
+            # TODO: Add poll interval option
+            time.sleep(3)
+        resp = ctx["client"].report(uuid)
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp))
+
+
+@cli.command()
+@click.argument("uuids", default=None, nargs=-1)
+@click.pass_obj
+def status(ctx, uuids):
+    for uuid in uuids:
+        resp = ctx["client"].status(uuid)
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
 
 
 @cli.command(name="list")
-@click.option(
-    "--number",
-    default=5,
-    type=click.IntRange(min=1, max=100),
-    help="The number of most recent analysis jobs to display",
-)
+# TODO: Implement and enable
+# @click.option(
+#     "--number",
+#     default=5,
+#     type=click.IntRange(min=1, max=100),
+#     help="The number of most recent analysis jobs to display",
+# )
 @click.pass_obj
 def list_(ctx):
+    # TODO: Implement me
     pass
 
 
 @cli.command()
+@click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def report(ctx):
-    pass
+def report(ctx, uuids):
+    for uuid in uuids:
+        resp = ctx["client"].report(uuid)
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp))
 
 
 @cli.command()
 @click.pass_obj
 def version(ctx):
-    pass
+    resp = ctx["client"].version()
+    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))
 
 
 if __name__ == "__main__":

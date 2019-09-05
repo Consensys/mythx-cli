@@ -30,7 +30,7 @@ def generate_solidity_payload(file):
     solcx.set_solc_version(solc_version, silent=True)
     try:
         result = solcx.compile_source(
-            source, output_values=("abi", "ast", "bin", "srcmap")
+            source, output_values=("abi", "ast", "bin", "bin-runtime", "srcmap")
         )
     except solcx.exceptions.SolcError as e:
         raise click.exceptions.UsageError(
@@ -47,6 +47,9 @@ def generate_solidity_payload(file):
 
     contract_name = list(result.keys())[0]
     creation_bytecode = result[contract_name]["bin"]
+    deployed_bytecode = result[contract_name]["bin-runtime"]
+    source_map = result[contract_name]["srcmap"]
+    deployed_source_map = result[contract_name]["srcmap-runtime"]
     ast = result[contract_name]["ast"]
 
     return {
@@ -55,5 +58,8 @@ def generate_solidity_payload(file):
         "source_list": [file],
         "sources": {file: {"source": source, "ast": ast}},
         "bytecode": creation_bytecode,
+        "source_map": source_map,
+        "deployed_source_map": deployed_source_map,
+        "deployed_bytecode": deployed_bytecode,
         "solc_version": solc_version,
     }
