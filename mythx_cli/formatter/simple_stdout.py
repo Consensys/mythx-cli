@@ -4,8 +4,12 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
+    AnalysisInputResponse
 )
 from typing import Union, List
+from mythx_cli.util import get_source_location_by_offset
+from collections import defaultdict
+import click
 
 
 class SimpleFormatter(BaseFormatter):
@@ -23,13 +27,36 @@ class SimpleFormatter(BaseFormatter):
         return "\n".join(res)
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse) -> str:
+    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
         res = []
-        for issue in resp:
-            res.append("Title: {}".format(issue.swc_title or "-"))
-            res.append("Description: {}".format(issue.description_long))
-            # TODO: Add location stuff from PythX CLI PoC and moar data
-            res.append("")
+        ctx = click.get_current_context()
+        # TODO: Sort by file
+        file_to_issue = defaultdict(list)
+        for report in resp.issue_reports:
+            for issue in report.issues:
+                # click.echo(ctx.obj["uuid"])
+
+                res.append("UUID: {}".format(ctx.obj["uuid"]))
+                res.append("Title: {} ({})".format(issue.swc_title or "-", issue.severity))
+                res.append("Description: {}".format(issue.description_long))
+
+                for loc in issue.locations:
+                    comp = loc.source_map.components[0]
+                    source_list = loc.source_list or report.source_list
+                    if source_list and 0 >= comp.file_id < len(source_list):
+                        filename = source_list[comp.file_id]
+                        if filename not in inp.sources:
+                            # Skip files we don't have source for (e.g. with unresolved bytecode hashes)
+                            res.append("")
+                            continue
+                        line = get_source_location_by_offset(inp.sources[filename]["source"], comp.offset)
+                        snippet = inp.sources[filename]["source"].split("\n")[line - 1]
+                        res.append("{}:{}".format(filename, line))
+                        res.append(snippet)
+                        res.append("")
+                    else:
+                        continue
+
         return "\n".join(res)
 
     @staticmethod

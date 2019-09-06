@@ -191,7 +191,9 @@ def list_(ctx):
 def report(ctx, uuids):
     for uuid in uuids:
         resp = ctx["client"].report(uuid)
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp))
+        inp = ctx["client"].request_by_uuid(uuid)
+        ctx["uuid"] = uuid
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
 
 @cli.command()

@@ -4,6 +4,7 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
+    AnalysisInputResponse
 )
 from typing import Union, List
 
@@ -22,7 +23,7 @@ class BaseFormatter(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def format_detected_issues(obj: DetectedIssuesResponse):
+    def format_detected_issues(obj: DetectedIssuesResponse, inp: AnalysisInputResponse):
         pass
 
     @staticmethod

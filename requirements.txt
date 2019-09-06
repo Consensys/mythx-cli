@@ -1,2 +1,2 @@
 Click==7.0
-pythx==1.2.2
+pythx==1.2.4
