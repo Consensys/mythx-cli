@@ -15,6 +15,7 @@ import time
 from mythx_cli.formatter import FORMAT_RESOLVER
 import logging
 from pythx import MythXAPIError
+from mythx_models.response import AnalysisListResponse
 
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -178,17 +179,27 @@ def status(ctx, uuids):
 
 
 @cli.command(name="list")
-# TODO: Implement and enable
-# @click.option(
-#     "--number",
-#     default=5,
-#     type=click.IntRange(min=1, max=100),
-#     help="The number of most recent analysis jobs to display",
-# )
+@click.option(
+    "--number",
+    default=5,
+    type=click.IntRange(min=1, max=100),  # ~ 5 requests à 20 entries
+    help="The number of most recent analysis jobs to display",
+)
 @click.pass_obj
-def list_(ctx):
+def list_(ctx, number):
+    result = AnalysisListResponse(analyses=[], total=0)
     try:
-        resp = ctx["client"].analysis_list()
+        offset = 0
+        while True:
+            resp = ctx["client"].analysis_list(offset=offset)
+            offset += len(resp.analyses)
+            result.analyses.extend(resp.analyses)
+            if len(result.analyses) >= number:
+                break
+
+        # trim result to desired result number
+        LOGGER.debug(resp.total)
+        result = AnalysisListResponse(analyses=result[:number], total=resp.total)
     except MythXAPIError:
         raise click.UsageError(
             (
@@ -198,7 +209,7 @@ def list_(ctx):
                 "status of a specific job by calling 'mythx status <uuid>'."
             )
         )
-    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(resp))
+    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 
 @cli.command()
