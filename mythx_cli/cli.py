@@ -63,8 +63,9 @@ def cli(ctx, **kwargs):
             password="trial",
             staging=kwargs["staging"],
         )
-
-    logging.basicConfig(level=logging.DEBUG)
+    if kwargs["debug"]:
+        for name in logging.root.manager.loggerDict:
+            logging.getLogger(name).setLevel(logging.DEBUG)
 
     return 0
 
