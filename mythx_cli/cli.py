@@ -13,6 +13,11 @@ from mythx_cli.payload import (
 )
 import time
 from mythx_cli.formatter import FORMAT_RESOLVER
+import logging
+
+
+LOGGER = logging.getLogger("mythx-cli")
+logging.basicConfig(level=logging.WARNING)
 
 
 @click.group()
@@ -58,7 +63,7 @@ def cli(ctx, **kwargs):
             staging=kwargs["staging"],
         )
 
-    # TODO: Set logger to debug if needed
+    logging.basicConfig(level=logging.DEBUG)
 
     return 0
 
@@ -107,16 +112,15 @@ def analyze(ctx, target, async_flag, mode):
                 raise click.exceptions.UsageError(
                     "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
                 )
-            # TODO: debug log
-            # click.echo(
-            #     "Detected Truffle project with files:\n{}".format("\n".join(files))
-            # )
+            LOGGER.debug("Detected Truffle project with files:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
             files = find_solidity_files(Path.cwd())
-            click.echo("Found Solidity files to submit:\n{}".format("\n".join(files)))
+
+            # TODO: Prompt y/n with number of files
+            LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_solidity_payload(file))
         else:
@@ -130,9 +134,9 @@ def analyze(ctx, target, async_flag, mode):
                 jobs.append(generate_bytecode_payload(target_elem))
                 continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
-                # click.echo(
-                #     "Trying to interpret {} as a solidity file".format(target_elem)
-                # )
+                LOGGER.debug(
+                    "Trying to interpret {} as a solidity file".format(target_elem)
+                )
                 jobs.append(generate_solidity_payload(target_elem))
                 continue
             else:

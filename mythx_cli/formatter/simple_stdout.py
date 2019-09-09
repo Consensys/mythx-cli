@@ -8,7 +8,6 @@ from mythx_models.response import (
 )
 from typing import Union, List
 from mythx_cli.util import get_source_location_by_offset
-from collections import defaultdict
 import click
 
 
@@ -31,11 +30,8 @@ class SimpleFormatter(BaseFormatter):
         res = []
         ctx = click.get_current_context()
         # TODO: Sort by file
-        file_to_issue = defaultdict(list)
         for report in resp.issue_reports:
             for issue in report.issues:
-                # click.echo(ctx.obj["uuid"])
-
                 res.append("UUID: {}".format(ctx.obj["uuid"]))
                 res.append("Title: {} ({})".format(issue.swc_title or "-", issue.severity))
                 res.append("Description: {}".format(issue.description_long))
