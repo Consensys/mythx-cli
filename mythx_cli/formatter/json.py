@@ -4,9 +4,9 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
+    AnalysisInputResponse
 )
 from typing import Union, List
-import json
 
 
 class JSONFormatter(BaseFormatter):
@@ -17,7 +17,7 @@ class JSONFormatter(BaseFormatter):
         return resp.to_json()
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse) -> str:
+    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
         return resp.to_json()
 
     @staticmethod
