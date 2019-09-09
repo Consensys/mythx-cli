@@ -14,6 +14,7 @@ from mythx_cli.payload import (
 import time
 from mythx_cli.formatter import FORMAT_RESOLVER
 import logging
+from pythx import MythXAPIError
 
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -185,8 +186,18 @@ def status(ctx, uuids):
 # )
 @click.pass_obj
 def list_(ctx):
-    # TODO: Implement me
-    pass
+    try:
+        resp = ctx["client"].analysis_list()
+    except MythXAPIError:
+        raise click.UsageError(
+            (
+                "This functionality is only available to registered users. "
+                "Head over to https://mythx.io/ and register a free account to "
+                "list your past analyses. Alternatively, you can look up the "
+                "status of a specific job by calling 'mythx status <uuid>'."
+            )
+        )
+    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(resp))
 
 
 @cli.command()
