@@ -38,7 +38,7 @@ from mythx_cli.formatter import FORMAT_RESOLVER
     "--format",
     "fmt",
     default="simple",
-    type=click.Choice(["json", "simple"]),
+    type=click.Choice(FORMAT_RESOLVER.keys()),
     help="The format to display the results in",
 )
 @click.pass_context
