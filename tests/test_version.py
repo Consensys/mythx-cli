@@ -37,3 +37,12 @@ def test_version_json():
         result = runner.invoke(cli, ["--format", "json", "version"])
         assert result.exit_code == 0
         assert json.loads(result.output) == VERSION_RESPONSE_OBJ.to_dict()
+
+
+def test_version_json_pretty():
+    runner = CliRunner()
+    with patch("pythx.Client.version") as version_patch:
+        version_patch.return_value = VERSION_RESPONSE_OBJ
+        result = runner.invoke(cli, ["--format", "json-pretty", "version"])
+        assert result.exit_code == 0
+        assert json.loads(result.output) == VERSION_RESPONSE_OBJ.to_dict()

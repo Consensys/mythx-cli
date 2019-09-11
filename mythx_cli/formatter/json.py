@@ -35,8 +35,12 @@ class PrettyJSONFormatter(BaseFormatter):
 
     @staticmethod
     def format_analysis_list(
-        obj: Union[AnalysisListResponse, List[AnalysisStatusResponse]]
+        obj: AnalysisListResponse
     ) -> str:
+        return PrettyJSONFormatter._print_as_json(obj)
+
+    @staticmethod
+    def format_analysis_status(obj: AnalysisStatusResponse) -> str:
         return PrettyJSONFormatter._print_as_json(obj)
 
     @staticmethod
