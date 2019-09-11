@@ -12,9 +12,11 @@ import json
 
 class JSONFormatter(BaseFormatter):
     @staticmethod
-    def format_analysis_list(
-        resp: Union[AnalysisListResponse, List[AnalysisStatusResponse]]
-    ) -> str:
+    def format_analysis_list(resp: AnalysisListResponse) -> str:
+        return resp.to_json()
+
+    @staticmethod
+    def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         return resp.to_json()
 
     @staticmethod

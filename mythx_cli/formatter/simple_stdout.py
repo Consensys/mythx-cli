@@ -13,9 +13,7 @@ import click
 
 class SimpleFormatter(BaseFormatter):
     @staticmethod
-    def format_analysis_list(
-        resp: Union[AnalysisListResponse, List[AnalysisStatusResponse]]
-    ) -> str:
+    def format_analysis_list(resp: AnalysisListResponse) -> str:
         res = []
         for analysis in resp:
             res.append("UUID: {}".format(analysis.uuid))
@@ -23,6 +21,11 @@ class SimpleFormatter(BaseFormatter):
             res.append("Status: {}".format(analysis.status))
             res.append("")
 
+        return "\n".join(res)
+
+    @staticmethod
+    def format_analysis_status(resp: AnalysisStatusResponse) -> str:
+        res = ["UUID: {}".format(resp.uuid), "Submitted at: {}".format(resp.submitted_at), "Status: {}".format(resp.status), ""]
         return "\n".join(res)
 
     @staticmethod

@@ -17,9 +17,9 @@ class BaseFormatter(abc.ABC):
     ):
         pass
 
-    @classmethod
-    def format_analysis_status(cls, resp: AnalysisStatusResponse) -> str:
-        return cls.format_analysis_list([resp])
+    @staticmethod
+    def format_analysis_status(resp: AnalysisStatusResponse) -> str:
+        pass
 
     @staticmethod
     @abc.abstractmethod
