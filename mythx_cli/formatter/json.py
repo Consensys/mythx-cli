@@ -31,7 +31,10 @@ class JSONFormatter(BaseFormatter):
 class PrettyJSONFormatter(BaseFormatter):
     @staticmethod
     def _print_as_json(obj):
-        return json.dumps(obj.to_dict(), indent=2, sort_keys=True)
+        json_args = {"indent": 2, "sort_keys": True}
+        if type(obj) == DetectedIssuesResponse:
+            return json.dumps(obj.to_dict(as_list=True), **json_args)
+        return json.dumps(obj.to_dict(), **json_args)
 
     @staticmethod
     def format_analysis_list(
