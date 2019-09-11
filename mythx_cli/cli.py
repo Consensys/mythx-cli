@@ -121,8 +121,7 @@ def analyze(ctx, target, async_flag, mode):
 
         elif list(glob("*.sol")):
             files = find_solidity_files(Path.cwd())
-
-            # TODO: Prompt y/n with number of files
+            click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
             LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_solidity_payload(file))
