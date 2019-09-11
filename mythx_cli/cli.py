@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
 """Console script for mythx_cli."""
+import logging
 import sys
+import time
 from glob import glob
 from pathlib import Path
-from pythx import Client
-import click
-from mythx_cli.payload import (
-    generate_truffle_payload,
-    generate_solidity_payload,
-    generate_bytecode_payload,
-)
-import time
-from mythx_cli.formatter import FORMAT_RESOLVER
-import logging
-from pythx import MythXAPIError
-from mythx_models.response import AnalysisListResponse
 
+import click
+from mythx_models.response import AnalysisListResponse
+from pythx import Client, MythXAPIError
+
+from mythx_cli.formatter import FORMAT_RESOLVER
+from mythx_cli.payload import (
+    generate_bytecode_payload,
+    generate_solidity_payload,
+    generate_truffle_payload,
+)
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
@@ -115,13 +115,17 @@ def analyze(ctx, target, async_flag, mode):
                 raise click.exceptions.UsageError(
                     "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
                 )
-            LOGGER.debug("Detected Truffle project with files:\n{}".format("\n".join(files)))
+            LOGGER.debug(
+                "Detected Truffle project with files:\n{}".format("\n".join(files))
+            )
             for file in files:
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
             files = find_solidity_files(Path.cwd())
-            click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+            click.confirm(
+                "Do you really want to submit {} Solidity files?".format(len(files))
+            )
             LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_solidity_payload(file))

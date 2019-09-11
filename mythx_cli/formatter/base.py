@@ -1,12 +1,13 @@
 import abc
+from typing import List, Union
+
 from mythx_models.response import (
+    AnalysisInputResponse,
     AnalysisListResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
-    AnalysisInputResponse
 )
-from typing import Union, List
 
 
 class BaseFormatter(abc.ABC):

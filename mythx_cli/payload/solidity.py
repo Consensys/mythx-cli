@@ -1,6 +1,7 @@
-import solcx
 import re
+
 import click
+import solcx
 import solcx.exceptions
 
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
@@ -30,7 +31,15 @@ def generate_solidity_payload(file):
     solcx.set_solc_version(solc_version, silent=True)
     try:
         result = solcx.compile_source(
-            source, output_values=("abi", "ast", "bin", "bin-runtime", "srcmap", "srcmap-runtime")
+            source,
+            output_values=(
+                "abi",
+                "ast",
+                "bin",
+                "bin-runtime",
+                "srcmap",
+                "srcmap-runtime",
+            ),
         )
     except solcx.exceptions.SolcError as e:
         raise click.exceptions.UsageError(

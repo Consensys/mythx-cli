@@ -1,13 +1,15 @@
-from mythx_cli.formatter.base import BaseFormatter
+import json
+from typing import List, Union
+
 from mythx_models.response import (
+    AnalysisInputResponse,
     AnalysisListResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
-    AnalysisInputResponse
 )
-from typing import Union, List
-import json
+
+from mythx_cli.formatter.base import BaseFormatter
 
 
 class JSONFormatter(BaseFormatter):
@@ -20,7 +22,9 @@ class JSONFormatter(BaseFormatter):
         return resp.to_json()
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
+    def format_detected_issues(
+        resp: DetectedIssuesResponse, inp: AnalysisInputResponse
+    ) -> str:
         return resp.to_json()
 
     @staticmethod
@@ -37,9 +41,7 @@ class PrettyJSONFormatter(BaseFormatter):
         return json.dumps(obj.to_dict(), **json_args)
 
     @staticmethod
-    def format_analysis_list(
-        obj: AnalysisListResponse
-    ) -> str:
+    def format_analysis_list(obj: AnalysisListResponse) -> str:
         return PrettyJSONFormatter._print_as_json(obj)
 
     @staticmethod
