@@ -30,7 +30,7 @@ def generate_solidity_payload(file):
     solcx.set_solc_version(solc_version, silent=True)
     try:
         result = solcx.compile_source(
-            source, output_values=("abi", "ast", "bin", "bin-runtime", "srcmap")
+            source, output_values=("abi", "ast", "bin", "bin-runtime", "srcmap", "srcmap-runtime")
         )
     except solcx.exceptions.SolcError as e:
         raise click.exceptions.UsageError(
@@ -54,7 +54,7 @@ def generate_solidity_payload(file):
 
     return {
         "contract_name": contract_name,
-        "main_source": contract_name,
+        "main_source": file,
         "source_list": [file],
         "sources": {file: {"source": source, "ast": ast}},
         "bytecode": creation_bytecode,
