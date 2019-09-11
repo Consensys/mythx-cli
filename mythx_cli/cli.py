@@ -99,7 +99,7 @@ def find_solidity_files(project_dir):
     "target", default=None, nargs=-1, required=False  # allow multiple targets
 )
 @click.option(
-    "--async/--wait",
+    "--async/--wait",  # TODO: make default on full
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
