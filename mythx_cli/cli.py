@@ -165,7 +165,9 @@ def analyze(ctx, target, async_flag, mode):
             # TODO: Add poll interval option
             time.sleep(3)
         resp = ctx["client"].report(uuid)
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp))
+        inp = ctx["client"].request_by_uuid(uuid)
+        ctx["uuid"] = uuid
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
 
 @cli.command()
