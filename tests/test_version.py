@@ -2,26 +2,10 @@ import json
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from mythx_models.response import VersionResponse
 
 from mythx_cli.cli import cli
 
-VERSION_RESPONSE_OBJ = VersionResponse.from_dict(
-    {
-        "api": "v1.4.34.4",
-        "maru": "0.5.3",
-        "mythril": "0.21.14",
-        "harvey": "0.0.33",
-        "hash": "6e0035da873e809e90eab4665e3d19d6",
-    }
-)
-
-VERSION_RESPONSE_SIMPLE = """API: v1.4.34.4
-Harvey: 0.0.33
-Maru: 0.5.3
-Mythril: 0.21.14
-Hashed: 6e0035da873e809e90eab4665e3d19d6
-"""
+from .testdata import VERSION_RESPONSE_OBJ, VERSION_RESPONSE_SIMPLE
 
 
 def test_version_simple():
