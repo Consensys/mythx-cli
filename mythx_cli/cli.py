@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Console script for mythx_cli."""
+
 import logging
 import sys
 import time
@@ -10,7 +9,9 @@ from pathlib import Path
 import click
 from mythx_models.response import AnalysisListResponse
 from pythx import Client, MythXAPIError
+from pythx.middleware.toolname import ClientToolNameMiddleware
 
+from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.payload import (
     generate_bytecode_payload,
@@ -50,12 +51,24 @@ logging.basicConfig(level=logging.WARNING)
 )
 @click.pass_context
 def cli(ctx, **kwargs):
-    """Console script for mythx_cli."""
+    """Your CLI for interacting with https://mythx.io/
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param debug: Boolean to enable the `logging` debug mode
+    :param access_token: User JWT access token from the MythX dashboard
+    :param staging: Boolean to redirect requests to MythX staging
+    :param fmt: The formatter to use for the subcommand output
+    """
 
     ctx.obj = dict(kwargs)
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"], staging=kwargs["staging"]
+            access_token=kwargs["access_token"],
+            staging=kwargs["staging"],
+            middlewares=[
+                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
+            ],
         )
     else:
         # default to trial user client
@@ -63,6 +76,9 @@ def cli(ctx, **kwargs):
             eth_address="0x0000000000000000000000000000000000000000",
             password="trial",
             staging=kwargs["staging"],
+            middlewares=[
+                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
+            ],
         )
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
@@ -73,8 +89,12 @@ def cli(ctx, **kwargs):
 
 def find_truffle_artifacts(project_dir):
     """Look for a Truffle build folder and return all relevant JSON artifacts.
-    This function will skip the Migrations.json file and return all other paths
-    under <project-dir>/build/contracts/.
+
+    This function will skip the Migrations.json file and return all other files
+    under <project-dir>/build/contracts/. If no files were found, `None` is returned.
+
+    :param project_dir: The base directory of the Truffle project
+    :return: Files under `<project-dir>/build/contracts/` or `None`
     """
 
     output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
@@ -86,6 +106,14 @@ def find_truffle_artifacts(project_dir):
 
 
 def find_solidity_files(project_dir):
+    """Return all Solidity files in the given directory
+
+    This will match all files with the `.sol` extension.
+
+    :param project_dir: The directory to search in
+    :return: Solidity files in `project_dir` or `None`
+    """
+
     output_pattern = Path(project_dir) / "*.sol"
     artifact_files = list(glob(str(output_pattern.absolute())))
     if not artifact_files:
@@ -106,6 +134,16 @@ def find_solidity_files(project_dir):
 @click.option("--mode", type=click.Choice(["quick", "full"]), default="quick")
 @click.pass_obj
 def analyze(ctx, target, async_flag, mode):
+    """Analyze the given directory or arguments with MythX.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param target: Arguments passed to the `analyze` subcommand
+    :param async_flag: Whether to execute the analysis asynchronously
+    :param mode: Full or quick analysis mode
+    :return:
+    """
+
     jobs = []
 
     if not target:
@@ -178,6 +216,12 @@ def analyze(ctx, target, async_flag, mode):
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
 def status(ctx, uuids):
+    """Get the status of an already submitted analysis.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param uuids: A list of job UUIDs to fetch the status for
+    """
     for uuid in uuids:
         resp = ctx["client"].status(uuid)
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
@@ -192,6 +236,14 @@ def status(ctx, uuids):
 )
 @click.pass_obj
 def list_(ctx, number):
+    """Get a list of submitted analyses.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param number: The number of analysis jobs to display
+    :return:
+    """
+
     result = AnalysisListResponse(analyses=[], total=0)
     try:
         offset = 0
@@ -221,6 +273,14 @@ def list_(ctx, number):
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
 def report(ctx, uuids):
+    """Fetch the report for a single or multiple job UUIDs.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param uuids: List of UUIDs to display the report for
+    :return:
+    """
+
     for uuid in uuids:
         resp = ctx["client"].report(uuid)
         inp = ctx["client"].request_by_uuid(uuid)
@@ -231,6 +291,13 @@ def report(ctx, uuids):
 @cli.command()
 @click.pass_obj
 def version(ctx):
+    """Display API version information.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :return:
+    """
+
     resp = ctx["client"].version()
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))
 

@@ -10,10 +10,9 @@ from .testdata import (
     ARTIFACT_DATA,
     INPUT_RESPONSE_OBJ,
     ISSUES_RESPONSE_OBJ,
+    ISSUES_RESPONSE_SIMPLE,
     SUBMISSION_RESPONSE_OBJ,
-    ISSUES_RESPONSE_SIMPLE
 )
-
 
 FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
 

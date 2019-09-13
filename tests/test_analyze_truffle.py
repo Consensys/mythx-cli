@@ -10,8 +10,8 @@ from .testdata import (
     ARTIFACT_DATA,
     INPUT_RESPONSE_OBJ,
     ISSUES_RESPONSE_OBJ,
+    ISSUES_RESPONSE_SIMPLE,
     SUBMISSION_RESPONSE_OBJ,
-    ISSUES_RESPONSE_SIMPLE
 )
 
 EMPTY_PROJECT_ERROR = "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
