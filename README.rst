@@ -9,6 +9,10 @@ A PythX-driven CLI for MythX
 .. image:: https://img.shields.io/travis/dmuhs/mythx-cli.svg
         :target: https://travis-ci.org/dmuhs/mythx-cli
 
+.. image:: https://coveralls.io/repos/github/dmuhs/mythx-cli/badge.svg?branch=master
+  :target: https://coveralls.io/github/dmuhs/mythx-cli?branch=master
+
+
 .. image:: https://readthedocs.org/projects/mythx-cli/badge/?version=latest
         :target: https://mythx-cli.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
