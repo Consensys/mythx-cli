@@ -1,7 +1,7 @@
 -r requirements.txt
 
 bumpversion==0.5.3
-coverage==4.5.1
+coverage==4.5.4
 tox==3.5.2
 
 sphinx==1.8.1
