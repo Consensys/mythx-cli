@@ -3,17 +3,17 @@ A PythX-driven CLI for MythX
 ============================
 
 
-.. image:: https://img.shields.io/pypi/v/mythx_cli.svg
+.. image:: https://img.shields.io/pypi/v/mythx-cli.svg
         :target: https://pypi.python.org/pypi/mythx-cli
 
-.. image:: https://img.shields.io/travis/dmuhs/mythx_cli.svg
+.. image:: https://img.shields.io/travis/dmuhs/mythx-cli.svg
         :target: https://travis-ci.org/dmuhs/mythx-cli
 
 .. image:: https://readthedocs.org/projects/mythx-cli/badge/?version=latest
         :target: https://mythx-cli.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/dmuhs/mythx_cli/shield.svg
+.. image:: https://pyup.io/repos/github/dmuhs/mythx-cli/shield.svg
      :target: https://pyup.io/repos/github/dmuhs/mythx-cli/
      :alt: Updates
 
