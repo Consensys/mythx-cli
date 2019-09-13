@@ -43,7 +43,7 @@ Fetching Analysis Reports
 
 TODO
 
-..code-block:: console
+.. code-block:: console
 
   Usage: mythx report [OPTIONS] [UUIDS]...
 
