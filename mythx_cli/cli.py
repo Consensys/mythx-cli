@@ -136,7 +136,7 @@ def analyze(ctx, target, async_flag, mode):
     else:
         for target_elem in target:
             if target_elem.startswith("0x"):
-                # click.echo("Identified target {} as bytecode".format(target_elem))
+                LOGGER.debug("Identified target {} as bytecode".format(target_elem))
                 jobs.append(generate_bytecode_payload(target_elem))
                 continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
