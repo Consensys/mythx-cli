@@ -30,8 +30,6 @@ security analysis API. It's main purpose is to demonstrate how advanced features
 What is MythX?
 --------------
 
-
-
 MythX is a security analysis API that allows anyone to create purpose-built security tools for smart
 contract developers. Tools built on MythX integrate seamlessly into the development environments and
 continuous integration pipelines used throughout the Ethereum ecosystem.

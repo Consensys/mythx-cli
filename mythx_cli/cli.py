@@ -291,7 +291,8 @@ def report(ctx, uuids):
 @cli.command()
 @click.pass_obj
 def version(ctx):
-    """Display API version information
+    """Display API version information.
+    \f
 
     :param ctx: Click context holding group-level parameters
     :return:
