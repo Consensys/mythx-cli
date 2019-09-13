@@ -1,41 +1,93 @@
-=========
-MythX CLI
-=========
+============================
+A PythX-driven CLI for MythX
+============================
 
 
 .. image:: https://img.shields.io/pypi/v/mythx_cli.svg
-        :target: https://pypi.python.org/pypi/mythx_cli
+        :target: https://pypi.python.org/pypi/mythx-cli
 
 .. image:: https://img.shields.io/travis/dmuhs/mythx_cli.svg
-        :target: https://travis-ci.org/dmuhs/mythx_cli
+        :target: https://travis-ci.org/dmuhs/mythx-cli
 
 .. image:: https://readthedocs.org/projects/mythx-cli/badge/?version=latest
         :target: https://mythx-cli.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-
 .. image:: https://pyup.io/repos/github/dmuhs/mythx_cli/shield.svg
-     :target: https://pyup.io/repos/github/dmuhs/mythx_cli/
+     :target: https://pyup.io/repos/github/dmuhs/mythx-cli/
      :alt: Updates
 
 
+This package aims to provide a simple to use command line interface for the `MythX <https://mythx.io/>`_ smart contract
+security analysis API. It's main purpose is to demonstrate how advanced features can be implemented using the
+`PythX <https://github.com/dmuhs/pythx/>`_ Python language bindings for MythX to simplify API interaction.
 
-A command line interface for the MythX smart contract security analysis API
+
+What is MythX?
+--------------
+
+
+
+MythX is a security analysis API that allows anyone to create purpose-built security tools for smart
+contract developers. Tools built on MythX integrate seamlessly into the development environments and
+continuous integration pipelines used throughout the Ethereum ecosystem.
+
+
+Usage
+-----
+
+.. code-block:: console
+
+    $ mythx
+    Usage: mythx [OPTIONS] COMMAND [ARGS]...
+
+      Console script for mythx_cli.
+
+    Options:
+      --debug / --no-debug            Provide additional debug output
+      --access-token TEXT             Your access token generated from the MythX
+                                      dashboard
+      --format [simple|json|json-pretty]
+                                      The format to display the results in
+      --help                          Show this message and exit.
+
+    Commands:
+      analyze
+      list
+      report
+      status
+      version
+
+
+
+Installation
+------------
+
+The MythX CLI runs on Python 3.5+.
+
+To get started, simply run
+
+.. code-block:: console
+
+    $ pip3 install mythx-cli
+
+Alternatively, clone the repository and run
+
+.. code-block:: console
+
+    $ pip3 install .
+
+Or directly through Python's :code:`setuptools`:
+
+.. code-block:: console
+
+    $ python3 setup.py install
+
+
+
+
+
 
 
 * Free software: MIT license
 * Documentation: https://mythx-cli.readthedocs.io.
-
-
-Features
---------
-
-* TODO
-
-Credits
--------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

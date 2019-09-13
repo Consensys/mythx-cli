@@ -12,7 +12,7 @@ To install MythX CLI, run this command in your terminal:
 
 .. code-block:: console
 
-    $ pip install mythx_cli
+    $ pip install mythx-cli
 
 This is the preferred method to install MythX CLI, as it will always install the most recent stable release.
 
@@ -32,13 +32,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/dmuhs/mythx_cli
+    $ git clone git://github.com/dmuhs/mythx-cli
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/dmuhs/mythx_cli/tarball/master
+    $ curl  -OL https://github.com/dmuhs/mythx-cli/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -47,5 +47,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/dmuhs/mythx_cli
-.. _tarball: https://github.com/dmuhs/mythx_cli/tarball/master
+.. _Github repo: https://github.com/dmuhs/mythx-cli
+.. _tarball: https://github.com/dmuhs/mythx-cli/tarball/master
