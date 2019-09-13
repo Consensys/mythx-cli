@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Console script for mythx_cli."""
+
 import logging
 import sys
 import time
@@ -10,7 +9,9 @@ from pathlib import Path
 import click
 from mythx_models.response import AnalysisListResponse
 from pythx import Client, MythXAPIError
+from pythx.middleware.toolname import ClientToolNameMiddleware
 
+from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.payload import (
     generate_bytecode_payload,
@@ -50,12 +51,16 @@ logging.basicConfig(level=logging.WARNING)
 )
 @click.pass_context
 def cli(ctx, **kwargs):
-    """Console script for mythx_cli."""
+    """Your CLI for interacting with https://mythx.io/"""
 
     ctx.obj = dict(kwargs)
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"], staging=kwargs["staging"]
+            access_token=kwargs["access_token"],
+            staging=kwargs["staging"],
+            middlewares=[
+                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
+            ],
         )
     else:
         # default to trial user client
@@ -63,6 +68,9 @@ def cli(ctx, **kwargs):
             eth_address="0x0000000000000000000000000000000000000000",
             password="trial",
             staging=kwargs["staging"],
+            middlewares=[
+                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
+            ],
         )
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
