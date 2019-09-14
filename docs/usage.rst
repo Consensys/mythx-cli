@@ -5,7 +5,21 @@ Usage
 Format Options
 --------------
 
-TODO
+A format option is passed to the :code:`--format` option of the :code:`mythx`
+root command. E.g.::
+
+    $ mythx --format json-pretty report ab9092f7-54d0-480f-9b63-1bb1508280e2
+
+This will print the report for the given analysis job UUID in pretty-printed
+JSON format to stdout. Currently the following formatters are avialable:
+
+* :code:`simple` (default): Print the results in simple plain text (easy to
+  grep). This does not include all result data but a subset of it that seems
+  relevant for most use-cases.
+* :code:`json`: Print all of the result data as a single-line JSON string to
+  stdout.
+* :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
+  indentation of two spaces and alphabetically sorted object keys.
 
 
 The Analysis Functionality
