@@ -43,7 +43,7 @@ Usage
     $ mythx
     Usage: mythx [OPTIONS] COMMAND [ARGS]...
 
-      Console script for mythx_cli.
+      Your CLI for interacting with https://mythx.io/
 
     Options:
       --debug / --no-debug            Provide additional debug output
@@ -54,18 +54,19 @@ Usage
       --help                          Show this message and exit.
 
     Commands:
-      analyze
-      list
-      report
-      status
-      version
+      analyze  Analyze the given directory or arguments with MythX.
+      list     Get a list of submitted analyses.
+      report   Fetch the report for a single or multiple job UUIDs.
+      status   Get the status of an already submitted analysis.
+      version  Display API version information.
+
 
 
 
 Installation
 ------------
 
-The MythX CLI runs on Python 3.5+.
+The MythX CLI runs on Python 3.6+.
 
 To get started, simply run
 
