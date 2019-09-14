@@ -119,6 +119,14 @@ for easier automated processing further on.
 Listing Past Analyses
 ---------------------
 
+.. code-block:: console
+
+    Usage: mythx list [OPTIONS]
+
+    Options:
+    --number INTEGER RANGE  The number of most recent analysis jobs to display
+    --help                  Show this message and exit.
+
 This subcommand lists the past analyses associated to the current user. Note
 that this functionality is not available for the default trial account to
 ensure the confidentiality of analyses submitted by its users.
@@ -133,14 +141,6 @@ reached.
 
 To prevent too many network requests, the maximum number of analyses that can
 be fetched it capped at 100.
-
-.. code-block:: console
-
-    Usage: mythx list [OPTIONS]
-
-    Options:
-    --number INTEGER RANGE  The number of most recent analysis jobs to display
-    --help                  Show this message and exit.
 
 
 Fetching Analysis Reports
