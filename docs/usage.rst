@@ -115,10 +115,24 @@ argument list to the :code:`mythx report` command::
 Optionally, the format can be changed here as well, e.g. to JSON, to allow
 for easier automated processing further on.
 
+
 Listing Past Analyses
 ---------------------
 
-TODO
+This subcommand lists the past analyses associated to the current user. Note
+that this functionality is not available for the default trial account to
+ensure the confidentiality of analyses submitted by its users.
+
+By default this subcommand will list the past five analyses associated to the
+authenticated user account. The number of returned analyses can be updated by
+passing the :code:`--number` option. It is worth noting that in its current
+version (:code:`v1.4.34.4`) the API returns only objects of 20 analyses per
+call. If a number greater than this is passed to :code:`mythx list`, the MythX
+CLI will automatically query the next page until the desired number is
+reached.
+
+To prevent too many network requests, the maximum number of analyses that can
+be fetched it capped at 100.
 
 .. code-block:: console
 
