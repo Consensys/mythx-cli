@@ -22,6 +22,29 @@ JSON format to stdout. Currently the following formatters are avialable:
   indentation of two spaces and alphabetically sorted object keys.
 
 
+Authentication
+--------------
+
+By default the MythX CLI authenticates the user under the free trial account.
+This means that no account needs to be created on first use. Simply run an
+analysis, fetch the results and enjoy the free MythX service!
+
+Of course, registering for a free MythX account and upgrading come with
+`additional perks <https://mythx.io/plans/>`. If you have set up an account,
+head over to the MythX `analysis dashboard <https://dashboard.mythx.io/>`.
+Head to your *Profile* settings and enter your password in the *MythX API Key*
+section. You will be able to copy a new API access token once it has been
+generated. Set the environment variable :code:`MYTHX_ACCESS_TOKEN` with your
+JWT token and start using the MythX CLI as authenticated user. You will be
+able to see all your submitted analyses, their status, reports, and more on
+the dashboard.
+
+Note that you can also pass the JWT token directly to the CLI via the
+:code:`--access-token` option. For security reasons it is however
+recommended to always pass the token through a pre-defined environment
+variable or a shell script you :code:`source` from.
+
+
 The Analysis Functionality
 --------------------------
 
