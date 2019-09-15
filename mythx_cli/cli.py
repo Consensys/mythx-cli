@@ -1,4 +1,4 @@
-"""Console script for mythx_cli."""
+"""The main runtime of the MythX CLI."""
 
 import logging
 import sys
@@ -107,10 +107,11 @@ def find_truffle_artifacts(project_dir):
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
     This function will skip the Migrations.json file and return all other files
-    under <project-dir>/build/contracts/. If no files were found, `None` is returned.
+    under :code:`<project-dir>/build/contracts/`. If no files were found,
+    :code:`None` is returned.
 
     :param project_dir: The base directory of the Truffle project
-    :return: Files under `<project-dir>/build/contracts/` or `None`
+    :return: Files under :code:`<project-dir>/build/contracts/` or :code:`None`
     """
 
     output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
@@ -122,7 +123,7 @@ def find_truffle_artifacts(project_dir):
 
 
 def find_solidity_files(project_dir):
-    """Return all Solidity files in the given directory
+    """Return all Solidity files in the given directory.
 
     This will match all files with the `.sol` extension.
 
