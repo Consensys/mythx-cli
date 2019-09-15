@@ -1,3 +1,3 @@
 Click==7.0
-pythx==1.2.4
+pythx==1.2.5
 py-solc-x==0.6.0
