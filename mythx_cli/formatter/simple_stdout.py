@@ -1,3 +1,5 @@
+"""This module contains a simple text formatter class printing a subset of the response data."""
+
 from typing import List, Union
 
 import click
@@ -16,6 +18,8 @@ from mythx_cli.util import get_source_location_by_offset
 class SimpleFormatter(BaseFormatter):
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
+        """Format an analysis list response to a simple text representation."""
+
         res = []
         for analysis in resp:
             res.append("UUID: {}".format(analysis.uuid))
@@ -27,6 +31,8 @@ class SimpleFormatter(BaseFormatter):
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
+        """Format an analysis status response to a simple text representation."""
+
         res = [
             "UUID: {}".format(resp.uuid),
             "Submitted at: {}".format(resp.submitted_at),
@@ -39,6 +45,8 @@ class SimpleFormatter(BaseFormatter):
     def format_detected_issues(
         resp: DetectedIssuesResponse, inp: AnalysisInputResponse
     ) -> str:
+        """Format an issue report to a simple text representation."""
+
         res = []
         ctx = click.get_current_context()
         # TODO: Sort by file
@@ -73,6 +81,8 @@ class SimpleFormatter(BaseFormatter):
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:
+        """Format a version response to a simple text representation."""
+
         return "\n".join(
             [
                 "API: {}".format(resp.api_version),
