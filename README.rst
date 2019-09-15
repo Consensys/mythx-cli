@@ -49,6 +49,9 @@ Usage
       --debug / --no-debug            Provide additional debug output
       --access-token TEXT             Your access token generated from the MythX
                                       dashboard
+      --eth-address TEXT              Your MythX account's Ethereum address
+      --password TEXT                 Your MythX account's password as set in the
+                                      dashboard
       --format [simple|json|json-pretty]
                                       The format to display the results in
       --help                          Show this message and exit.
