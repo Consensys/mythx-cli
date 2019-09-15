@@ -152,13 +152,33 @@ CLI will automatically query the next page until the desired number is
 reached.
 
 To prevent too many network requests, the maximum number of analyses that can
-be fetched it capped at 100.
+be fetched it capped at 100.::
+
+    $ mythx list
+    UUID: ab9d5681-0283-4ac5-bedb-1d241b5f2bf5
+    Submitted at: 2019-09-13 14:21:15.063000+00:00
+    Status: Finished
+
+    UUID: f5e4b742-5c90-4ee2-9079-4efaec9d4e2c
+    Submitted at: 2019-09-13 14:21:13.582000+00:00
+    Status: Finished
+
+    UUID: a5f9d7c7-7d33-440d-bea7-6ad8e1b2b734
+    Submitted at: 2019-09-13 14:21:11.367000+00:00
+    Status: Finished
+
+    UUID: f66d3c91-bc77-49a2-9e84-7e00c8689b0f
+    Submitted at: 2019-09-13 14:21:07.076000+00:00
+    Status: Finished
+
+    UUID: f1164a4c-91a6-4d81-a12f-6519090cb81e
+    Submitted at: 2019-09-13 14:21:05.386000+00:00
+    Status: Finished
+
 
 
 Fetching Analysis Reports
 -------------------------
-
-TODO
 
 .. code-block:: console
 
@@ -168,10 +188,27 @@ TODO
     --help  Show this message and exit.
 
 
+This subcommand prints the report of one or more finished analyses in the
+user-specified format. By default, it will print a simple text representation
+of the report to stdout. This will alos resolve the report's source map
+locations to the corresponding line and column numbers in the Solidity source
+file. This is only possible if the user has specified the source map in their
+request and is passing the Solidity source code as text.::
+
+    $ mythx report ab9092f7-54d0-480f-9b63-1bb1508280e2
+    UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
+    Title: Assert Violation (Low)
+    Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
+
+
+    /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol:24
+      mapping(uint256 => uint256[]) public estateLandIds;
+
+
+
+
 Fetching Analysis Status
 ------------------------
-
-TODO
 
 .. code-block:: console
 
@@ -179,6 +216,17 @@ TODO
 
     Options:
     --help  Show this message and exit.
+
+This subcommand prints the status of an already submitted analysis.::
+
+    $ mythx --staging status 381eff48-04db-4f81-a417-8394b6614472
+    UUID: 381eff48-04db-4f81-a417-8394b6614472
+    Submitted at: 2019-09-05 20:34:27.606000+00:00
+    Status: Finished
+
+By default a simple text representation is printed to stdout, more data on the
+MythX API's status response can be obtained by specifying an alternative output
+format such as :code:`json-pretty`.
 
 
 Fetching API Version Information
@@ -190,3 +238,24 @@ Fetching API Version Information
 
     Options:
     --help  Show this message and exit.
+
+This subcommand hits the MythX API's :code:`/version` endpoint and obtains
+version information on the API. This can be especially useful for continuous
+scans as the backend tool capabilities of MythX are constantly being improved.
+This means that it's a good idea to rerun old scans with newer versions of
+MythX as potentially more vulnerabilities can be found, false positives are
+removed, and additional helpful data can be returned.
+
+The MythX team has included a hash of all versions so changes are easily
+noticed simply by comparing the hash an analysis has run under with the one
+returned by the API.::
+
+    $ mythx version
+    API: v1.4.34.4
+    Harvey: 0.0.33
+    Maru: 0.5.3
+    Mythril: 0.21.14
+    Hashed: 00c17c8b0ae13bebc9a7f678d8ee55db
+
+This output can be adapted using the :code:`--format` parameter as well to
+fetch e.g. JSON output for easier parsing.
