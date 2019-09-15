@@ -1,7 +1,9 @@
 language: python
 python:
+- 3.8-dev
 - 3.7
 - 3.6
+- pypy3
 install:
 - pip install -U tox-travis
 - pip install coverage pytest-cov coveralls
