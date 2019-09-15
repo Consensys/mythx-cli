@@ -1,13 +1,37 @@
+"""This module contains functions to generate Solidity-related payloads."""
+
 import re
 
 import click
 import solcx
 import solcx.exceptions
 
+
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 
 def generate_solidity_payload(file):
+    """Generate a MythX analysis request from a given Solidity file.
+
+    This function will open the file, try to detect the used solc version from
+    the pragma definition, and automatically compile it. If the given solc
+    version is not installed on the client's system, it will be automatically
+    downloaded.
+
+    From the solc output, the following data is sent to the MythX API for
+    analysis:
+
+    * :code:`abi`
+    * :code:`ast`
+    * :code:`bin`
+    * :code:`bin-runtime`
+    * :code:`srcmap`
+    * :code:`srcmap-runtime`
+
+    :param file: The path pointing towards the Solidity file
+    :return: The payload dictionary to be sent to MythX
+    """
+
     with open(file) as f:
         source = f.read()
 

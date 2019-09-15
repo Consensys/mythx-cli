@@ -1,3 +1,5 @@
+"""This module contains functions to generate payloads for Truffle projects."""
+
 import json
 from copy import copy
 
@@ -20,6 +22,25 @@ def zero_srcmap_indices(src_map: str) -> str:
 
 
 def generate_truffle_payload(file):
+    """Generate a MythX analysis request payload based on a truffle build artifact.
+
+    This will send the following artifact entries to MythX for analysis:
+
+    * :code:`contractName`
+    * :code:`bytecode`
+    * :code:`deployedBytecode`
+    * :code:`sourceMap`
+    * :code:`deployedSourceMap`
+    * :code:`sourcePath`
+    * :code:`source`
+    * :code:`ast`
+    * :code:`legacyAST`
+    * the compiler version
+
+    :param file: The path to the Truffle build artifact
+    :return: The payload dictionary to be sent to MythX
+    """
+
     with open(file) as af:
         artifact = json.load(af)
 
