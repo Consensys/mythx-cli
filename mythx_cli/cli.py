@@ -36,6 +36,16 @@ logging.basicConfig(level=logging.WARNING)
     help="Your access token generated from the MythX dashboard",
 )
 @click.option(
+    "--eth-address",
+    envvar="MYTHX_ETH_ADDRESS",
+    help="Your MythX account's Ethereum address",
+)
+@click.option(
+    "--password",
+    envvar="MYTHX_PASSWORD",
+    help="Your MythX account's password as set in the dashboard"
+)
+@click.option(
     "--staging/--production",
     default=False,
     hidden=True,
@@ -57,18 +67,26 @@ def cli(ctx, **kwargs):
     :param ctx: Click context holding group-level parameters
     :param debug: Boolean to enable the `logging` debug mode
     :param access_token: User JWT access token from the MythX dashboard
+    :param eth_address: The MythX account ETH address/username
+    :param password: The account password from the MythX dashboard
     :param staging: Boolean to redirect requests to MythX staging
     :param fmt: The formatter to use for the subcommand output
     """
 
     ctx.obj = dict(kwargs)
+    toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
             access_token=kwargs["access_token"],
             staging=kwargs["staging"],
-            middlewares=[
-                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
-            ],
+            middlewares=[toolname_mw],
+        )
+    elif kwargs["eth_address"] and kwargs["password"]:
+        ctx.obj["client"] = Client(
+            eth_address=kwargs["eth_address"],
+            password=kwargs["password"],
+            staging=kwargs["staging"],
+            middlewares=[toolname_mw]
         )
     else:
         # default to trial user client
@@ -76,9 +94,7 @@ def cli(ctx, **kwargs):
             eth_address="0x0000000000000000000000000000000000000000",
             password="trial",
             staging=kwargs["staging"],
-            middlewares=[
-                ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
-            ],
+            middlewares=[toolname_mw],
         )
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
