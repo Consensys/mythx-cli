@@ -1,4 +1,4 @@
-"""Console script for mythx_cli."""
+"""The main runtime of the MythX CLI."""
 
 import logging
 import sys
