@@ -44,6 +44,18 @@ Note that you can also pass the JWT token directly to the CLI via the
 recommended to always pass the token through a pre-defined environment
 variable or a shell script you :code:`source` from.
 
+Alternatively, username and password can be used for authentication. This
+functionality is considered deprecated due to security concerns and will be
+removed from the MythX API in the future. For compatibility reasons it has
+been included, however. The username corresponds to the Ethereum address the
+MythX account has been registered under, and the password is the one that the
+user can set in the MythX dashboard. Both can be passed with the
+:code:`--eth-address` and :code:`--password` option respectively, or by setting
+the :code:`MYTHX_ETH_ADDRESS` and :code:`MYTHX_PASSWORD` environment variables.
+
+Note that if an access token is passed in directly as well, it will take
+precedence and no login with username and password is performed.
+
 
 The Analysis Functionality
 --------------------------
