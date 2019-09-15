@@ -1,3 +1,5 @@
+"""This module contains the compressed and pretty-printing JSON formatters."""
+
 import json
 from typing import List, Union
 
