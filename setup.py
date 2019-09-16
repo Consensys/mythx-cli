@@ -40,7 +40,7 @@ setup(
     include_package_data=True,
     keywords="mythx-cli",
     name="mythx_cli",
-    packages=find_packages(include=["mythx_cli"]),
+    packages=find_packages(exclude=["tests"]),
     setup_requires=setup_requirements,
     test_suite="tests",
     tests_require=test_requirements,
