@@ -1,7 +1,5 @@
 """This module contains a simple text formatter class printing a subset of the response data."""
 
-from typing import List, Union
-
 import click
 from mythx_models.response import (
     AnalysisInputResponse,
@@ -11,8 +9,8 @@ from mythx_models.response import (
     VersionResponse,
 )
 
-from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.util import get_source_location_by_offset
+from .base import BaseFormatter
+from .util import get_source_location_by_offset
 
 
 class SimpleFormatter(BaseFormatter):

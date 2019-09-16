@@ -43,7 +43,7 @@ logging.basicConfig(level=logging.WARNING)
 @click.option(
     "--password",
     envvar="MYTHX_PASSWORD",
-    help="Your MythX account's password as set in the dashboard"
+    help="Your MythX account's password as set in the dashboard",
 )
 @click.option(
     "--staging/--production",
@@ -86,7 +86,7 @@ def cli(ctx, **kwargs):
             eth_address=kwargs["eth_address"],
             password=kwargs["password"],
             staging=kwargs["staging"],
-            middlewares=[toolname_mw]
+            middlewares=[toolname_mw],
         )
     else:
         # default to trial user client

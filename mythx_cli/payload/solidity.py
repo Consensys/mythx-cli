@@ -6,7 +6,6 @@ import click
 import solcx
 import solcx.exceptions
 
-
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 

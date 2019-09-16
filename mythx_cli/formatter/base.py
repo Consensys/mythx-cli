@@ -1,7 +1,6 @@
 """This module contains the base formatter interface."""
 
 import abc
-from typing import List, Union
 
 from mythx_models.response import (
     AnalysisInputResponse,
