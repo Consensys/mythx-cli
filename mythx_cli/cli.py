@@ -27,6 +27,7 @@ logging.basicConfig(level=logging.WARNING)
 @click.option(
     "--debug/--no-debug",
     default=False,
+    show_default=True,
     envvar="MYTHX_DEBUG",
     help="Provide additional debug output",
 )
@@ -57,6 +58,7 @@ logging.basicConfig(level=logging.WARNING)
     "fmt",
     default="simple",
     type=click.Choice(FORMAT_RESOLVER.keys()),
+    show_default=True,
     help="The format to display the results in",
 )
 @click.pass_context
@@ -148,7 +150,9 @@ def find_solidity_files(project_dir):
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "full"]), default="quick")
+@click.option(
+    "--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True
+)
 @click.pass_obj
 def analyze(ctx, target, async_flag, mode):
     """Analyze the given directory or arguments with MythX.
@@ -249,6 +253,7 @@ def status(ctx, uuids):
     "--number",
     default=5,
     type=click.IntRange(min=1, max=100),  # ~ 5 requests à 20 entries
+    show_default=True,
     help="The number of most recent analysis jobs to display",
 )
 @click.pass_obj
