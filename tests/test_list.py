@@ -14,7 +14,7 @@ def test_list_simple():
         list_patch.return_value = LIST_RESPONSE_OBJ
         result = runner.invoke(cli, ["list"])
         assert result.exit_code == 0
-        assert result.output == LIST_RESPONSE_SIMPLE
+        assert result.output == LIST_RESPONSE_TABLE
 
 
 def test_list_json():
@@ -39,6 +39,6 @@ def test_list_tabular():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = LIST_RESPONSE_OBJ
-        result = runner.invoke(cli, ["--format", "table", "list"])
+        result = runner.invoke(cli, ["--format", "simple", "list"])
         assert result.exit_code == 0
-        assert result.output == LIST_RESPONSE_TABLE
+        assert result.output == LIST_RESPONSE_SIMPLE

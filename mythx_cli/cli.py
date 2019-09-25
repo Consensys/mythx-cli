@@ -56,7 +56,7 @@ logging.basicConfig(level=logging.WARNING)
 @click.option(
     "--format",
     "fmt",
-    default="simple",
+    default="table",
     type=click.Choice(FORMAT_RESOLVER.keys()),
     show_default=True,
     help="The format to display the results in",

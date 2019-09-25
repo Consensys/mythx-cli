@@ -27,7 +27,8 @@ def test_bytecode_analyze():
 
         result = runner.invoke(cli, ["analyze", "0xfe"])
         assert result.exit_code == 0
-        assert SUBMISSION_RESPONSE_OBJ.analysis.uuid in result.output
+        print(result.output)
+        assert INPUT_RESPONSE_OBJ.source_list[0] in result.output
 
 
 def test_bytecode_analyze_invalid():

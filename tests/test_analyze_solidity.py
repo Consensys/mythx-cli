@@ -7,7 +7,7 @@ from mythx_cli.cli import cli
 from .testdata import (
     INPUT_RESPONSE_OBJ,
     ISSUES_RESPONSE_OBJ,
-    ISSUES_RESPONSE_SIMPLE,
+    ISSUES_RESPONSE_TABLE,
     SUBMISSION_RESPONSE_OBJ,
 )
 
@@ -53,7 +53,7 @@ def test_solidity_analyze_blocking():
 
             result = runner.invoke(cli, ["analyze"], input="y\n")
             assert result.exit_code == 0
-            assert ISSUES_RESPONSE_SIMPLE in result.output
+            assert ISSUES_RESPONSE_TABLE in result.output
 
 
 def test_solidity_analyze_as_arg():
@@ -75,7 +75,7 @@ def test_solidity_analyze_as_arg():
 
             result = runner.invoke(cli, ["analyze", "outdated.sol"])
             assert result.exit_code == 0
-            assert result.output == ISSUES_RESPONSE_SIMPLE
+            assert result.output == ISSUES_RESPONSE_TABLE
 
 
 def test_solidity_analyze_multiple():
@@ -100,7 +100,7 @@ def test_solidity_analyze_multiple():
 
             result = runner.invoke(cli, ["analyze", "outdated.sol", "outdated2.sol"])
             assert result.exit_code == 0
-            assert result.output == ISSUES_RESPONSE_SIMPLE + ISSUES_RESPONSE_SIMPLE
+            assert result.output == ISSUES_RESPONSE_TABLE + ISSUES_RESPONSE_TABLE
 
 
 def test_solidity_analyze_missing_version():

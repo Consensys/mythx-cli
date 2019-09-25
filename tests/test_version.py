@@ -14,7 +14,7 @@ def test_version_simple():
         version_patch.return_value = VERSION_RESPONSE_OBJ
         result = runner.invoke(cli, ["version"])
         assert result.exit_code == 0
-        assert result.output == VERSION_RESPONSE_SIMPLE
+        assert result.output == VERSION_RESPONSE_TABLE
 
 
 def test_version_json():
@@ -39,7 +39,7 @@ def test_version_table():
     runner = CliRunner()
     with patch("pythx.Client.version") as version_patch:
         version_patch.return_value = VERSION_RESPONSE_OBJ
-        result = runner.invoke(cli, ["--format", "table", "version"])
+        result = runner.invoke(cli, ["--format", "simple", "version"])
         assert result.exit_code == 0
         print(result.output)
-        assert result.output == VERSION_RESPONSE_TABLE
+        assert result.output == VERSION_RESPONSE_SIMPLE

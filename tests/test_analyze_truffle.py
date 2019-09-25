@@ -10,7 +10,7 @@ from .testdata import (
     ARTIFACT_DATA,
     INPUT_RESPONSE_OBJ,
     ISSUES_RESPONSE_OBJ,
-    ISSUES_RESPONSE_SIMPLE,
+    ISSUES_RESPONSE_TABLE,
     SUBMISSION_RESPONSE_OBJ,
 )
 
@@ -62,7 +62,7 @@ def test_truffle_analyze_blocking():
 
             result = runner.invoke(cli, ["analyze"])
             assert result.exit_code == 0
-            assert result.output == ISSUES_RESPONSE_SIMPLE
+            assert result.output == ISSUES_RESPONSE_TABLE
 
 
 def test_truffle_analyze_no_files():
