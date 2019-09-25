@@ -271,6 +271,8 @@ def list_(ctx, number):
         offset = 0
         while True:
             resp = ctx["client"].analysis_list(offset=offset)
+            if not resp.analyses:
+                break
             offset += len(resp.analyses)
             result.analyses.extend(resp.analyses)
             if len(result.analyses) >= number:
