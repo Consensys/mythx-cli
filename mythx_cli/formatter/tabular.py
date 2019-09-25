@@ -1,6 +1,5 @@
 """This module contains a tabular data formatter class printing a subset of the response data."""
 
-import click
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -36,9 +35,13 @@ class TabularFormatter(BaseFormatter):
     ) -> str:
         """Format an issue report to a tabular representation."""
 
+        res = []
         file_to_issue = defaultdict(list)
         for report in resp.issue_reports:
             for issue in report.issues:
+                # handle fake issues for trial users
+                if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
+                    res.extend((issue.description_long, ""))
                 for i, loc in enumerate(issue.locations):
                     for c in loc.source_map.components:
                         # This is so nested, a barn swallow might be hidden somewhere.
@@ -55,7 +58,7 @@ class TabularFormatter(BaseFormatter):
                         file_to_issue[filename].append(
                             (line, issue.swc_title, issue.severity, issue.description_short)
                         )
-        res = []
+
         for filename, data in file_to_issue.items():
             res.append("Report for {}".format(filename))
             res.append(
