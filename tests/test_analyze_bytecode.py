@@ -1,5 +1,3 @@
-import json
-import os
 from unittest.mock import patch
 
 from click.testing import CliRunner
@@ -7,10 +5,8 @@ from click.testing import CliRunner
 from mythx_cli.cli import cli
 
 from .testdata import (
-    ARTIFACT_DATA,
     INPUT_RESPONSE_OBJ,
     ISSUES_RESPONSE_OBJ,
-    ISSUES_RESPONSE_SIMPLE,
     SUBMISSION_RESPONSE_OBJ,
 )
 

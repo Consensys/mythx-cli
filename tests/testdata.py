@@ -24,6 +24,19 @@ Mythril: 0.21.14
 Hashed: 6e0035da873e809e90eab4665e3d19d6
 """
 
+VERSION_RESPONSE_TABLE = """╒═════════╤══════════════════════════════════╕
+│ Api     │ v1.4.34.4                        │
+├─────────┼──────────────────────────────────┤
+│ Maru    │ 0.5.3                            │
+├─────────┼──────────────────────────────────┤
+│ Mythril │ 0.21.14                          │
+├─────────┼──────────────────────────────────┤
+│ Harvey  │ 0.0.33                           │
+├─────────┼──────────────────────────────────┤
+│ Hash    │ 6e0035da873e809e90eab4665e3d19d6 │
+╘═════════╧══════════════════════════════════╛
+"""
+
 STATUS_RESPONSE_OBJ = AnalysisStatusResponse.from_dict(
     {
         "uuid": "ab9092f7-54d0-480f-9b63-1bb1508280e2",
@@ -43,6 +56,31 @@ STATUS_RESPONSE_SIMPLE = """UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
 Submitted at: 2019-09-05 20:34:27.606000+00:00
 Status: Finished
 
+"""
+
+STATUS_RESPONSE_TABLE = """╒════════════════╤══════════════════════════════════════╕
+│ uuid           │ ab9092f7-54d0-480f-9b63-1bb1508280e2 │
+├────────────────┼──────────────────────────────────────┤
+│ apiVersion     │ v1.4.33-1-g1a235db                   │
+├────────────────┼──────────────────────────────────────┤
+│ mythrilVersion │ 0.21.14                              │
+├────────────────┼──────────────────────────────────────┤
+│ harveyVersion  │ 0.0.34                               │
+├────────────────┼──────────────────────────────────────┤
+│ maruVersion    │ 0.5.4                                │
+├────────────────┼──────────────────────────────────────┤
+│ queueTime      │ 507                                  │
+├────────────────┼──────────────────────────────────────┤
+│ runTime        │ 30307                                │
+├────────────────┼──────────────────────────────────────┤
+│ status         │ Finished                             │
+├────────────────┼──────────────────────────────────────┤
+│ submittedAt    │ 2019-09-05T20:34:27.606Z             │
+├────────────────┼──────────────────────────────────────┤
+│ submittedBy    │ 5d6fca7fef1fc700129b6efa             │
+├────────────────┼──────────────────────────────────────┤
+│ clientToolName │ pythx                                │
+╘════════════════╧══════════════════════════════════════╛
 """
 
 
@@ -138,6 +176,19 @@ UUID: 63eb5611-ba4b-46e8-9e40-f735a0b86fd9
 Submitted at: 2019-09-10 17:12:41.645000+00:00
 Status: Finished
 
+"""
+
+LIST_RESPONSE_TABLE = """╒══════════════════════════════════════╤══════════╤═══════╤══════════════════════════════════╕
+│ ed6b2347-68b7-4ef3-b85c-4340ae404867 │ Finished │ pythx │ 2019-09-10 17:15:11.267000+00:00 │
+├──────────────────────────────────────┼──────────┼───────┼──────────────────────────────────┤
+│ e6566fc9-ebc1-4d04-ae5d-6f3b1873290a │ Finished │ pythx │ 2019-09-10 17:15:10.645000+00:00 │
+├──────────────────────────────────────┼──────────┼───────┼──────────────────────────────────┤
+│ b87f0174-ef09-4fac-9d3c-97c3fdf01782 │ Finished │ pythx │ 2019-09-10 17:15:09.836000+00:00 │
+├──────────────────────────────────────┼──────────┼───────┼──────────────────────────────────┤
+│ 2056caf6-25d7-4ce8-a633-d10a8746d5dd │ Finished │ pythx │ 2019-09-10 17:12:42.341000+00:00 │
+├──────────────────────────────────────┼──────────┼───────┼──────────────────────────────────┤
+│ 63eb5611-ba4b-46e8-9e40-f735a0b86fd9 │ Finished │ pythx │ 2019-09-10 17:12:41.645000+00:00 │
+╘══════════════════════════════════════╧══════════╧═══════╧══════════════════════════════════╛
 """
 
 SUBMISSION_RESPONSE_OBJ = AnalysisSubmissionResponse.from_dict(
@@ -3046,4 +3097,14 @@ UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
 Title: - (Low)
 Description: Warning: Free mode only detects certain types of smart contract vulnerabilities. Your contract may still be unsafe. Upgrade to MythX Pro to unlock the ability to test for even more vulnerabilities, perform deeper security analysis, and more. https://mythx.io/plans
 
+"""
+
+ISSUES_RESPONSE_TABLE = """Warning: Free mode only detects certain types of smart contract vulnerabilities. Your contract may still be unsafe. Upgrade to MythX Pro to unlock the ability to test for even more vulnerabilities, perform deeper security analysis, and more. https://mythx.io/plans
+
+Report for /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol
+╒════════╤══════════════════╤════════════╤══════════════════════════════════════════╕
+│   Line │ SWC Title        │ Severity   │ Short Description                        │
+╞════════╪══════════════════╪════════════╪══════════════════════════════════════════╡
+│      1 │ Assert Violation │ Low        │ A reachable exception has been detected. │
+╘════════╧══════════════════╧════════════╧══════════════════════════════════════════╛
 """
