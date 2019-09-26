@@ -56,7 +56,7 @@ logging.basicConfig(level=logging.WARNING)
 @click.option(
     "--format",
     "fmt",
-    default="simple",
+    default="table",
     type=click.Choice(FORMAT_RESOLVER.keys()),
     show_default=True,
     help="The format to display the results in",
@@ -271,6 +271,8 @@ def list_(ctx, number):
         offset = 0
         while True:
             resp = ctx["client"].analysis_list(offset=offset)
+            if not resp.analyses:
+                break
             offset += len(resp.analyses)
             result.analyses.extend(resp.analyses)
             if len(result.analyses) >= number:
