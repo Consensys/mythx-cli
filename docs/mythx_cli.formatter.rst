@@ -25,3 +25,11 @@ mythx_cli.formatter.simple_stdout
     :members:
     :undoc-members:
     :show-inheritance:
+
+mythx_cli.formatter.tabular
+---------------------------
+
+.. automodule:: mythx_cli.formatter.tabular
+    :members:
+    :undoc-members:
+    :show-inheritance:
