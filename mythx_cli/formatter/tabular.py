@@ -52,12 +52,9 @@ class TabularFormatter(BaseFormatter):
                         source_list = loc.source_list or report.source_list
                         if source_list and 0 >= c.file_id < len(source_list):
                             filename = report.source_list[c.file_id]
-                            try:
-                                line = get_source_location_by_offset(
-                                    filename, int(c.offset)
-                                )
-                            except FileNotFoundError:
-                                continue
+                            line = get_source_location_by_offset(
+                                filename, int(c.offset)
+                            )
                         else:
                             continue
 
