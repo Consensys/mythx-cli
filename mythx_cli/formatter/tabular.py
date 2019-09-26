@@ -1,5 +1,7 @@
 """This module contains a tabular data formatter class printing a subset of the response data."""
 
+from collections import defaultdict
+
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -7,11 +9,10 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     VersionResponse,
 )
+from tabulate import tabulate
 
 from .base import BaseFormatter
 from .util import get_source_location_by_offset
-from tabulate import tabulate
-from collections import defaultdict
 
 
 class TabularFormatter(BaseFormatter):
@@ -19,7 +20,10 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response to a tabular representation."""
 
-        data = [(a.uuid, a.status, a.client_tool_name, a.submitted_at) for a in resp.analyses]
+        data = [
+            (a.uuid, a.status, a.client_tool_name, a.submitted_at)
+            for a in resp.analyses
+        ]
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
@@ -49,14 +53,21 @@ class TabularFormatter(BaseFormatter):
                         if source_list and 0 >= c.file_id < len(source_list):
                             filename = report.source_list[c.file_id]
                             try:
-                                line = get_source_location_by_offset(filename, int(c.offset))
+                                line = get_source_location_by_offset(
+                                    filename, int(c.offset)
+                                )
                             except FileNotFoundError:
                                 continue
                         else:
                             continue
 
                         file_to_issue[filename].append(
-                            (line, issue.swc_title, issue.severity, issue.description_short)
+                            (
+                                line,
+                                issue.swc_title,
+                                issue.severity,
+                                issue.description_short,
+                            )
                         )
 
         for filename, data in file_to_issue.items():

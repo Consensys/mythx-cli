@@ -5,7 +5,11 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 
-from .testdata import VERSION_RESPONSE_OBJ, VERSION_RESPONSE_SIMPLE, VERSION_RESPONSE_TABLE
+from .testdata import (
+    VERSION_RESPONSE_OBJ,
+    VERSION_RESPONSE_SIMPLE,
+    VERSION_RESPONSE_TABLE,
+)
 
 
 def test_version_simple():

@@ -5,7 +5,12 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 
-from .testdata import INPUT_RESPONSE_OBJ, ISSUES_RESPONSE_OBJ, ISSUES_RESPONSE_SIMPLE, ISSUES_RESPONSE_TABLE
+from .testdata import (
+    INPUT_RESPONSE_OBJ,
+    ISSUES_RESPONSE_OBJ,
+    ISSUES_RESPONSE_SIMPLE,
+    ISSUES_RESPONSE_TABLE,
+)
 
 
 def test_report_simple():
@@ -61,6 +66,9 @@ def test_report_tabular():
     ) as input_patch:
         report_patch.return_value = ISSUES_RESPONSE_OBJ
         input_patch.return_value = INPUT_RESPONSE_OBJ
-        result = runner.invoke(cli, ["--format", "simple", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        result = runner.invoke(
+            cli,
+            ["--format", "simple", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"],
+        )
         assert result.exit_code == 0
         assert result.output == ISSUES_RESPONSE_SIMPLE

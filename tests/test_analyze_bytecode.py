@@ -4,11 +4,7 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 
-from .testdata import (
-    INPUT_RESPONSE_OBJ,
-    ISSUES_RESPONSE_OBJ,
-    SUBMISSION_RESPONSE_OBJ,
-)
+from .testdata import INPUT_RESPONSE_OBJ, ISSUES_RESPONSE_OBJ, SUBMISSION_RESPONSE_OBJ
 
 FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
 
@@ -27,7 +23,6 @@ def test_bytecode_analyze():
 
         result = runner.invoke(cli, ["analyze", "0xfe"])
         assert result.exit_code == 0
-        print(result.output)
         assert INPUT_RESPONSE_OBJ.source_list[0] in result.output
 
 
