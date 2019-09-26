@@ -3105,6 +3105,6 @@ Report for /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.s
 ╒════════╤══════════════════╤════════════╤══════════════════════════════════════════╕
 │   Line │ SWC Title        │ Severity   │ Short Description                        │
 ╞════════╪══════════════════╪════════════╪══════════════════════════════════════════╡
-│      1 │ Assert Violation │ Low        │ A reachable exception has been detected. │
+│     24 │ Assert Violation │ Low        │ A reachable exception has been detected. │
 ╘════════╧══════════════════╧════════════╧══════════════════════════════════════════╛
 """

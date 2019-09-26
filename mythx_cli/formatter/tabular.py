@@ -46,21 +46,18 @@ class TabularFormatter(BaseFormatter):
                 # handle fake issues for trial users
                 if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
                     res.extend((issue.description_long, ""))
-                for i, loc in enumerate(issue.locations):
+                for loc in issue.locations:
                     for c in loc.source_map.components:
                         # This is so nested, a barn swallow might be hidden somewhere.
                         source_list = loc.source_list or report.source_list
-                        if source_list and 0 >= c.file_id < len(source_list):
-                            filename = report.source_list[c.file_id]
-                            line = get_source_location_by_offset(
-                                filename, int(c.offset)
-                            )
-                        else:
+                        if not (source_list and 0 >= c.file_id < len(source_list)):
                             continue
-
+                        filename = report.source_list[c.file_id]
                         file_to_issue[filename].append(
                             (
-                                line,
+                                get_source_location_by_offset(
+                                    inp.sources[filename]["source"], c.offset
+                                ),
                                 issue.swc_title,
                                 issue.severity,
                                 issue.description_short,
