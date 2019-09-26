@@ -8,7 +8,7 @@ from mythx_cli.cli import cli
 from .testdata import LIST_RESPONSE_OBJ, LIST_RESPONSE_SIMPLE, LIST_RESPONSE_TABLE
 
 
-def test_list_simple():
+def test_list_tabular():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = LIST_RESPONSE_OBJ
@@ -35,7 +35,7 @@ def test_list_json_pretty():
         assert json.loads(result.output) == LIST_RESPONSE_OBJ.to_dict()
 
 
-def test_list_tabular():
+def test_list_simple():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = LIST_RESPONSE_OBJ

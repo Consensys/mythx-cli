@@ -12,7 +12,7 @@ from .testdata import (
 )
 
 
-def test_version_simple():
+def test_version_tabular():
     runner = CliRunner()
     with patch("pythx.Client.version") as version_patch:
         version_patch.return_value = VERSION_RESPONSE_OBJ
@@ -39,7 +39,7 @@ def test_version_json_pretty():
         assert json.loads(result.output) == VERSION_RESPONSE_OBJ.to_dict()
 
 
-def test_version_table():
+def test_version_simple():
     runner = CliRunner()
     with patch("pythx.Client.version") as version_patch:
         version_patch.return_value = VERSION_RESPONSE_OBJ

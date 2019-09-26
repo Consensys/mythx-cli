@@ -8,7 +8,7 @@ from mythx_cli.cli import cli
 from .testdata import STATUS_RESPONSE_OBJ, STATUS_RESPONSE_SIMPLE, STATUS_RESPONSE_TABLE
 
 
-def test_status_simple():
+def test_status_tabular():
     runner = CliRunner()
     with patch("pythx.Client.status") as status_patch:
         status_patch.return_value = STATUS_RESPONSE_OBJ
@@ -45,7 +45,7 @@ def test_status_json_pretty():
         assert json.loads(result.output) == STATUS_RESPONSE_OBJ.to_dict()
 
 
-def test_status_table():
+def test_status_simple():
     runner = CliRunner()
     with patch("pythx.Client.status") as status_patch:
         status_patch.return_value = STATUS_RESPONSE_OBJ

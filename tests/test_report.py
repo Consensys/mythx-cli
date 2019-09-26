@@ -13,7 +13,7 @@ from .testdata import (
 )
 
 
-def test_report_simple():
+def test_report_tabular():
     runner = CliRunner()
     with patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
@@ -59,7 +59,7 @@ def test_report_json_pretty():
         assert json.loads(result.output) == json.loads(ISSUES_RESPONSE_OBJ.to_json())
 
 
-def test_report_tabular():
+def test_report_simple():
     runner = CliRunner()
     with patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
