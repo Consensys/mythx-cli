@@ -172,7 +172,10 @@ def analyze(ctx, target, async_flag, mode):
             files = find_truffle_artifacts(Path.cwd())
             if not files:
                 raise click.exceptions.UsageError(
-                    "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
+                    (
+                        "Could not find any truffle artifacts. Are you in the project root? "
+                        "Did you run truffle compile?"
+                    )
                 )
             LOGGER.debug(
                 "Detected Truffle project with files:\n{}".format("\n".join(files))

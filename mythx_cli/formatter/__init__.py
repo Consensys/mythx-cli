@@ -8,3 +8,10 @@ FORMAT_RESOLVER = {
     "json-pretty": PrettyJSONFormatter(),
     "table": TabularFormatter(),
 }
+
+__all__ = [
+    JSONFormatter,
+    PrettyJSONFormatter,
+    SimpleFormatter,
+    TabularFormatter,
+]

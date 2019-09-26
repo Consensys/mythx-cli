@@ -63,7 +63,8 @@ class SimpleFormatter(BaseFormatter):
                     if source_list and 0 >= comp.file_id < len(source_list):
                         filename = source_list[comp.file_id]
                         if filename not in inp.sources:
-                            # Skip files we don't have source for (e.g. with unresolved bytecode hashes)
+                            # Skip files we don't have source for
+                            # (e.g. with unresolved bytecode hashes)
                             res.append("")
                             continue
                         line = get_source_location_by_offset(
