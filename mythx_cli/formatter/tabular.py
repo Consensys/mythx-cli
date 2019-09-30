@@ -53,11 +53,15 @@ class TabularFormatter(BaseFormatter):
                         if not (source_list and 0 >= c.file_id < len(source_list)):
                             continue
                         filename = report.source_list[c.file_id]
+                        if not inp.sources or filename not in inp.sources:
+                            line = "bytecode offset {}".format(c.offset)
+                        else:
+                            line = get_source_location_by_offset(
+                                inp.sources[filename]["source"], c.offset
+                            )
                         file_to_issue[filename].append(
                             (
-                                get_source_location_by_offset(
-                                    inp.sources[filename]["source"], c.offset
-                                ),
+                                line,
                                 issue.swc_title,
                                 issue.severity,
                                 issue.description_short,

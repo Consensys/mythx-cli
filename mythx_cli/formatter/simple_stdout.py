@@ -62,7 +62,7 @@ class SimpleFormatter(BaseFormatter):
                     source_list = loc.source_list or report.source_list
                     if source_list and 0 >= comp.file_id < len(source_list):
                         filename = source_list[comp.file_id]
-                        if filename not in inp.sources:
+                        if not inp.sources or filename not in inp.sources:
                             # Skip files we don't have source for
                             # (e.g. with unresolved bytecode hashes)
                             res.append("")
