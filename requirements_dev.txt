@@ -9,6 +9,6 @@ watchdog==0.9.0
 twine==2.0.0
 
 flake8==3.7.8
-pytest==5.2.0
+pytest==5.2.1
 pytest-runner==5.1
 pytest-cov==2.7.1
