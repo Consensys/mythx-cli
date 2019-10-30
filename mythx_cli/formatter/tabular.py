@@ -1,7 +1,7 @@
 """This module contains a tabular data formatter class printing a subset of the response data."""
 
 from collections import defaultdict
-
+import click
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -12,7 +12,7 @@ from mythx_models.response import (
 from tabulate import tabulate
 
 from .base import BaseFormatter
-from .util import get_source_location_by_offset
+from .util import get_source_location_by_offset, generate_dashboard_link
 
 
 class TabularFormatter(BaseFormatter):
@@ -68,15 +68,17 @@ class TabularFormatter(BaseFormatter):
                             )
                         )
 
+        ctx = click.get_current_context()
         for filename, data in file_to_issue.items():
             res.append("Report for {}".format(filename))
-            res.append(
+            res.extend((
+                generate_dashboard_link(ctx.obj["uuid"]),
                 tabulate(
                     data,
                     tablefmt="fancy_grid",
                     headers=("Line", "SWC Title", "Severity", "Short Description"),
                 )
-            )
+            ))
 
         return "\n".join(res)
 

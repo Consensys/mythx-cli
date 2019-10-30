@@ -10,3 +10,10 @@ def get_source_location_by_offset(source, offset):
     """
 
     return source.encode("utf-8")[0:offset].count("\n".encode("utf-8")) + 1
+
+
+def generate_dashboard_link(uuid: str, staging=False):
+    return "https://dashboard.{}mythx.io/#/console/analyses/{}".format(
+        "staging." if staging else "",
+        uuid
+    )
