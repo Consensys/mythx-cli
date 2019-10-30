@@ -3085,23 +3085,22 @@ INPUT_RESPONSE_OBJ = AnalysisInputResponse.from_dict(
         "analysisMode": "quick",
     }
 )
-ISSUES_RESPONSE_SIMPLE = """UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
+ISSUES_RESPONSE_SIMPLE = """https://dashboard.mythx.io/#/console/analyses/ab9092f7-54d0-480f-9b63-1bb1508280e2
 Title: Assert Violation (Low)
 Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
 
-
 /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol:24
-  mapping(uint256 => uint256[]) public estateLandIds;
+\tmapping(uint256 => uint256[]) public estateLandIds;
 
-UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
+https://dashboard.mythx.io/#/console/analyses/ab9092f7-54d0-480f-9b63-1bb1508280e2
 Title: - (Low)
 Description: Warning: Free mode only detects certain types of smart contract vulnerabilities. Your contract may still be unsafe. Upgrade to MythX Pro to unlock the ability to test for even more vulnerabilities, perform deeper security analysis, and more. https://mythx.io/plans
-
 """
 
 ISSUES_RESPONSE_TABLE = """Warning: Free mode only detects certain types of smart contract vulnerabilities. Your contract may still be unsafe. Upgrade to MythX Pro to unlock the ability to test for even more vulnerabilities, perform deeper security analysis, and more. https://mythx.io/plans
 
 Report for /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol
+https://dashboard.mythx.io/#/console/analyses/ab9092f7-54d0-480f-9b63-1bb1508280e2
 ╒════════╤══════════════════╤════════════╤══════════════════════════════════════════╕
 │   Line │ SWC Title        │ Severity   │ Short Description                        │
 ╞════════╪══════════════════╪════════════╪══════════════════════════════════════════╡

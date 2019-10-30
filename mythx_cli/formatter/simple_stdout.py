@@ -10,7 +10,7 @@ from mythx_models.response import (
 )
 
 from .base import BaseFormatter
-from .util import get_source_location_by_offset
+from .util import get_source_location_by_offset, generate_dashboard_link
 
 
 class SimpleFormatter(BaseFormatter):
@@ -50,12 +50,11 @@ class SimpleFormatter(BaseFormatter):
         # TODO: Sort by file
         for report in resp.issue_reports:
             for issue in report.issues:
-                res.append("UUID: {}".format(ctx.obj["uuid"]))
+                res.append(generate_dashboard_link(ctx.obj["uuid"]))
                 res.append(
                     "Title: {} ({})".format(issue.swc_title or "-", issue.severity)
                 )
-                res.append("Description: {}".format(issue.description_long))
-                res.append("")
+                res.append("Description: {}".format(issue.description_long.strip()))
 
                 for loc in issue.locations:
                     comp = loc.source_map.components[0]
@@ -72,7 +71,7 @@ class SimpleFormatter(BaseFormatter):
                         )
                         snippet = inp.sources[filename]["source"].split("\n")[line - 1]
                         res.append("{}:{}".format(filename, line))
-                        res.append(snippet)
+                        res.append("\t" + snippet.strip())
 
                     res.append("")
 
