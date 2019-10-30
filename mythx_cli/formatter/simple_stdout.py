@@ -54,8 +54,7 @@ class SimpleFormatter(BaseFormatter):
                 res.append(
                     "Title: {} ({})".format(issue.swc_title or "-", issue.severity)
                 )
-                res.append("Description: {}".format(issue.description_long))
-                res.append("")
+                res.append("Description: {}".format(issue.description_long.strip()))
 
                 for loc in issue.locations:
                     comp = loc.source_map.components[0]
@@ -72,7 +71,7 @@ class SimpleFormatter(BaseFormatter):
                         )
                         snippet = inp.sources[filename]["source"].split("\n")[line - 1]
                         res.append("{}:{}".format(filename, line))
-                        res.append(snippet)
+                        res.append("\t" + snippet.strip())
 
                     res.append("")
 
