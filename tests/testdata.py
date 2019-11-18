@@ -50,6 +50,9 @@ STATUS_RESPONSE_OBJ = AnalysisStatusResponse.from_dict(
         "submittedAt": "2019-09-05T20:34:27.606Z",
         "submittedBy": "5d6fca7fef1fc700129b6efa",
         "clientToolName": "pythx",
+        "groupId": "5dc410095e78890011fba1a4",
+        "groupName": "test-group",
+        "analysisMode": "full",
     }
 )
 STATUS_RESPONSE_SIMPLE = """UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
@@ -80,6 +83,12 @@ STATUS_RESPONSE_TABLE = """╒════════════════�
 │ submittedBy    │ 5d6fca7fef1fc700129b6efa             │
 ├────────────────┼──────────────────────────────────────┤
 │ clientToolName │ pythx                                │
+├────────────────┼──────────────────────────────────────┤
+│ analysisMode   │ full                                 │
+├────────────────┼──────────────────────────────────────┤
+│ groupName      │ test-group                           │
+├────────────────┼──────────────────────────────────────┤
+│ groupId        │ 5dc410095e78890011fba1a4             │
 ╘════════════════╧══════════════════════════════════════╛
 """
 
@@ -99,6 +108,9 @@ LIST_RESPONSE_OBJ = AnalysisListResponse.from_dict(
                 "submittedAt": "2019-09-10T17:15:11.267Z",
                 "submittedBy": "5d6fca7fef1fc700129b6efa",
                 "clientToolName": "pythx",
+                "groupId": "5dc410095e78890011fba1a4",
+                "groupName": "test-group",
+                "analysisMode": "full",
             },
             {
                 "uuid": "e6566fc9-ebc1-4d04-ae5d-6f3b1873290a",
@@ -112,6 +124,9 @@ LIST_RESPONSE_OBJ = AnalysisListResponse.from_dict(
                 "submittedAt": "2019-09-10T17:15:10.645Z",
                 "submittedBy": "5d6fca7fef1fc700129b6efa",
                 "clientToolName": "pythx",
+                "groupId": "5dc410095e78890011fba1a5",
+                "groupName": "test-group",
+                "analysisMode": "full",
             },
             {
                 "uuid": "b87f0174-ef09-4fac-9d3c-97c3fdf01782",
@@ -125,6 +140,9 @@ LIST_RESPONSE_OBJ = AnalysisListResponse.from_dict(
                 "submittedAt": "2019-09-10T17:15:09.836Z",
                 "submittedBy": "5d6fca7fef1fc700129b6efa",
                 "clientToolName": "pythx",
+                "groupId": "5dc410095e78890011fba1a6",
+                "groupName": "test-group",
+                "analysisMode": "full",
             },
             {
                 "uuid": "2056caf6-25d7-4ce8-a633-d10a8746d5dd",
@@ -138,6 +156,9 @@ LIST_RESPONSE_OBJ = AnalysisListResponse.from_dict(
                 "submittedAt": "2019-09-10T17:12:42.341Z",
                 "submittedBy": "5d6fca7fef1fc700129b6efa",
                 "clientToolName": "pythx",
+                "groupId": "5dc410095e78890011fba1a7",
+                "groupName": "test-group",
+                "analysisMode": "full",
             },
             {
                 "uuid": "63eb5611-ba4b-46e8-9e40-f735a0b86fd9",
@@ -151,6 +172,9 @@ LIST_RESPONSE_OBJ = AnalysisListResponse.from_dict(
                 "submittedAt": "2019-09-10T17:12:41.645Z",
                 "submittedBy": "5d6fca7fef1fc700129b6efa",
                 "clientToolName": "pythx",
+                "groupId": "5dc410095e78890011fba1a8",
+                "groupName": "test-group",
+                "analysisMode": "full",
             },
         ],
         "total": 5,
@@ -202,6 +226,9 @@ SUBMISSION_RESPONSE_OBJ = AnalysisSubmissionResponse.from_dict(
         "submittedAt": "2019-01-10T01:29:38.410Z",
         "submittedBy": "000008544b0aa00010a91111",
         "uuid": "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+        "groupId": "5dc410095e78890011fba1a7",
+        "groupName": "test-group",
+        "analysisMode": "full",
     }
 )
 
