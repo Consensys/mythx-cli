@@ -342,22 +342,23 @@ def group_open(ctx, name):
 
 
 @group.command("close")
-@click.argument("identifier", nargs=1)
+@click.argument("identifiers", nargs=-1, required=True)
 @click.pass_obj
-def group_close(ctx, identifier):
+def group_close(ctx, identifiers):
     """Close/seal an existing group to prevent future analyses from being added.
     \f
 
     :param ctx: Click context holding group-level parameters
-    :param identifier: The group ID to seal
+    :param identifiers: The group ID(s) to seal
     """
 
-    resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
-    click.echo(
-        "Closed group with ID {} and name '{}'".format(
-            resp.group.identifier, resp.group.name
+    for identifier in identifiers:
+        resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
+        click.echo(
+            "Closed group with ID {} and name '{}'".format(
+                resp.group.identifier, resp.group.name
+            )
         )
-    )
 
 
 @cli.command(name="list")
