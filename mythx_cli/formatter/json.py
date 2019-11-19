@@ -8,12 +8,24 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
+    GroupListResponse,
+    GroupStatusResponse
 )
 
 from mythx_cli.formatter.base import BaseFormatter
 
 
 class JSONFormatter(BaseFormatter):
+    @staticmethod
+    def format_group_status(resp: GroupStatusResponse):
+        # TODO: lel
+        raise NotImplementedError()
+
+    @staticmethod
+    def format_group_list(resp: GroupListResponse):
+        # TODO: lel
+        raise NotImplementedError()
+
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response as compressed JSON."""
@@ -50,6 +62,16 @@ class PrettyJSONFormatter(BaseFormatter):
         if type(obj) == DetectedIssuesResponse:
             return json.dumps(obj.to_dict(as_list=True), **json_args)
         return json.dumps(obj.to_dict(), **json_args)
+
+    @staticmethod
+    def format_group_status(resp: GroupStatusResponse):
+        # TODO: lel
+        raise NotImplementedError()
+
+    @staticmethod
+    def format_group_list(resp: GroupListResponse):
+        # TODO: lel
+        raise NotImplementedError()
 
     @staticmethod
     def format_analysis_list(obj: AnalysisListResponse) -> str:

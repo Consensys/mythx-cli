@@ -7,6 +7,7 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     VersionResponse,
+GroupStatusResponse, GroupListResponse
 )
 
 from .base import BaseFormatter
@@ -26,6 +27,16 @@ class SimpleFormatter(BaseFormatter):
             res.append("")
 
         return "\n".join(res)
+
+    @staticmethod
+    def format_group_status(resp: GroupStatusResponse):
+        # TODO: lel
+        raise NotImplementedError()
+
+    @staticmethod
+    def format_group_list(resp: GroupListResponse):
+        # TODO: lel
+        raise NotImplementedError()
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
