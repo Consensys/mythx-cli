@@ -105,6 +105,11 @@ def cli(ctx, **kwargs):
     return 0
 
 
+@cli.group()
+def group():
+    pass
+
+
 def find_truffle_artifacts(project_dir):
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
@@ -251,7 +256,7 @@ def status(ctx, uuids):
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
 
 
-@cli.command()
+@group.command("list")
 @click.option(
     "--number",
     default=5,
@@ -260,7 +265,7 @@ def status(ctx, uuids):
     help="The number of most recent groups to display",
 )
 @click.pass_obj
-def groups(ctx, number):
+def list_groups(ctx, number):
     """Get a list of analysis groups.
     \f
 
