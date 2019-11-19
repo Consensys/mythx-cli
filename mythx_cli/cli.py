@@ -265,7 +265,7 @@ def status(ctx, uuids):
     help="The number of most recent groups to display",
 )
 @click.pass_obj
-def list_groups(ctx, number):
+def group_list(ctx, number):
     """Get a list of analysis groups.
     \f
 
@@ -300,6 +300,22 @@ def list_groups(ctx, number):
             )
         )
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
+
+
+@group.command("status")
+@click.argument("gids", default=None, nargs=-1)
+@click.pass_obj
+def group_status(ctx, gids):
+    """Get the status of an analysis group.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param gids: A list of group IDs to fetch the status for
+    """
+
+    for gid in gids:
+        resp = ctx["client"].group_status(group_id=gid)
+        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_status(resp))
 
 
 @cli.command(name="list")

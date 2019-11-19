@@ -1,6 +1,7 @@
 """This module contains a tabular data formatter class printing a subset of the response data."""
 
 from collections import defaultdict
+from itertools import zip_longest
 from os.path import basename
 
 import click
@@ -10,6 +11,7 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     GroupListResponse,
+    GroupStatusResponse,
     VersionResponse,
 )
 from tabulate import tabulate
@@ -42,6 +44,51 @@ class TabularFormatter(BaseFormatter):
             )
             for group in resp.groups
         ]
+        return tabulate(data, tablefmt="fancy_grid")
+
+    @staticmethod
+    def format_group_status(resp: GroupStatusResponse):
+        data = (
+            (
+                ("ID", resp.group.identifier),
+                ("Name", resp.group.name or "<unnamed>"),
+                (
+                    "Creation Date",
+                    resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                ),
+                ("Created By", resp.group.created_by),
+                ("Progress", "{}/100".format(resp.group.progress)),
+            )
+            + tuple(
+                zip_longest(
+                    ("Main Sources",), resp.group.main_source_files, fillvalue=""
+                )
+            )
+            + (
+                ("Status", resp.group.status.title()),
+                ("Queued Analyses", resp.group.analysis_statistics.queued or 0),
+                ("Running Analyses", resp.group.analysis_statistics.running or 0),
+                ("Failed Analyses", resp.group.analysis_statistics.failed or 0),
+                ("Finished Analyses", resp.group.analysis_statistics.finished or 0),
+                ("Total Analyses", resp.group.analysis_statistics.total or 0),
+                (
+                    "High Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.high or 0,
+                ),
+                (
+                    "Medium Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.medium or 0,
+                ),
+                (
+                    "Low Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.low or 0,
+                ),
+                (
+                    "Unknown Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.none or 0,
+                ),
+            )
+        )
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
