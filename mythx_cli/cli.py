@@ -7,7 +7,7 @@ from glob import glob
 from pathlib import Path
 
 import click
-from mythx_models.response import AnalysisListResponse
+from mythx_models.response import AnalysisListResponse, GroupListResponse
 from pythx import Client, MythXAPIError
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -249,6 +249,52 @@ def status(ctx, uuids):
     for uuid in uuids:
         resp = ctx["client"].status(uuid)
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
+
+
+@cli.command()
+@click.option(
+    "--number",
+    default=5,
+    type=click.IntRange(min=1, max=100),  # ~ 5 requests à 20 entries
+    show_default=True,
+    help="The number of most recent groups to display",
+)
+@click.pass_obj
+def groups(ctx, number):
+    """Get a list of analysis groups.
+    \f
+
+    :param ctx: Click context holding group-level parameters
+    :param number: The number of analysis groups to display
+    :return:
+    """
+
+    client: Client = ctx["client"]
+    result = GroupListResponse(groups=[], total=0)
+    try:
+        offset = 0
+        while True:
+            resp = client.group_list(offset=offset)
+            if not resp.groups:
+                break
+            offset += len(resp.groups)
+            result.groups.extend(resp.groups)
+            if len(result.groups) >= number:
+                break
+
+        # trim result to desired result number
+        LOGGER.debug(resp.total)
+        result = GroupListResponse(groups=result[:number], total=resp.total)
+    except MythXAPIError:
+        raise click.UsageError(
+            (
+                "This functionality is only available to registered users. "
+                "Head over to https://mythx.io/ and register a free account to "
+                "list your past analyses. Alternatively, you can look up the "
+                "status of a specific job by calling 'mythx status <uuid>'."
+            )
+        )
+    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
 
 
 @cli.command(name="list")

@@ -14,6 +14,5 @@ def get_source_location_by_offset(source, offset):
 
 def generate_dashboard_link(uuid: str, staging=False):
     return "https://dashboard.{}mythx.io/#/console/analyses/{}".format(
-        "staging." if staging else "",
-        uuid
+        "staging." if staging else "", uuid
     )

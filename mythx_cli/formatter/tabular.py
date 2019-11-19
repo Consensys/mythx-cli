@@ -1,18 +1,21 @@
 """This module contains a tabular data formatter class printing a subset of the response data."""
 
 from collections import defaultdict
+from os.path import basename
+
 import click
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
+    GroupListResponse,
     VersionResponse,
 )
 from tabulate import tabulate
 
 from .base import BaseFormatter
-from .util import get_source_location_by_offset, generate_dashboard_link
+from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class TabularFormatter(BaseFormatter):
@@ -23,6 +26,21 @@ class TabularFormatter(BaseFormatter):
         data = [
             (a.uuid, a.status, a.client_tool_name, a.submitted_at)
             for a in resp.analyses
+        ]
+        return tabulate(data, tablefmt="fancy_grid")
+
+    @staticmethod
+    def format_group_list(resp: GroupListResponse):
+        """Format an analysis group response to a tabular representation."""
+
+        data = [
+            (
+                group.identifier,
+                group.status,
+                ",".join([basename(x) for x in group.main_source_files]),
+                group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+            )
+            for group in resp.groups
         ]
         return tabulate(data, tablefmt="fancy_grid")
 
@@ -71,14 +89,16 @@ class TabularFormatter(BaseFormatter):
         ctx = click.get_current_context()
         for filename, data in file_to_issue.items():
             res.append("Report for {}".format(filename))
-            res.extend((
-                generate_dashboard_link(ctx.obj["uuid"]),
-                tabulate(
-                    data,
-                    tablefmt="fancy_grid",
-                    headers=("Line", "SWC Title", "Severity", "Short Description"),
+            res.extend(
+                (
+                    generate_dashboard_link(ctx.obj["uuid"]),
+                    tabulate(
+                        data,
+                        tablefmt="fancy_grid",
+                        headers=("Line", "SWC Title", "Severity", "Short Description"),
+                    ),
                 )
-            ))
+            )
 
         return "\n".join(res)
 

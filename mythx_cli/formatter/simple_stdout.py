@@ -10,7 +10,7 @@ from mythx_models.response import (
 )
 
 from .base import BaseFormatter
-from .util import get_source_location_by_offset, generate_dashboard_link
+from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class SimpleFormatter(BaseFormatter):
