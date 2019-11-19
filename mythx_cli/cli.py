@@ -14,6 +14,7 @@ from mythx_models.response import (
 )
 from pythx import Client, MythXAPIError
 from pythx.middleware.toolname import ClientToolNameMiddleware
+from pythx.middleware.group_data import GroupDataMiddleware
 
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER
@@ -162,8 +163,14 @@ def find_solidity_files(project_dir):
 @click.option(
     "--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True
 )
+@click.option(
+    "--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None
+)
+@click.option(
+    "--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None
+)
 @click.pass_obj
-def analyze(ctx, target, async_flag, mode):
+def analyze(ctx, target, async_flag, mode, group_id, group_name):
     """Analyze the given directory or arguments with MythX.
     \f
 
@@ -171,8 +178,14 @@ def analyze(ctx, target, async_flag, mode):
     :param target: Arguments passed to the `analyze` subcommand
     :param async_flag: Whether to execute the analysis asynchronously
     :param mode: Full or quick analysis mode
+    :param group_id: The group ID to add the analysis to
+    :param group_name: The group name to attach to the analysis
     :return:
     """
+
+    if group_id or group_name:
+        group_mw = GroupDataMiddleware(group_id=group_id, group_name=group_name)
+        ctx["client"].handler.middlewares.append(group_mw)
 
     jobs = []
 
