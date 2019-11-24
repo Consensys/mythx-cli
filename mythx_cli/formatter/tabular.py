@@ -48,6 +48,8 @@ class TabularFormatter(BaseFormatter):
 
     @staticmethod
     def format_group_status(resp: GroupStatusResponse):
+        """Format a group status response to a tabular representation."""
+
         data = (
             (
                 ("ID", resp.group.identifier),

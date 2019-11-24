@@ -30,13 +30,30 @@ class SimpleFormatter(BaseFormatter):
 
     @staticmethod
     def format_group_status(resp: GroupStatusResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format a group status response to a simple text representation."""
+
+        res = [
+            "ID: {}".format(resp.group.identifier),
+            "Name: {}".format(resp.group.name or "<unnamed>"),
+            "Created on: {}".format(resp.group.created_at),
+            "Status: {}".format(resp.group.status),
+            "",
+        ]
+        return "\n".join(res)
 
     @staticmethod
     def format_group_list(resp: GroupListResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format an analysis group response to a simple text representation."""
+
+        res = []
+        for group in resp:
+            res.append("ID: {}".format(group.identifier))
+            res.append("Name: {}".format(group.name or "<unnamed>"))
+            res.append("Created on: {}".format(group.created_at))
+            res.append("Status: {}".format(group.status))
+            res.append("")
+
+        return "\n".join(res)
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
