@@ -13,8 +13,8 @@ from mythx_models.response import (
     GroupListResponse,
 )
 from pythx import Client, MythXAPIError
-from pythx.middleware.toolname import ClientToolNameMiddleware
 from pythx.middleware.group_data import GroupDataMiddleware
+from pythx.middleware.toolname import ClientToolNameMiddleware
 
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER
@@ -164,10 +164,16 @@ def find_solidity_files(project_dir):
     "--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True
 )
 @click.option(
-    "--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None
+    "--group-id",
+    type=click.STRING,
+    help="The group ID to add the analysis to",
+    default=None,
 )
 @click.option(
-    "--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None
+    "--group-name",
+    type=click.STRING,
+    help="The group name to attach to the analysis",
+    default=None,
 )
 @click.pass_obj
 def analyze(ctx, target, async_flag, mode, group_id, group_name):

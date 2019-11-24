@@ -7,9 +7,9 @@ from mythx_models.response import (
     AnalysisListResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
-    VersionResponse,
     GroupListResponse,
-    GroupStatusResponse
+    GroupStatusResponse,
+    VersionResponse,
 )
 
 from mythx_cli.formatter.base import BaseFormatter
