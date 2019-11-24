@@ -18,13 +18,15 @@ from mythx_cli.formatter.base import BaseFormatter
 class JSONFormatter(BaseFormatter):
     @staticmethod
     def format_group_status(resp: GroupStatusResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format a group status response as compressed JSON."""
+
+        return resp.to_json()
 
     @staticmethod
     def format_group_list(resp: GroupListResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format a group list response as compressed JSON."""
+
+        return resp.to_json()
 
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
@@ -65,13 +67,15 @@ class PrettyJSONFormatter(BaseFormatter):
 
     @staticmethod
     def format_group_status(resp: GroupStatusResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format a group status response as pretty-printed JSON."""
+
+        return PrettyJSONFormatter._print_as_json(resp)
 
     @staticmethod
     def format_group_list(resp: GroupListResponse):
-        # TODO: lel
-        raise NotImplementedError()
+        """Format a group list response as pretty-printed JSON."""
+
+        return PrettyJSONFormatter._print_as_json(resp)
 
     @staticmethod
     def format_analysis_list(obj: AnalysisListResponse) -> str:
