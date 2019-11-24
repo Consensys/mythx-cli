@@ -6,7 +6,7 @@ tox==3.14.1
 
 sphinx==2.2.1
 watchdog==0.9.0
-twine==3.0.0
+twine==3.1.0
 
 flake8==3.7.9
 pytest==5.3.0
