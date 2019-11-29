@@ -8,12 +8,13 @@ Format Options
 A format option is passed to the :code:`--format` option of the :code:`mythx`
 root command. E.g.::
 
-    $ mythx --format json-pretty report ab9092f7-54d0-480f-9b63-1bb1508280e2
+    $ mythx --format json-pretty analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
 
 This will print the report for the given analysis job UUID in pretty-printed
-JSON format to stdout. Currently the following formatters are avialable:
+JSON format to stdout. Currently the following formatters are available:
 
-* :code:`simple` (default): Print the results in simple plain text (easy to
+* :code:`tabular` (default): Print the results in a pretty (extended) ASCII table.
+* :code:`simple`: Print the results in simple plain text (easy to
   grep). This does not include all result data but a subset of it that seems
   relevant for most use-cases.
 * :code:`json`: Print all of the result data as a single-line JSON string to
@@ -122,7 +123,7 @@ very exhaustive and long) analysis run has finished, the reports can be
 retrieved. This is done by simply providing the stored job IDs as an
 argument list to the :code:`mythx report` command::
 
-    $ cat uuids.txt | xargs mythx report
+    $ cat uuids.txt | xargs mythx analysis report
 
 Optionally, the format can be changed here as well, e.g. to JSON, to allow
 for easier automated processing further on.
@@ -133,7 +134,7 @@ Listing Past Analyses
 
 .. code-block:: console
 
-    Usage: mythx list [OPTIONS]
+    Usage: mythx analysis list [OPTIONS]
 
     Options:
     --number INTEGER RANGE  The number of most recent analysis jobs to display
@@ -147,42 +148,32 @@ By default this subcommand will list the past five analyses associated to the
 authenticated user account. The number of returned analyses can be updated by
 passing the :code:`--number` option. It is worth noting that in its current
 version (:code:`v1.4.34.4`) the API returns only objects of 20 analyses per
-call. If a number greater than this is passed to :code:`mythx list`, the MythX
+call. If a number greater than this is passed to :code:`mythx analysis list`, the MythX
 CLI will automatically query the next page until the desired number is
 reached.
 
 To prevent too many network requests, the maximum number of analyses that can
 be fetched it capped at 100.::
 
-    $ mythx list
-    UUID: ab9d5681-0283-4ac5-bedb-1d241b5f2bf5
-    Submitted at: 2019-09-13 14:21:15.063000+00:00
-    Status: Finished
-
-    UUID: f5e4b742-5c90-4ee2-9079-4efaec9d4e2c
-    Submitted at: 2019-09-13 14:21:13.582000+00:00
-    Status: Finished
-
-    UUID: a5f9d7c7-7d33-440d-bea7-6ad8e1b2b734
-    Submitted at: 2019-09-13 14:21:11.367000+00:00
-    Status: Finished
-
-    UUID: f66d3c91-bc77-49a2-9e84-7e00c8689b0f
-    Submitted at: 2019-09-13 14:21:07.076000+00:00
-    Status: Finished
-
-    UUID: f1164a4c-91a6-4d81-a12f-6519090cb81e
-    Submitted at: 2019-09-13 14:21:05.386000+00:00
-    Status: Finished
-
-
+    $ mythx analysis list
+    ╒══════════════════════════════════════╤══════════╤═════════════════╤══════════════════════════════════╕
+    │ ac5af0dd-bd78-4cfb-b4ed-32f21216aaf6 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:41:36.165000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 391db48f-9e89-424f-8063-7626fdd2051e │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:59.868000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 5a1fc208-7a7f-425a-bbc5-8512e5c37b50 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:06.092000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 1667a99d-6335-4a71-aa78-0d729e25b8e1 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:39:47.736000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ fa88b710-e423-4535-a7b1-0c8c71833724 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:38:23.064000+00:00 │
+    ╘══════════════════════════════════════╧══════════╧═════════════════╧══════════════════════════════════╛
 
 Fetching Analysis Reports
 -------------------------
 
 .. code-block:: console
 
-    Usage: mythx report [OPTIONS] [UUIDS]...
+    Usage: mythx analysis report [OPTIONS] [UUIDS]...
 
     Options:
     --help  Show this message and exit.
@@ -195,7 +186,7 @@ locations to the corresponding line and column numbers in the Solidity source
 file. This is only possible if the user has specified the source map in their
 request and is passing the Solidity source code as text.::
 
-    $ mythx report ab9092f7-54d0-480f-9b63-1bb1508280e2
+    $ mythx --format=simple analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
     UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
     Title: Assert Violation (Low)
     Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
@@ -212,14 +203,14 @@ Fetching Analysis Status
 
 .. code-block:: console
 
-    Usage: mythx status [OPTIONS] [UUIDS]...
+    Usage: mythx analysis status [OPTIONS] [UUIDS]...
 
     Options:
     --help  Show this message and exit.
 
 This subcommand prints the status of an already submitted analysis.::
 
-    $ mythx --staging status 381eff48-04db-4f81-a417-8394b6614472
+    $ mythx --format=simple analysis status 381eff48-04db-4f81-a417-8394b6614472
     UUID: 381eff48-04db-4f81-a417-8394b6614472
     Submitted at: 2019-09-05 20:34:27.606000+00:00
     Status: Finished
