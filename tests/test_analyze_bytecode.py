@@ -1,14 +1,26 @@
 from unittest.mock import patch
 
 from click.testing import CliRunner
-from .common import get_test_case
+
 from mythx_cli.cli import cli
-from mythx_models.response import AnalysisSubmissionResponse, DetectedIssuesResponse, AnalysisInputResponse
+from mythx_models.response import (
+    AnalysisInputResponse,
+    AnalysisSubmissionResponse,
+    DetectedIssuesResponse,
+)
+
+from .common import get_test_case
 
 FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
-SUBMISSION_RESPONSE = get_test_case("testdata/analysis-submission-response.json", AnalysisSubmissionResponse)
-ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
-INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
+SUBMISSION_RESPONSE = get_test_case(
+    "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
+)
+ISSUES_RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
+INPUT_RESPONSE = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
 
 
 def test_bytecode_analyze():

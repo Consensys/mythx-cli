@@ -7,14 +7,6 @@ from glob import glob
 from pathlib import Path
 
 import click
-from mythx_models.response import (
-    AnalysisListResponse,
-    GroupCreationResponse,
-    GroupListResponse,
-)
-from pythx import Client, MythXAPIError
-from pythx.middleware.group_data import GroupDataMiddleware
-from pythx.middleware.toolname import ClientToolNameMiddleware
 
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER
@@ -23,6 +15,14 @@ from mythx_cli.payload import (
     generate_solidity_payload,
     generate_truffle_payload,
 )
+from mythx_models.response import (
+    AnalysisListResponse,
+    GroupCreationResponse,
+    GroupListResponse,
+)
+from pythx import Client, MythXAPIError
+from pythx.middleware.group_data import GroupDataMiddleware
+from pythx.middleware.toolname import ClientToolNameMiddleware
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)

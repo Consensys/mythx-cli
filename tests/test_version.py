@@ -5,8 +5,8 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 from mythx_models.response import VersionResponse
-from .common import get_test_case
 
+from .common import get_test_case
 
 VERSION_RESPONSE = get_test_case("testdata/version-response.json", VersionResponse)
 VERSION_SIMPLE = get_test_case("testdata/version-simple.txt", raw=True)

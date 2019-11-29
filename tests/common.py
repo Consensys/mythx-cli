@@ -1,5 +1,5 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 
 def get_test_case(path: str, obj=None, raw=False):

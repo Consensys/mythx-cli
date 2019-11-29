@@ -5,13 +5,24 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from mythx_cli.cli import cli
+from mythx_models.response import (
+    AnalysisInputResponse,
+    AnalysisSubmissionResponse,
+    DetectedIssuesResponse,
+)
+
 from .common import get_test_case
-from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse, AnalysisSubmissionResponse
 
 TRUFFLE_ARTIFACT = get_test_case("testdata/truffle-artifact.json")
-INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
-ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
-SUBMISSION_RESPONSE = get_test_case("testdata/analysis-submission-response.json", AnalysisSubmissionResponse)
+INPUT_RESPONSE = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
+ISSUES_RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
+SUBMISSION_RESPONSE = get_test_case(
+    "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
+)
 ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
 EMPTY_PROJECT_ERROR = "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
 

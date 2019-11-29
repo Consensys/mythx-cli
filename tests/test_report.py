@@ -5,10 +5,15 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
+
 from .common import get_test_case
 
-INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
-ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
+INPUT_RESPONSE = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
+ISSUES_RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
 ISSUES_SIMPLE = get_test_case("testdata/detected-issues-simple.txt", raw=True)
 ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
 

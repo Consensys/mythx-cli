@@ -4,16 +4,19 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from mythx_cli.cli import cli
-from mythx_models.response import GroupStatusResponse, AnalysisStatusResponse
-from .common import get_test_case
+from mythx_models.response import AnalysisStatusResponse, GroupStatusResponse
 
+from .common import get_test_case
 
 GROUP_STATUS = get_test_case("testdata/group-status-response.json", GroupStatusResponse)
 GROUP_STATUS_SIMPLE = get_test_case("testdata/group-status-simple.txt", raw=True)
 GROUP_STATUS_TABLE = get_test_case("testdata/group-status-table.txt", raw=True)
-ANALYSIS_STATUS = get_test_case("testdata/analysis-status-response.json", AnalysisStatusResponse)
+ANALYSIS_STATUS = get_test_case(
+    "testdata/analysis-status-response.json", AnalysisStatusResponse
+)
 ANALYSIS_STATUS_SIMPLE = get_test_case("testdata/analysis-status-simple.txt", raw=True)
 ANALYSIS_STATUS_TABLE = get_test_case("testdata/analysis-status-table.txt", raw=True)
+
 
 def test_status_tabular():
     runner = CliRunner()

@@ -1,6 +1,7 @@
 """This module contains a simple text formatter class printing a subset of the response data."""
 
 import click
+
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
