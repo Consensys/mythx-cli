@@ -6,11 +6,13 @@ from mythx_models.response import (
     AnalysisListResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
+    GroupListResponse,
+    GroupStatusResponse,
     VersionResponse,
 )
 
 from .base import BaseFormatter
-from .util import get_source_location_by_offset, generate_dashboard_link
+from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class SimpleFormatter(BaseFormatter):
@@ -23,6 +25,33 @@ class SimpleFormatter(BaseFormatter):
             res.append("UUID: {}".format(analysis.uuid))
             res.append("Submitted at: {}".format(analysis.submitted_at))
             res.append("Status: {}".format(analysis.status))
+            res.append("")
+
+        return "\n".join(res)
+
+    @staticmethod
+    def format_group_status(resp: GroupStatusResponse):
+        """Format a group status response to a simple text representation."""
+
+        res = [
+            "ID: {}".format(resp.group.identifier),
+            "Name: {}".format(resp.group.name or "<unnamed>"),
+            "Created on: {}".format(resp.group.created_at),
+            "Status: {}".format(resp.group.status),
+            "",
+        ]
+        return "\n".join(res)
+
+    @staticmethod
+    def format_group_list(resp: GroupListResponse):
+        """Format an analysis group response to a simple text representation."""
+
+        res = []
+        for group in resp:
+            res.append("ID: {}".format(group.identifier))
+            res.append("Name: {}".format(group.name or "<unnamed>"))
+            res.append("Created on: {}".format(group.created_at))
+            res.append("Status: {}".format(group.status))
             res.append("")
 
         return "\n".join(res)

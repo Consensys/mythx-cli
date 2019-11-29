@@ -5,7 +5,14 @@ from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 
-from .testdata import LIST_RESPONSE_OBJ, LIST_RESPONSE_SIMPLE, LIST_RESPONSE_TABLE
+from .testdata import (
+    GROUP_LIST_RESPONSE_OBJ,
+    GROUP_LIST_RESPONSE_SIMPLE,
+    GROUP_LIST_RESPONSE_TABLE,
+    LIST_RESPONSE_OBJ,
+    LIST_RESPONSE_SIMPLE,
+    LIST_RESPONSE_TABLE,
+)
 
 
 def test_list_tabular():
@@ -17,6 +24,15 @@ def test_list_tabular():
         assert result.output == LIST_RESPONSE_TABLE
 
 
+def test_group_list_tabular():
+    runner = CliRunner()
+    with patch("pythx.Client.group_list") as list_patch:
+        list_patch.return_value = GROUP_LIST_RESPONSE_OBJ
+        result = runner.invoke(cli, ["group", "list"])
+        assert result.exit_code == 0
+        assert result.output == GROUP_LIST_RESPONSE_TABLE
+
+
 def test_list_json():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
@@ -24,6 +40,15 @@ def test_list_json():
         result = runner.invoke(cli, ["--format", "json", "list"])
         assert result.exit_code == 0
         assert json.loads(result.output) == LIST_RESPONSE_OBJ.to_dict()
+
+
+def test_group_list_json():
+    runner = CliRunner()
+    with patch("pythx.Client.group_list") as list_patch:
+        list_patch.return_value = GROUP_LIST_RESPONSE_OBJ
+        result = runner.invoke(cli, ["--format", "json", "group", "list"])
+        assert result.exit_code == 0
+        assert json.loads(result.output) == GROUP_LIST_RESPONSE_OBJ.to_dict()
 
 
 def test_list_json_pretty():
@@ -35,6 +60,15 @@ def test_list_json_pretty():
         assert json.loads(result.output) == LIST_RESPONSE_OBJ.to_dict()
 
 
+def test_group_list_json_pretty():
+    runner = CliRunner()
+    with patch("pythx.Client.group_list") as list_patch:
+        list_patch.return_value = GROUP_LIST_RESPONSE_OBJ
+        result = runner.invoke(cli, ["--format", "json-pretty", "group", "list"])
+        assert result.exit_code == 0
+        assert json.loads(result.output) == GROUP_LIST_RESPONSE_OBJ.to_dict()
+
+
 def test_list_simple():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
@@ -42,3 +76,12 @@ def test_list_simple():
         result = runner.invoke(cli, ["--format", "simple", "list"])
         assert result.exit_code == 0
         assert result.output == LIST_RESPONSE_SIMPLE
+
+
+def test_group_list_simple():
+    runner = CliRunner()
+    with patch("pythx.Client.group_list") as list_patch:
+        list_patch.return_value = GROUP_LIST_RESPONSE_OBJ
+        result = runner.invoke(cli, ["--format", "simple", "group", "list"])
+        assert result.exit_code == 0
+        assert result.output == GROUP_LIST_RESPONSE_SIMPLE
