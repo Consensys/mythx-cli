@@ -3,13 +3,13 @@ from unittest.mock import patch
 from click.testing import CliRunner
 
 from mythx_cli.cli import cli
-
-from .testdata import (
-    INPUT_RESPONSE_OBJ,
-    ISSUES_RESPONSE_OBJ,
-    ISSUES_RESPONSE_TABLE,
-    SUBMISSION_RESPONSE_OBJ,
+from mythx_models.response import (
+    AnalysisInputResponse,
+    AnalysisSubmissionResponse,
+    DetectedIssuesResponse,
 )
+
+from .common import get_test_case
 
 SOLIDITY_CODE = """pragma solidity 0.4.13;
 
@@ -18,12 +18,22 @@ contract OutdatedCompilerVersion {
 }
 """
 SOLC_ERROR = "No pragma found - please specify a solc version with --solc-version"
+INPUT_RESPONSE = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
+ISSUES_RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
+SUBMISSION_RESPONSE = get_test_case(
+    "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
+)
+ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
 
 
 def test_solidity_analyze_async():
     runner = CliRunner()
     with patch("pythx.Client.analyze") as analyze_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         with runner.isolated_filesystem():
             # initialize sample solidity file
             with open("outdated.sol", "w+") as conf_f:
@@ -31,7 +41,7 @@ def test_solidity_analyze_async():
 
             result = runner.invoke(cli, ["analyze", "--async"], input="y\n")
             assert result.exit_code == 0
-            assert SUBMISSION_RESPONSE_OBJ.analysis.uuid in result.output
+            assert SUBMISSION_RESPONSE.analysis.uuid in result.output
 
 
 def test_solidity_analyze_blocking():
@@ -41,10 +51,10 @@ def test_solidity_analyze_blocking():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
             # initialize sample solidity file
@@ -53,7 +63,7 @@ def test_solidity_analyze_blocking():
 
             result = runner.invoke(cli, ["analyze"], input="y\n")
             assert result.exit_code == 0
-            assert ISSUES_RESPONSE_TABLE in result.output
+            assert ISSUES_TABLE in result.output
 
 
 def test_solidity_analyze_as_arg():
@@ -63,10 +73,10 @@ def test_solidity_analyze_as_arg():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
             # initialize sample solidity file
@@ -75,7 +85,7 @@ def test_solidity_analyze_as_arg():
 
             result = runner.invoke(cli, ["analyze", "outdated.sol"])
             assert result.exit_code == 0
-            assert result.output == ISSUES_RESPONSE_TABLE
+            assert result.output == ISSUES_TABLE
 
 
 def test_solidity_analyze_multiple():
@@ -85,10 +95,10 @@ def test_solidity_analyze_multiple():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
             # initialize sample solidity file
@@ -100,7 +110,7 @@ def test_solidity_analyze_multiple():
 
             result = runner.invoke(cli, ["analyze", "outdated.sol", "outdated2.sol"])
             assert result.exit_code == 0
-            assert result.output == ISSUES_RESPONSE_TABLE + ISSUES_RESPONSE_TABLE
+            assert result.output == ISSUES_TABLE + ISSUES_TABLE
 
 
 def test_solidity_analyze_missing_version():
@@ -110,10 +120,10 @@ def test_solidity_analyze_missing_version():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
             # initialize sample solidity file without pragma line

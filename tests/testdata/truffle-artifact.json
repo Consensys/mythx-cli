@@ -1,0 +1,233 @@
+{
+    "contractName": "IApplication",
+    "abi": [
+        {
+            "constant": false,
+            "inputs": [
+                {
+                    "name": "data",
+                    "type": "bytes"
+                }
+            ],
+            "name": "initialize",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ],
+    "metadata": "",
+    "bytecode": "0x",
+    "deployedBytecode": "0x",
+    "sourceMap": "",
+    "deployedSourceMap": "",
+    "source": "pragma solidity ^0.4.18;\n\n\ncontract IApplication {\n  function initialize(bytes data) public;\n}\n",
+    "sourcePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
+    "ast": {
+        "absolutePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
+        "exportedSymbols": {
+            "IApplication": [
+                3050
+            ]
+        },
+        "id": 3051,
+        "nodeType": "SourceUnit",
+        "nodes": [
+            {
+                "id": 3044,
+                "literals": [
+                    "solidity",
+                    "^",
+                    "0.4",
+                    ".18"
+                ],
+                "nodeType": "PragmaDirective",
+                "src": "0:24:9"
+            },
+            {
+                "baseContracts": [],
+                "contractDependencies": [],
+                "contractKind": "contract",
+                "documentation": null,
+                "fullyImplemented": false,
+                "id": 3050,
+                "linearizedBaseContracts": [
+                    3050
+                ],
+                "name": "IApplication",
+                "nodeType": "ContractDefinition",
+                "nodes": [
+                    {
+                        "body": null,
+                        "documentation": null,
+                        "id": 3049,
+                        "implemented": false,
+                        "isConstructor": false,
+                        "isDeclaredConst": false,
+                        "modifiers": [],
+                        "name": "initialize",
+                        "nodeType": "FunctionDefinition",
+                        "parameters": {
+                            "id": 3047,
+                            "nodeType": "ParameterList",
+                            "parameters": [
+                                {
+                                    "constant": false,
+                                    "id": 3046,
+                                    "name": "data",
+                                    "nodeType": "VariableDeclaration",
+                                    "scope": 3049,
+                                    "src": "73:10:9",
+                                    "stateVariable": false,
+                                    "storageLocation": "default",
+                                    "typeDescriptions": {
+                                        "typeIdentifier": "t_bytes_memory_ptr",
+                                        "typeString": "bytes"
+                                    },
+                                    "typeName": {
+                                        "id": 3045,
+                                        "name": "bytes",
+                                        "nodeType": "ElementaryTypeName",
+                                        "src": "73:5:9",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes_storage_ptr",
+                                            "typeString": "bytes"
+                                        }
+                                    },
+                                    "value": null,
+                                    "visibility": "internal"
+                                }
+                            ],
+                            "src": "72:12:9"
+                        },
+                        "payable": false,
+                        "returnParameters": {
+                            "id": 3048,
+                            "nodeType": "ParameterList",
+                            "parameters": [],
+                            "src": "91:0:9"
+                        },
+                        "scope": 3050,
+                        "src": "53:39:9",
+                        "stateMutability": "nonpayable",
+                        "superFunction": null,
+                        "visibility": "public"
+                    }
+                ],
+                "scope": 3051,
+                "src": "27:67:9"
+            }
+        ],
+        "src": "0:95:9"
+    },
+    "legacyAST": {
+        "absolutePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
+        "exportedSymbols": {
+            "IApplication": [
+                3050
+            ]
+        },
+        "id": 3051,
+        "nodeType": "SourceUnit",
+        "nodes": [
+            {
+                "id": 3044,
+                "literals": [
+                    "solidity",
+                    "^",
+                    "0.4",
+                    ".18"
+                ],
+                "nodeType": "PragmaDirective",
+                "src": "0:24:9"
+            },
+            {
+                "baseContracts": [],
+                "contractDependencies": [],
+                "contractKind": "contract",
+                "documentation": null,
+                "fullyImplemented": false,
+                "id": 3050,
+                "linearizedBaseContracts": [
+                    3050
+                ],
+                "name": "IApplication",
+                "nodeType": "ContractDefinition",
+                "nodes": [
+                    {
+                        "body": null,
+                        "documentation": null,
+                        "id": 3049,
+                        "implemented": false,
+                        "isConstructor": false,
+                        "isDeclaredConst": false,
+                        "modifiers": [],
+                        "name": "initialize",
+                        "nodeType": "FunctionDefinition",
+                        "parameters": {
+                            "id": 3047,
+                            "nodeType": "ParameterList",
+                            "parameters": [
+                                {
+                                    "constant": false,
+                                    "id": 3046,
+                                    "name": "data",
+                                    "nodeType": "VariableDeclaration",
+                                    "scope": 3049,
+                                    "src": "73:10:9",
+                                    "stateVariable": false,
+                                    "storageLocation": "default",
+                                    "typeDescriptions": {
+                                        "typeIdentifier": "t_bytes_memory_ptr",
+                                        "typeString": "bytes"
+                                    },
+                                    "typeName": {
+                                        "id": 3045,
+                                        "name": "bytes",
+                                        "nodeType": "ElementaryTypeName",
+                                        "src": "73:5:9",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes_storage_ptr",
+                                            "typeString": "bytes"
+                                        }
+                                    },
+                                    "value": null,
+                                    "visibility": "internal"
+                                }
+                            ],
+                            "src": "72:12:9"
+                        },
+                        "payable": false,
+                        "returnParameters": {
+                            "id": 3048,
+                            "nodeType": "ParameterList",
+                            "parameters": [],
+                            "src": "91:0:9"
+                        },
+                        "scope": 3050,
+                        "src": "53:39:9",
+                        "stateMutability": "nonpayable",
+                        "superFunction": null,
+                        "visibility": "public"
+                    }
+                ],
+                "scope": 3051,
+                "src": "27:67:9"
+            }
+        ],
+        "src": "0:95:9"
+    },
+    "compiler": {
+        "name": "solc",
+        "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+    },
+    "networks": {},
+    "schemaVersion": "3.0.8",
+    "updatedAt": "2019-04-30T11:34:15.037Z",
+    "devdoc": {
+        "methods": {}
+    },
+    "userdoc": {
+        "methods": {}
+    }
+}
