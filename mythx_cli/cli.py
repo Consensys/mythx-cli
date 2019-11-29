@@ -326,7 +326,7 @@ def group_list(ctx, number):
                 "This functionality is only available to registered users. "
                 "Head over to https://mythx.io/ and register a free account to "
                 "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx status <uuid>'."
+                "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
@@ -426,7 +426,7 @@ def analysis_list(ctx, number):
                 "This functionality is only available to registered users. "
                 "Head over to https://mythx.io/ and register a free account to "
                 "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx status <uuid>'."
+                "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
