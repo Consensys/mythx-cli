@@ -22,7 +22,7 @@ def test_list_tabular():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = ANALYSIS_LIST
-        result = runner.invoke(cli, ["list"])
+        result = runner.invoke(cli, ["analysis", "list"])
         assert result.exit_code == 0
         assert result.output == ANALYSIS_LIST_TABLE
 
@@ -40,7 +40,7 @@ def test_list_json():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = ANALYSIS_LIST
-        result = runner.invoke(cli, ["--format", "json", "list"])
+        result = runner.invoke(cli, ["--format", "json", "analysis", "list"])
         assert result.exit_code == 0
         assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
 
@@ -58,7 +58,7 @@ def test_list_json_pretty():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = ANALYSIS_LIST
-        result = runner.invoke(cli, ["--format", "json-pretty", "list"])
+        result = runner.invoke(cli, ["--format", "json-pretty", "analysis", "list"])
         assert result.exit_code == 0
         assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
 
@@ -76,7 +76,7 @@ def test_list_simple():
     runner = CliRunner()
     with patch("pythx.Client.analysis_list") as list_patch:
         list_patch.return_value = ANALYSIS_LIST
-        result = runner.invoke(cli, ["--format", "simple", "list"])
+        result = runner.invoke(cli, ["--format", "simple", "analysis", "list"])
         assert result.exit_code == 0
         assert result.output == ANALYSIS_LIST_SIMPLE
 

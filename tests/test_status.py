@@ -22,7 +22,7 @@ def test_status_tabular():
     runner = CliRunner()
     with patch("pythx.Client.status") as status_patch:
         status_patch.return_value = ANALYSIS_STATUS
-        result = runner.invoke(cli, ["status", "381eff48-04db-4f81-a417-8394b6614472"])
+        result = runner.invoke(cli, ["analysis", "status", "381eff48-04db-4f81-a417-8394b6614472"])
         assert result.exit_code == 0
         assert result.output == ANALYSIS_STATUS_TABLE
 
@@ -41,7 +41,7 @@ def test_status_json():
     with patch("pythx.Client.status") as status_patch:
         status_patch.return_value = ANALYSIS_STATUS
         result = runner.invoke(
-            cli, ["--format", "json", "status", "381eff48-04db-4f81-a417-8394b6614472"]
+            cli, ["--format", "json", "analysis", "status", "381eff48-04db-4f81-a417-8394b6614472"]
         )
         assert result.exit_code == 0
         assert json.loads(result.output) == ANALYSIS_STATUS.to_dict()
@@ -67,6 +67,7 @@ def test_status_json_pretty():
             [
                 "--format",
                 "json-pretty",
+                "analysis",
                 "status",
                 "381eff48-04db-4f81-a417-8394b6614472",
             ],
@@ -93,7 +94,7 @@ def test_status_simple():
         status_patch.return_value = ANALYSIS_STATUS
         result = runner.invoke(
             cli,
-            ["--format", "simple", "status", "381eff48-04db-4f81-a417-8394b6614472"],
+            ["--format", "simple", "analysis", "status", "381eff48-04db-4f81-a417-8394b6614472"],
         )
         assert result.exit_code == 0
         assert result.output == ANALYSIS_STATUS_SIMPLE
