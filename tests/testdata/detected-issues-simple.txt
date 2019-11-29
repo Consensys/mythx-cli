@@ -3,7 +3,7 @@ Title: Assert Violation (Low)
 Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
 
 /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol:24
-\tmapping(uint256 => uint256[]) public estateLandIds;
+	mapping(uint256 => uint256[]) public estateLandIds;
 
 https://dashboard.mythx.io/#/console/analyses/ab9092f7-54d0-480f-9b63-1bb1508280e2
 Title: - (Low)
