@@ -3,7 +3,12 @@
     "abi": [
         {
             "constant": false,
-            "inputs": [{"name": "data", "type": "bytes"}],
+            "inputs": [
+                {
+                    "name": "data",
+                    "type": "bytes"
+                }
+            ],
             "name": "initialize",
             "outputs": [],
             "payable": false,
@@ -20,13 +25,22 @@
     "sourcePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
     "ast": {
         "absolutePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
-        "exportedSymbols": {"IApplication": [3050]},
+        "exportedSymbols": {
+            "IApplication": [
+                3050
+            ]
+        },
         "id": 3051,
         "nodeType": "SourceUnit",
         "nodes": [
             {
                 "id": 3044,
-                "literals": ["solidity", "^", "0.4", ".18"],
+                "literals": [
+                    "solidity",
+                    "^",
+                    "0.4",
+                    ".18"
+                ],
                 "nodeType": "PragmaDirective",
                 "src": "0:24:9"
             },
@@ -37,7 +51,9 @@
                 "documentation": null,
                 "fullyImplemented": false,
                 "id": 3050,
-                "linearizedBaseContracts": [3050],
+                "linearizedBaseContracts": [
+                    3050
+                ],
                 "name": "IApplication",
                 "nodeType": "ContractDefinition",
                 "nodes": [
@@ -106,13 +122,22 @@
     },
     "legacyAST": {
         "absolutePath": "/home/spoons/diligence/mythx-qa/land/contracts/upgradable/IApplication.sol",
-        "exportedSymbols": {"IApplication": [3050]},
+        "exportedSymbols": {
+            "IApplication": [
+                3050
+            ]
+        },
         "id": 3051,
         "nodeType": "SourceUnit",
         "nodes": [
             {
                 "id": 3044,
-                "literals": ["solidity", "^", "0.4", ".18"],
+                "literals": [
+                    "solidity",
+                    "^",
+                    "0.4",
+                    ".18"
+                ],
                 "nodeType": "PragmaDirective",
                 "src": "0:24:9"
             },
@@ -123,7 +148,9 @@
                 "documentation": null,
                 "fullyImplemented": false,
                 "id": 3050,
-                "linearizedBaseContracts": [3050],
+                "linearizedBaseContracts": [
+                    3050
+                ],
                 "name": "IApplication",
                 "nodeType": "ContractDefinition",
                 "nodes": [
@@ -190,10 +217,17 @@
         ],
         "src": "0:95:9"
     },
-    "compiler": {"name": "solc", "version": "0.4.24+commit.e67f0147.Emscripten.clang"},
+    "compiler": {
+        "name": "solc",
+        "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+    },
     "networks": {},
     "schemaVersion": "3.0.8",
     "updatedAt": "2019-04-30T11:34:15.037Z",
-    "devdoc": {"methods": {}},
-    "userdoc": {"methods": {}}
+    "devdoc": {
+        "methods": {}
+    },
+    "userdoc": {
+        "methods": {}
+    }
 }
