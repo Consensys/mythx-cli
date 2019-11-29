@@ -112,6 +112,7 @@ def cli(ctx, **kwargs):
 
 @cli.group()
 def group():
+    """Create, modify, and view analysis groups."""
     pass
 
 
