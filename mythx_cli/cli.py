@@ -116,6 +116,12 @@ def group():
     pass
 
 
+@cli.group()
+def analysis():
+    """Get information on running and finished analyses."""
+    pass
+
+
 def find_truffle_artifacts(project_dir):
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
@@ -265,10 +271,10 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name):
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
 
-@cli.command()
+@analysis.command("status")
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def status(ctx, uuids):
+def analysis_status(ctx, uuids):
     """Get the status of an already submitted analysis.
     \f
 
@@ -381,7 +387,7 @@ def group_close(ctx, identifiers):
         )
 
 
-@cli.command(name="list")
+@analysis.command("list")
 @click.option(
     "--number",
     default=5,
@@ -390,7 +396,7 @@ def group_close(ctx, identifiers):
     help="The number of most recent analysis jobs to display",
 )
 @click.pass_obj
-def list_(ctx, number):
+def analysis_list(ctx, number):
     """Get a list of submitted analyses.
     \f
 
@@ -426,10 +432,10 @@ def list_(ctx, number):
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 
-@cli.command()
+@analysis.command("report")
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def report(ctx, uuids):
+def analysis_report(ctx, uuids):
     """Fetch the report for a single or multiple job UUIDs.
     \f
 
