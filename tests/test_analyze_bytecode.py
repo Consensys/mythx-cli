@@ -1,12 +1,14 @@
 from unittest.mock import patch
 
 from click.testing import CliRunner
-
+from .common import get_test_case
 from mythx_cli.cli import cli
-
-from .testdata import INPUT_RESPONSE_OBJ, ISSUES_RESPONSE_OBJ, SUBMISSION_RESPONSE_OBJ
+from mythx_models.response import AnalysisSubmissionResponse, DetectedIssuesResponse, AnalysisInputResponse
 
 FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
+SUBMISSION_RESPONSE = get_test_case("testdata/analysis-submission-response.json", AnalysisSubmissionResponse)
+ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
+INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
 
 
 def test_bytecode_analyze():
@@ -16,14 +18,14 @@ def test_bytecode_analyze():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         result = runner.invoke(cli, ["analyze", "0xfe"])
         assert result.exit_code == 0
-        assert INPUT_RESPONSE_OBJ.source_list[0] in result.output
+        assert INPUT_RESPONSE.source_list[0] in result.output
 
 
 def test_bytecode_analyze_invalid():
@@ -33,10 +35,10 @@ def test_bytecode_analyze_invalid():
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch:
-        analyze_patch.return_value = SUBMISSION_RESPONSE_OBJ
+        analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE_OBJ
-        input_patch.return_value = INPUT_RESPONSE_OBJ
+        report_patch.return_value = ISSUES_RESPONSE
+        input_patch.return_value = INPUT_RESPONSE
 
         result = runner.invoke(cli, ["analyze", "lolwut"])
         assert result.exit_code == 2
