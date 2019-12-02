@@ -25,7 +25,7 @@ def test_report_tabular():
     ) as input_patch:
         report_patch.return_value = ISSUES_RESPONSE
         input_patch.return_value = INPUT_RESPONSE
-        result = runner.invoke(cli, ["report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        result = runner.invoke(cli, ["analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
         assert result.exit_code == 0
         assert result.output == ISSUES_TABLE
 
@@ -38,7 +38,7 @@ def test_report_json():
         report_patch.return_value = ISSUES_RESPONSE
         input_patch.return_value = INPUT_RESPONSE
         result = runner.invoke(
-            cli, ["--format", "json", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
+            cli, ["--format", "json", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
         assert result.exit_code == 0
         assert json.loads(result.output) == json.loads(ISSUES_RESPONSE.to_json())
@@ -56,6 +56,7 @@ def test_report_json_pretty():
             [
                 "--format",
                 "json-pretty",
+                "analysis",
                 "report",
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
@@ -73,7 +74,7 @@ def test_report_simple():
         input_patch.return_value = INPUT_RESPONSE
         result = runner.invoke(
             cli,
-            ["--format", "simple", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"],
+            ["--format", "simple", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"],
         )
         assert result.exit_code == 0
         assert result.output == ISSUES_SIMPLE

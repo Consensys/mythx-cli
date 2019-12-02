@@ -112,6 +112,13 @@ def cli(ctx, **kwargs):
 
 @cli.group()
 def group():
+    """Create, modify, and view analysis groups."""
+    pass
+
+
+@cli.group()
+def analysis():
+    """Get information on running and finished analyses."""
     pass
 
 
@@ -264,10 +271,10 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name):
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
 
-@cli.command()
+@analysis.command("status")
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def status(ctx, uuids):
+def analysis_status(ctx, uuids):
     """Get the status of an already submitted analysis.
     \f
 
@@ -319,7 +326,7 @@ def group_list(ctx, number):
                 "This functionality is only available to registered users. "
                 "Head over to https://mythx.io/ and register a free account to "
                 "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx status <uuid>'."
+                "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
@@ -380,7 +387,7 @@ def group_close(ctx, identifiers):
         )
 
 
-@cli.command(name="list")
+@analysis.command("list")
 @click.option(
     "--number",
     default=5,
@@ -389,7 +396,7 @@ def group_close(ctx, identifiers):
     help="The number of most recent analysis jobs to display",
 )
 @click.pass_obj
-def list_(ctx, number):
+def analysis_list(ctx, number):
     """Get a list of submitted analyses.
     \f
 
@@ -419,16 +426,16 @@ def list_(ctx, number):
                 "This functionality is only available to registered users. "
                 "Head over to https://mythx.io/ and register a free account to "
                 "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx status <uuid>'."
+                "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
     click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 
-@cli.command()
+@analysis.command("report")
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def report(ctx, uuids):
+def analysis_report(ctx, uuids):
     """Fetch the report for a single or multiple job UUIDs.
     \f
 
