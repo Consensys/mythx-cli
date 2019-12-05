@@ -9,7 +9,7 @@ from pathlib import Path
 import click
 
 from mythx_cli import __version__
-from mythx_cli.formatter import FORMAT_RESOLVER
+from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import (
     generate_bytecode_payload,
     generate_solidity_payload,
@@ -182,8 +182,22 @@ def find_solidity_files(project_dir):
     help="The group name to attach to the analysis",
     default=None,
 )
+@click.option(
+    "--min-severity",
+    type=click.STRING,
+    help="Ignore SWC IDs below the designated level",
+    default=None,
+)
+@click.option(
+    "--swc-blacklist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to ignore",
+    default=None,
+)
 @click.pass_obj
-def analyze(ctx, target, async_flag, mode, group_id, group_name):
+def analyze(
+    ctx, target, async_flag, mode, group_id, group_name, min_severity, swc_blacklist
+):
     """Analyze the given directory or arguments with MythX.
     \f
 
@@ -193,6 +207,8 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name):
     :param mode: Full or quick analysis mode
     :param group_id: The group ID to add the analysis to
     :param group_name: The group name to attach to the analysis
+    :param min_severity: Ignore SWC IDs below the designated level
+    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :return:
     """
 
@@ -267,6 +283,8 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name):
             time.sleep(3)
         resp = ctx["client"].report(uuid)
         inp = ctx["client"].request_by_uuid(uuid)
+
+        util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
         ctx["uuid"] = uuid
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
@@ -434,13 +452,27 @@ def analysis_list(ctx, number):
 
 @analysis.command("report")
 @click.argument("uuids", default=None, nargs=-1)
+@click.option(
+    "--min-severity",
+    type=click.Choice(["low", "medium", "high"]),
+    help="Ignore SWC IDs below the designated level",
+    default=None,
+)
+@click.option(
+    "--swc-blacklist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to ignore",
+    default=None,
+)
 @click.pass_obj
-def analysis_report(ctx, uuids):
+def analysis_report(ctx, uuids, min_severity, swc_blacklist):
     """Fetch the report for a single or multiple job UUIDs.
     \f
 
     :param ctx: Click context holding group-level parameters
     :param uuids: List of UUIDs to display the report for
+    :param min_severity: Ignore SWC IDs below the designated level
+    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :return:
     """
 
@@ -448,6 +480,8 @@ def analysis_report(ctx, uuids):
         resp = ctx["client"].report(uuid)
         inp = ctx["client"].request_by_uuid(uuid)
         ctx["uuid"] = uuid
+
+        util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
 

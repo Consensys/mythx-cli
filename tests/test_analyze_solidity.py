@@ -8,7 +8,7 @@ from mythx_models.response import (
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
 )
-
+from copy import deepcopy
 from .common import get_test_case
 
 SOLIDITY_CODE = """pragma solidity 0.4.13;
@@ -53,7 +53,7 @@ def test_solidity_analyze_blocking():
     ) as input_patch:
         analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
@@ -66,6 +66,52 @@ def test_solidity_analyze_blocking():
             assert ISSUES_TABLE in result.output
 
 
+def test_solidity_analyze_blocking_blacklist():
+    runner = CliRunner()
+    with patch("pythx.Client.analyze") as analyze_patch, patch(
+        "pythx.Client.analysis_ready"
+    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
+        "pythx.Client.request_by_uuid"
+    ) as input_patch:
+        analyze_patch.return_value = SUBMISSION_RESPONSE
+        ready_patch.return_value = True
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
+        input_patch.return_value = INPUT_RESPONSE
+
+        with runner.isolated_filesystem():
+            # initialize sample solidity file
+            with open("outdated.sol", "w+") as conf_f:
+                conf_f.write(SOLIDITY_CODE)
+
+            result = runner.invoke(cli, ["analyze", "--swc-blacklist", "SWC-110"], input="y\n")
+            assert result.exit_code == 0
+            assert "Assert Violation" not in result.output
+            assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+
+
+def test_solidity_analyze_blocking_filter():
+    runner = CliRunner()
+    with patch("pythx.Client.analyze") as analyze_patch, patch(
+        "pythx.Client.analysis_ready"
+    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
+        "pythx.Client.request_by_uuid"
+    ) as input_patch:
+        analyze_patch.return_value = SUBMISSION_RESPONSE
+        ready_patch.return_value = True
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
+        input_patch.return_value = INPUT_RESPONSE
+
+        with runner.isolated_filesystem():
+            # initialize sample solidity file
+            with open("outdated.sol", "w+") as conf_f:
+                conf_f.write(SOLIDITY_CODE)
+
+            result = runner.invoke(cli, ["analyze", "--min-severity", "high"], input="y\n")
+            assert result.exit_code == 0
+            assert "Assert Violation" not in result.output
+            assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+
+
 def test_solidity_analyze_as_arg():
     runner = CliRunner()
     with patch("pythx.Client.analyze") as analyze_patch, patch(
@@ -75,7 +121,7 @@ def test_solidity_analyze_as_arg():
     ) as input_patch:
         analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
@@ -97,7 +143,7 @@ def test_solidity_analyze_multiple():
     ) as input_patch:
         analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
@@ -122,7 +168,7 @@ def test_solidity_analyze_missing_version():
     ) as input_patch:
         analyze_patch.return_value = SUBMISSION_RESPONSE
         ready_patch.return_value = True
-        report_patch.return_value = ISSUES_RESPONSE
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = INPUT_RESPONSE
 
         with runner.isolated_filesystem():
