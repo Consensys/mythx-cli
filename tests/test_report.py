@@ -1,10 +1,12 @@
 import json
-from unittest.mock import patch
 from copy import deepcopy
+from unittest.mock import patch
+
 from click.testing import CliRunner
-from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.cli import cli
+from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
+
 from .common import get_test_case
 
 INPUT_RESPONSE = get_test_case(
@@ -39,11 +41,21 @@ def test_report_tabular_blacklist():
         report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = deepcopy(INPUT_RESPONSE)
         result = runner.invoke(
-            cli, ["analysis", "report", "--swc-blacklist", "SWC-110", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
+            cli,
+            [
+                "analysis",
+                "report",
+                "--swc-blacklist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
         )
         assert result.exit_code == 0
         assert "Assert Violation" not in result.output
-        assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+        assert (
+            "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol"
+            not in result.output
+        )
 
 
 def test_report_tabular_filter():
@@ -54,11 +66,21 @@ def test_report_tabular_filter():
         report_patch.return_value = deepcopy(ISSUES_RESPONSE)
         input_patch.return_value = deepcopy(INPUT_RESPONSE)
         result = runner.invoke(
-            cli, ["analysis", "report", "--min-severity", "high", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
+            cli,
+            [
+                "analysis",
+                "report",
+                "--min-severity",
+                "high",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
         )
         assert result.exit_code == 0
         assert "Assert Violation" not in result.output
-        assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+        assert (
+            "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol"
+            not in result.output
+        )
 
 
 def test_report_json():
@@ -102,7 +124,9 @@ def test_report_json_blacklist():
             ],
         )
         assert result.exit_code == 0
-        assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert all(
+            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"]
+        )
 
 
 def test_report_json_filter():
@@ -125,7 +149,9 @@ def test_report_json_filter():
             ],
         )
         assert result.exit_code == 0
-        assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert all(
+            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"]
+        )
 
 
 def test_report_json_pretty():
@@ -169,7 +195,9 @@ def test_report_json_pretty_blacklist():
             ],
         )
         assert result.exit_code == 0
-        assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert all(
+            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"]
+        )
 
 
 def test_report_json_pretty_filter():
@@ -192,7 +220,9 @@ def test_report_json_pretty_filter():
             ],
         )
         assert result.exit_code == 0
-        assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert all(
+            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"]
+        )
 
 
 def test_report_simple():

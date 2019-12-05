@@ -30,9 +30,9 @@ logging.basicConfig(level=logging.WARNING)
 
 @click.group()
 @click.option(
-    "--debug/--no-debug",
+    "--debug",
+    is_flag=True,
     default=False,
-    show_default=True,
     envvar="MYTHX_DEBUG",
     help="Provide additional debug output",
 )
@@ -66,6 +66,12 @@ logging.basicConfig(level=logging.WARNING)
     show_default=True,
     help="The format to display the results in",
 )
+@click.option(
+    "--ci",
+    is_flag=True,
+    default=False,
+    help="Return exit code 1 if high-severity issue is found",
+)
 @click.pass_context
 def cli(ctx, **kwargs):
     """Your CLI for interacting with https://mythx.io/
@@ -78,9 +84,11 @@ def cli(ctx, **kwargs):
     :param password: The account password from the MythX dashboard
     :param staging: Boolean to redirect requests to MythX staging
     :param fmt: The formatter to use for the subcommand output
+    :param ci: Boolean to return exit code 1 on medium/high-sev issues
     """
 
     ctx.obj = dict(kwargs)
+    ctx.obj["retval"] = 0
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
@@ -106,8 +114,6 @@ def cli(ctx, **kwargs):
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
             logging.getLogger(name).setLevel(logging.DEBUG)
-
-    return 0
 
 
 @cli.group()
@@ -285,8 +291,11 @@ def analyze(
         inp = ctx["client"].request_by_uuid(uuid)
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
+        util.set_fail_on_high_severity_report(resp)
         ctx["uuid"] = uuid
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+
+    sys.exit(ctx["retval"])
 
 
 @analysis.command("status")
@@ -482,7 +491,9 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist):
         ctx["uuid"] = uuid
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
+        util.set_fail_on_high_severity_report(resp)
         click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+    sys.exit(ctx["retval"])
 
 
 @cli.command()
