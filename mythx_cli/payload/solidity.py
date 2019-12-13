@@ -1,7 +1,7 @@
 """This module contains functions to generate Solidity-related payloads."""
 
 import re
-from click import get_current_context
+
 import click
 import solcx
 import solcx.exceptions
@@ -34,17 +34,15 @@ def generate_solidity_payload(file, version):
     with open(file) as f:
         source = f.read()
 
-    if version is None:
-        solc_version = re.findall(PRAGMA_PATTERN, source)
-        if not solc_version:
-            # no pragma found, user needs to specify the version
-            raise click.exceptions.UsageError(
-                "No pragma found - please specify a solc version with --solc-version"
-            )
-            # TODO: Pass user-defined version
-        solc_version = "v" + solc_version[0]
-    else:
-        solc_version = version
+    solc_version = re.findall(PRAGMA_PATTERN, source)
+    if not (solc_version or version):
+        # no pragma found, user needs to specify the version
+        raise click.exceptions.UsageError(
+            "No pragma found - please specify a solc version with --solc-version"
+        )
+
+    solc_version = "v" + (version or solc_version[0])
+
     if solc_version not in solcx.get_installed_solc_versions():
         try:
             solcx.install_solc(solc_version)

@@ -208,7 +208,15 @@ def find_solidity_files(project_dir):
 )
 @click.pass_obj
 def analyze(
-    ctx, target, async_flag, mode, group_id, group_name, min_severity, swc_blacklist, solc_version
+    ctx,
+    target,
+    async_flag,
+    mode,
+    group_id,
+    group_name,
+    min_severity,
+    swc_blacklist,
+    solc_version,
 ):
     """Analyze the given directory or arguments with MythX.
     \f
