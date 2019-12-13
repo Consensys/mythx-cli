@@ -2,6 +2,8 @@
 
 from typing import List, Union
 
+import click
+
 from mythx_models.response import DetectedIssuesResponse, Severity
 
 SEVERITY_ORDER = (
@@ -64,3 +66,17 @@ def filter_report(
         report.issues = new_issues
 
     return resp
+
+
+def set_fail_on_high_severity_report(resp: DetectedIssuesResponse):
+    """Set return code 1 if CLI is in CI mode and a medium/high-sev issue is found."""
+
+    ctx = click.get_current_context()
+    if not ctx.obj["ci"]:
+        # only set return value if we're in CI mode
+        return
+
+    for issue in resp:
+        if issue.severity == Severity.MEDIUM or issue.severity == Severity.HIGH:
+            ctx.obj["retval"] = 1
+            return

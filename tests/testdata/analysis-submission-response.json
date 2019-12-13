@@ -12,5 +12,13 @@
     "clientToolName": "pythx",
     "groupId": "5dc410095e78890011fba1a4",
     "groupName": "test-group",
-    "analysisMode": "full"
+    "analysisMode": "full",
+    "numSources": 0,
+    "numVulnerabilities": {
+        "high": 0,
+        "medium": 0,
+        "low": 0,
+        "none": 0
+    },
+    "mainSource": "test.sol"
 }
