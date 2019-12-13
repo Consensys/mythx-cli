@@ -200,9 +200,23 @@ def find_solidity_files(project_dir):
     help="A comma-separated list of SWC IDs to ignore",
     default=None,
 )
+@click.option(
+    "--solc-version",
+    type=click.STRING,
+    help="The solc version to use for Solidity compilation",
+    default=None,
+)
 @click.pass_obj
 def analyze(
-    ctx, target, async_flag, mode, group_id, group_name, min_severity, swc_blacklist
+    ctx,
+    target,
+    async_flag,
+    mode,
+    group_id,
+    group_name,
+    min_severity,
+    swc_blacklist,
+    solc_version,
 ):
     """Analyze the given directory or arguments with MythX.
     \f
@@ -215,6 +229,7 @@ def analyze(
     :param group_name: The group name to attach to the analysis
     :param min_severity: Ignore SWC IDs below the designated level
     :param swc_blacklist: A comma-separated list of SWC IDs to ignore
+    :param solc_version: The solc version to use for Solidity compilation
     :return:
     """
 
@@ -247,7 +262,7 @@ def analyze(
             )
             LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
-                jobs.append(generate_solidity_payload(file))
+                jobs.append(generate_solidity_payload(file, solc_version))
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -262,7 +277,7 @@ def analyze(
                 LOGGER.debug(
                     "Trying to interpret {} as a solidity file".format(target_elem)
                 )
-                jobs.append(generate_solidity_payload(target_elem))
+                jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             else:
                 raise click.exceptions.UsageError(

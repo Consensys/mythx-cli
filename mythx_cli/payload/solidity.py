@@ -9,7 +9,7 @@ import solcx.exceptions
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 
-def generate_solidity_payload(file):
+def generate_solidity_payload(file, version):
     """Generate a MythX analysis request from a given Solidity file.
 
     This function will open the file, try to detect the used solc version from
@@ -35,13 +35,13 @@ def generate_solidity_payload(file):
         source = f.read()
 
     solc_version = re.findall(PRAGMA_PATTERN, source)
-    if not solc_version:
+    if not (solc_version or version):
         # no pragma found, user needs to specify the version
         raise click.exceptions.UsageError(
             "No pragma found - please specify a solc version with --solc-version"
         )
-        # TODO: Pass user-defined version
-    solc_version = "v" + solc_version[0]
+
+    solc_version = "v" + (version or solc_version[0])
 
     if solc_version not in solcx.get_installed_solc_versions():
         try:
