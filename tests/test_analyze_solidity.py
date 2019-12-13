@@ -218,3 +218,80 @@ def test_solidity_analyze_missing_version():
             result = runner.invoke(cli, ["analyze", "outdated.sol"])
             assert result.exit_code == 2
             assert SOLC_ERROR in result.output
+
+
+def test_solidity_analyze_user_solc_version():
+    runner = CliRunner()
+    with patch("pythx.Client.analyze") as analyze_patch, patch(
+        "pythx.Client.analysis_ready"
+    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
+        "pythx.Client.request_by_uuid"
+    ) as input_patch, patch(
+        "solcx.compile_source"
+    ) as compile_patch:
+        analyze_patch.return_value = SUBMISSION_RESPONSE
+        ready_patch.return_value = True
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
+        input_patch.return_value = INPUT_RESPONSE
+        compile_patch.return_value = {
+            "contract": {
+                "abi": "test",
+                "ast": "test",
+                "bin": "test",
+                "bin-runtime": "test",
+                "srcmap": "test",
+                "srcmap-runtime": "test",
+            }
+        }
+
+        with runner.isolated_filesystem():
+            # initialize sample solidity file without pragma line
+            with open("outdated.sol", "w+") as conf_f:
+                conf_f.write(SOLIDITY_CODE[1:])
+
+            result = runner.invoke(
+                cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"]
+            )
+
+            assert result.exit_code == 0
+            assert result.output == ISSUES_TABLE
+
+
+def test_solidity_analyze_invalid_solc_version():
+    runner = CliRunner()
+    with patch("pythx.Client.analyze") as analyze_patch, patch(
+        "pythx.Client.analysis_ready"
+    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
+        "pythx.Client.request_by_uuid"
+    ) as input_patch, patch(
+        "solcx.compile_source"
+    ) as compile_patch:
+        analyze_patch.return_value = SUBMISSION_RESPONSE
+        ready_patch.return_value = True
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
+        input_patch.return_value = INPUT_RESPONSE
+        compile_patch.return_value = {
+            "contract": {
+                "abi": "test",
+                "ast": "test",
+                "bin": "test",
+                "bin-runtime": "test",
+                "srcmap": "test",
+                "srcmap-runtime": "test",
+            }
+        }
+
+        with runner.isolated_filesystem():
+            # initialize sample solidity file without pragma line
+            with open("outdated.sol", "w+") as conf_f:
+                conf_f.write(SOLIDITY_CODE[1:])
+
+            result = runner.invoke(
+                cli, ["analyze", "--solc-version", "9001", "outdated.sol"]
+            )
+
+            assert result.exit_code == 2
+            assert (
+                "Error: Error installing solc version v9001: Invalid version string: '9001'"
+                in result.output
+            )
