@@ -2,6 +2,24 @@
 History
 =======
 
+0.3.0 (2019-12-16)
+------------------
+
+- Add links to MythX dashboard in formatters
+- Add support for analysis groups
+- Split up logic in subcommands (analysis and group)
+- Add CI flag to return 1 on high-severity issues
+- Add parameter to blacklist SWC IDs
+- Fix bug where :code:`--solc-version` parameter did not work
+- Refactor test suite
+- Update pytest to 5.3.1
+- Update Sphinx to 2.3.0
+
+0.2.1 (2019-10-04)
+------------------
+
+- Update PythX to 1.3.2
+
 0.2.0 (2019-10-04)
 ------------------
 
