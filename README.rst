@@ -46,22 +46,25 @@ Usage
       Your CLI for interacting with https://mythx.io/
 
     Options:
-      --debug / --no-debug            Provide additional debug output
+      --debug                         Provide additional debug output
       --access-token TEXT             Your access token generated from the MythX
                                       dashboard
       --eth-address TEXT              Your MythX account's Ethereum address
       --password TEXT                 Your MythX account's password as set in the
                                       dashboard
-      --format [simple|json|json-pretty]
+      --format [simple|json|json-pretty|table]
                                       The format to display the results in
+                                      [default: table]
+      --ci                            Return exit code 1 if high-severity issue is
+                                      found
       --help                          Show this message and exit.
 
     Commands:
-      analyze  Analyze the given directory or arguments with MythX.
-      list     Get a list of submitted analyses.
-      report   Fetch the report for a single or multiple job UUIDs.
-      status   Get the status of an already submitted analysis.
-      version  Display API version information.
+      analysis  Get information on running and finished analyses.
+      analyze   Analyze the given directory or arguments with MythX.
+      group     Create, modify, and view analysis groups.
+      version   Display API version information.
+
 
 
 Installation
