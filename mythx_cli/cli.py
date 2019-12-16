@@ -413,7 +413,7 @@ def group_open(ctx, name):
 @click.argument("identifiers", nargs=-1, required=True)
 @click.pass_obj
 def group_close(ctx, identifiers):
-    """Close/seal an existing group to prevent future analyses from being added.
+    """Close/seal an existing group.
     \f
 
     :param ctx: Click context holding group-level parameters

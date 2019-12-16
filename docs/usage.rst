@@ -58,18 +58,76 @@ Note that if an access token is passed in directly as well, it will take
 precedence and no login with username and password is performed.
 
 
+The Grouping Functionality
+-----------------------------------
+
+.. code-block:: console
+
+    Usage: mythx group [OPTIONS] COMMAND [ARGS]...
+
+      Create, modify, and view analysis groups.
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      close   Close/seal an existing group.
+      list    Get a list of analysis groups.
+      open    Create a new group to assign future analyses to.
+      status  Get the status of an analysis group.
+
+An analysis group can be regarded as a container. It is supposed to capture groups of
+analyses and display them in an easy-to-read overview in the MythX dashboard.
+
+To open a new group, simply type:
+
+.. code-block:: console
+
+    $ mythx group open "super important"
+    Opened group with ID 5df7c8932a73230011271d27 and name 'super important'
+
+The name is optional and can be omitted if not needed. Now to analyze a sample, simply pass
+the group ID (and optionally the name) as parameters to the :code:`mythx analyze` call:
+
+.. code-block::
+
+    $ mythx analyze --group-name "super important" --group-id 5df7c8932a73230011271d27 --async fallout.sol remythx-mbt385.sol token.sol functiontypes-swc127.sol
+
+This will associate the individual analysis jobs to the same group in the MythX Dashboard:
+
+.. image:: img/dashboard.png
+    :alt: The MythX dashboard showing the analysis group
+    :align: center
+
+After all data has been submitted, the group must be closed again using
+
+.. code-block:: console
+
+    $ mythx group close 5df7c8932a73230011271d27
+    Closed group with ID 5df7c8932a73230011271d27 and name 'super important'
+
+
 The Analysis Functionality
 --------------------------
 
 .. code-block:: console
 
+    $ mythx analyze --help
     Usage: mythx analyze [OPTIONS] [TARGET]...
 
+      Analyze the given directory or arguments with MythX.
+
     Options:
-    --async / --wait     Submit the job and print the UUID, or wait for
-                         execution to finish
-    --mode [quick|full]
-    --help               Show this message and exit.
+      --async / --wait      Submit the job and print the UUID, or wait for
+                            execution to finish
+      --mode [quick|full]   [default: quick]
+      --group-id TEXT       The group ID to add the analysis to
+      --group-name TEXT     The group name to attach to the analysis
+      --min-severity TEXT   Ignore SWC IDs below the designated level
+      --swc-blacklist TEXT  A comma-separated list of SWC IDs to ignore
+      --solc-version TEXT   The solc version to use for Solidity compilation
+      --help                Show this message and exit.
+
 
 Submit a new analysis to MythX. This command works in different scenarios,
 simply by calling :code:`mythx analyze`:
@@ -101,8 +159,6 @@ the MythX API. This will increase the number of detected issues (as e.g.
 symbolic execution tools in the MythX backend can pick up on the bytecode), as
 well as reduce the number of false positive issues. The MythX CLI will try to
 estimate the :code:`solc` version based on the pragma set in the source code.
-
-.. TODO: Add section on manually passing the --solc-version option once implemneted
 
 
 Asynchronous Analysis
