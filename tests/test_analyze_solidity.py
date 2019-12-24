@@ -173,6 +173,29 @@ def test_solidity_analyze_as_arg():
             assert result.output == ISSUES_TABLE
 
 
+def test_solidity_analyze_file_output():
+    runner = CliRunner()
+    with patch("pythx.Client.analyze") as analyze_patch, patch(
+        "pythx.Client.analysis_ready"
+    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
+        "pythx.Client.request_by_uuid"
+    ) as input_patch:
+        analyze_patch.return_value = SUBMISSION_RESPONSE
+        ready_patch.return_value = True
+        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
+        input_patch.return_value = INPUT_RESPONSE
+
+        with runner.isolated_filesystem():
+            # initialize sample solidity file
+            with open("outdated.sol", "w+") as conf_f:
+                conf_f.write(SOLIDITY_CODE)
+
+            result = runner.invoke(cli, ["--output", "test.log", "analyze", "outdated.sol"])
+            assert result.exit_code == 0
+            with open("test.log") as f:
+                assert f.read() == ISSUES_TABLE.strip()
+
+
 def test_solidity_analyze_multiple():
     runner = CliRunner()
     with patch("pythx.Client.analyze") as analyze_patch, patch(
