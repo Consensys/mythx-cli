@@ -33,7 +33,7 @@ def write_or_print(ctx, data):
     if not ctx["output"]:
         click.echo(data)
         return
-    with open(ctx["output"], "w+") as outfile:
+    with open(ctx["output"], "a+") as outfile:
         outfile.write(data)
 
 
