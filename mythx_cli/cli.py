@@ -28,6 +28,15 @@ LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
 
+@click.pass_obj
+def write_or_print(ctx, data: str):
+    if not ctx["output"]:
+        click.echo(data)
+        return
+    with open(ctx["output"], "a+") as outfile:
+        outfile.write(data + "\n")
+
+
 @click.group()
 @click.option(
     "--debug",
@@ -72,6 +81,9 @@ logging.basicConfig(level=logging.WARNING)
     default=False,
     help="Return exit code 1 if high-severity issue is found",
 )
+@click.option(
+    "-o", "--output", default=None, help="Output file to write the results into"
+)
 @click.pass_context
 def cli(ctx, **kwargs):
     """Your CLI for interacting with https://mythx.io/
@@ -85,6 +97,7 @@ def cli(ctx, **kwargs):
     :param staging: Boolean to redirect requests to MythX staging
     :param fmt: The formatter to use for the subcommand output
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
+    :param output: Output file to write the results into
     """
 
     ctx.obj = dict(kwargs)
@@ -295,7 +308,7 @@ def analyze(
             uuids.append(resp.uuid)
 
     if async_flag:
-        click.echo("\n".join(uuids))
+        write_or_print("\n".join(uuids))
         return
 
     for uuid in uuids:
@@ -308,7 +321,7 @@ def analyze(
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
         util.set_fail_on_high_severity_report(resp)
         ctx["uuid"] = uuid
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
     sys.exit(ctx["retval"])
 
@@ -325,7 +338,7 @@ def analysis_status(ctx, uuids):
     """
     for uuid in uuids:
         resp = ctx["client"].status(uuid)
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
+        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
 
 
 @group.command("list")
@@ -371,7 +384,7 @@ def group_list(ctx, number):
                 "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
-    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
+    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
 
 
 @group.command("status")
@@ -387,7 +400,7 @@ def group_status(ctx, gids):
 
     for gid in gids:
         resp = ctx["client"].group_status(group_id=gid)
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_group_status(resp))
+        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_status(resp))
 
 
 @group.command("open")
@@ -402,7 +415,7 @@ def group_open(ctx, name):
     """
 
     resp: GroupCreationResponse = ctx["client"].create_group(group_name=name)
-    click.echo(
+    write_or_print(
         "Opened group with ID {} and name '{}'".format(
             resp.group.identifier, resp.group.name
         )
@@ -422,7 +435,7 @@ def group_close(ctx, identifiers):
 
     for identifier in identifiers:
         resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
-        click.echo(
+        write_or_print(
             "Closed group with ID {} and name '{}'".format(
                 resp.group.identifier, resp.group.name
             )
@@ -471,7 +484,7 @@ def analysis_list(ctx, number):
                 "status of a specific job by calling 'mythx analysis status <uuid>'."
             )
         )
-    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
+    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 
 @analysis.command("report")
@@ -507,7 +520,7 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist):
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
         util.set_fail_on_high_severity_report(resp)
-        click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
     sys.exit(ctx["retval"])
 
 
@@ -522,7 +535,7 @@ def version(ctx):
     """
 
     resp = ctx["client"].version()
-    click.echo(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))
+    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))
 
 
 if __name__ == "__main__":
