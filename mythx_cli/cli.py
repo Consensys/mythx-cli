@@ -29,12 +29,12 @@ logging.basicConfig(level=logging.WARNING)
 
 
 @click.pass_obj
-def write_or_print(ctx, data):
+def write_or_print(ctx, data: str):
     if not ctx["output"]:
         click.echo(data)
         return
     with open(ctx["output"], "a+") as outfile:
-        outfile.write(data)
+        outfile.write(data + "\n")
 
 
 @click.group()

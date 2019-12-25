@@ -74,7 +74,7 @@ def test_truffle_analyze_file_output():
             result = runner.invoke(cli, ["--output", "test.log", "analyze"])
             assert result.exit_code == 0
             with open("test.log") as f:
-                assert f.read() == ISSUES_TABLE.strip()
+                assert f.read() == ISSUES_TABLE
 
 
 def test_truffle_analyze_blocking():
