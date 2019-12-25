@@ -4,10 +4,13 @@ from copy import deepcopy
 from pathlib import Path
 from unittest.mock import patch
 
+from cli import analysis_list
 from mythx_models.response import (
     AnalysisInputResponse,
+    AnalysisListResponse,
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
+    GroupListResponse,
 )
 
 
@@ -23,14 +26,24 @@ def get_test_case(path: str, obj=None, raw=False):
 
 
 @contextmanager
-def mock_context(submission_response=None, issues_response=None, input_response=None):
+def mock_context(
+    submission_response=None,
+    issues_response=None,
+    input_response=None,
+    analysis_list_response=None,
+    group_list_response=None,
+):
     with patch("pythx.Client.analyze") as analyze_patch, patch(
         "pythx.Client.analysis_ready"
     ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
         "pythx.Client.request_by_uuid"
     ) as input_patch, patch(
         "solcx.compile_source"
-    ) as compile_patch:
+    ) as compile_patch, patch(
+        "pythx.Client.analysis_list"
+    ) as analysis_list_patch, patch(
+        "pythx.Client.group_list"
+    ) as group_list_patch:
         analyze_patch.return_value = submission_response or get_test_case(
             "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
         )
@@ -51,4 +64,10 @@ def mock_context(submission_response=None, issues_response=None, input_response=
                 "srcmap-runtime": "test",
             }
         }
-        yield analyze_patch, ready_patch, report_patch, input_patch, compile_patch
+        analysis_list_patch.return_value = analysis_list_response or get_test_case(
+            "testdata/analysis-list-response.json", AnalysisListResponse
+        )
+        group_list_patch.return_value = group_list_response or get_test_case(
+            "testdata/group-list-response.json", GroupListResponse
+        )
+        yield analyze_patch, ready_patch, report_patch, input_patch, compile_patch, analysis_list_patch, group_list_patch
