@@ -1,13 +1,11 @@
 import json
-from copy import deepcopy
-from unittest.mock import patch
 
 from click.testing import CliRunner
 
 from mythx_cli.cli import cli
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
-from .common import get_test_case
+from .common import get_test_case, mock_context
 
 INPUT_RESPONSE = get_test_case(
     "testdata/analysis-input-response.json", AnalysisInputResponse
@@ -21,11 +19,7 @@ ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
 
 def test_report_tabular():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli, ["analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
@@ -35,11 +29,7 @@ def test_report_tabular():
 
 def test_report_tabular_blacklist():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -60,11 +50,7 @@ def test_report_tabular_blacklist():
 
 def test_report_tabular_filter():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -85,11 +71,7 @@ def test_report_tabular_filter():
 
 def test_report_json():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -106,11 +88,7 @@ def test_report_json():
 
 def test_report_json_blacklist():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -131,11 +109,7 @@ def test_report_json_blacklist():
 
 def test_report_json_filter():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -156,11 +130,7 @@ def test_report_json_filter():
 
 def test_report_json_pretty():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -177,11 +147,7 @@ def test_report_json_pretty():
 
 def test_report_json_pretty_blacklist():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -202,11 +168,7 @@ def test_report_json_pretty_blacklist():
 
 def test_report_json_pretty_filter():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -227,11 +189,7 @@ def test_report_json_pretty_filter():
 
 def test_report_simple():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -248,11 +206,7 @@ def test_report_simple():
 
 def test_report_simple_blacklist():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [
@@ -271,11 +225,7 @@ def test_report_simple_blacklist():
 
 def test_report_simple_filter():
     runner = CliRunner()
-    with patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch:
-        report_patch.return_value = deepcopy(ISSUES_RESPONSE)
-        input_patch.return_value = deepcopy(INPUT_RESPONSE)
+    with mock_context():
         result = runner.invoke(
             cli,
             [

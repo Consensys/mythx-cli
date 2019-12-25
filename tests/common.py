@@ -4,7 +4,6 @@ from copy import deepcopy
 from pathlib import Path
 from unittest.mock import patch
 
-from cli import analysis_list
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
