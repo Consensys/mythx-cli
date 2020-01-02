@@ -70,9 +70,7 @@ class SimpleFormatter(BaseFormatter):
         return "\n".join(res)
 
     @staticmethod
-    def format_detected_issues(
-        resp: DetectedIssuesResponse, inp: AnalysisInputResponse
-    ) -> str:
+    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
         """Format an issue report to a simple text representation."""
 
         res = []
@@ -81,9 +79,7 @@ class SimpleFormatter(BaseFormatter):
         for report in resp.issue_reports:
             for issue in report.issues:
                 res.append(generate_dashboard_link(ctx.obj["uuid"]))
-                res.append(
-                    "Title: {} ({})".format(issue.swc_title or "-", issue.severity)
-                )
+                res.append("Title: {} ({})".format(issue.swc_title or "-", issue.severity))
                 res.append("Description: {}".format(issue.description_long.strip()))
 
                 for loc in issue.locations:
@@ -96,9 +92,7 @@ class SimpleFormatter(BaseFormatter):
                             # (e.g. with unresolved bytecode hashes)
                             res.append("")
                             continue
-                        line = get_source_location_by_offset(
-                            inp.sources[filename]["source"], comp.offset
-                        )
+                        line = get_source_location_by_offset(inp.sources[filename]["source"], comp.offset)
                         snippet = inp.sources[filename]["source"].split("\n")[line - 1]
                         res.append("{}:{}".format(filename, line))
                         res.append("\t" + snippet.strip())

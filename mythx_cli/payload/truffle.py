@@ -46,15 +46,9 @@ def generate_truffle_payload(file):
 
     return {
         "contract_name": artifact.get("contractName"),
-        "bytecode": artifact.get("bytecode")
-        if artifact.get("bytecode") != "0x"
-        else None,
-        "deployed_bytecode": artifact.get("deployedBytecode")
-        if artifact.get("deployedBytecode") != "0x"
-        else None,
-        "source_map": zero_srcmap_indices(artifact.get("sourceMap"))
-        if artifact.get("sourceMap")
-        else None,
+        "bytecode": artifact.get("bytecode") if artifact.get("bytecode") != "0x" else None,
+        "deployed_bytecode": artifact.get("deployedBytecode") if artifact.get("deployedBytecode") != "0x" else None,
+        "source_map": zero_srcmap_indices(artifact.get("sourceMap")) if artifact.get("sourceMap") else None,
         "deployed_source_map": zero_srcmap_indices(artifact.get("deployedSourceMap"))
         if artifact.get("deployedSourceMap")
         else None,

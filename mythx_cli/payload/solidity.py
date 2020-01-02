@@ -37,9 +37,7 @@ def generate_solidity_payload(file, version):
     solc_version = re.findall(PRAGMA_PATTERN, source)
     if not (solc_version or version):
         # no pragma found, user needs to specify the version
-        raise click.exceptions.UsageError(
-            "No pragma found - please specify a solc version with --solc-version"
-        )
+        raise click.exceptions.UsageError("No pragma found - please specify a solc version with --solc-version")
 
     solc_version = "v" + (version or solc_version[0])
 
@@ -47,27 +45,15 @@ def generate_solidity_payload(file, version):
         try:
             solcx.install_solc(solc_version)
         except Exception as e:
-            raise click.exceptions.UsageError(
-                "Error installing solc version {}: {}".format(solc_version, e)
-            )
+            raise click.exceptions.UsageError("Error installing solc version {}: {}".format(solc_version, e))
 
     solcx.set_solc_version(solc_version, silent=True)
     try:
         result = solcx.compile_source(
-            source,
-            output_values=(
-                "abi",
-                "ast",
-                "bin",
-                "bin-runtime",
-                "srcmap",
-                "srcmap-runtime",
-            ),
+            source, output_values=("abi", "ast", "bin", "bin-runtime", "srcmap", "srcmap-runtime")
         )
     except solcx.exceptions.SolcError as e:
-        raise click.exceptions.UsageError(
-            "Error compiling source with solc {}: {}".format(solc_version, e)
-        )
+        raise click.exceptions.UsageError("Error compiling source with solc {}: {}".format(solc_version, e))
 
     # sanitize weird solcx keys
     new_result = {}

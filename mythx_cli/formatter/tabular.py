@@ -26,10 +26,7 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response to a tabular representation."""
 
-        data = [
-            (a.uuid, a.status, a.client_tool_name, a.submitted_at)
-            for a in resp.analyses
-        ]
+        data = [(a.uuid, a.status, a.client_tool_name, a.submitted_at) for a in resp.analyses]
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
@@ -55,18 +52,11 @@ class TabularFormatter(BaseFormatter):
             (
                 ("ID", resp.group.identifier),
                 ("Name", resp.group.name or "<unnamed>"),
-                (
-                    "Creation Date",
-                    resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
-                ),
+                ("Creation Date", resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z")),
                 ("Created By", resp.group.created_by),
                 ("Progress", "{}/100".format(resp.group.progress)),
             )
-            + tuple(
-                zip_longest(
-                    ("Main Sources",), resp.group.main_source_files, fillvalue=""
-                )
-            )
+            + tuple(zip_longest(("Main Sources",), resp.group.main_source_files, fillvalue=""))
             + (
                 ("Status", resp.group.status.title()),
                 ("Queued Analyses", resp.group.analysis_statistics.queued or 0),
@@ -74,22 +64,10 @@ class TabularFormatter(BaseFormatter):
                 ("Failed Analyses", resp.group.analysis_statistics.failed or 0),
                 ("Finished Analyses", resp.group.analysis_statistics.finished or 0),
                 ("Total Analyses", resp.group.analysis_statistics.total or 0),
-                (
-                    "High Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.high or 0,
-                ),
-                (
-                    "Medium Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.medium or 0,
-                ),
-                (
-                    "Low Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.low or 0,
-                ),
-                (
-                    "Unknown Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.none or 0,
-                ),
+                ("High Severity Vulnerabilities", resp.group.vulnerability_statistics.high or 0),
+                ("Medium Severity Vulnerabilities", resp.group.vulnerability_statistics.medium or 0),
+                ("Low Severity Vulnerabilities", resp.group.vulnerability_statistics.low or 0),
+                ("Unknown Severity Vulnerabilities", resp.group.vulnerability_statistics.none or 0),
             )
         )
         return tabulate(data, tablefmt="fancy_grid")
@@ -102,9 +80,7 @@ class TabularFormatter(BaseFormatter):
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
-    def format_detected_issues(
-        resp: DetectedIssuesResponse, inp: AnalysisInputResponse
-    ) -> str:
+    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
         """Format an issue report to a tabular representation."""
 
         res = []
@@ -124,17 +100,8 @@ class TabularFormatter(BaseFormatter):
                         if not inp.sources or filename not in inp.sources:
                             line = "bytecode offset {}".format(c.offset)
                         else:
-                            line = get_source_location_by_offset(
-                                inp.sources[filename]["source"], c.offset
-                            )
-                        file_to_issue[filename].append(
-                            (
-                                line,
-                                issue.swc_title,
-                                issue.severity,
-                                issue.description_short,
-                            )
-                        )
+                            line = get_source_location_by_offset(inp.sources[filename]["source"], c.offset)
+                        file_to_issue[filename].append((line, issue.swc_title, issue.severity, issue.description_short))
 
         ctx = click.get_current_context()
         for filename, data in file_to_issue.items():
@@ -143,9 +110,7 @@ class TabularFormatter(BaseFormatter):
                 (
                     generate_dashboard_link(ctx.obj["uuid"]),
                     tabulate(
-                        data,
-                        tablefmt="fancy_grid",
-                        headers=("Line", "SWC Title", "Severity", "Short Description"),
+                        data, tablefmt="fancy_grid", headers=("Line", "SWC Title", "Severity", "Short Description")
                     ),
                 )
             )

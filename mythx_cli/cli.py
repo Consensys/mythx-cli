@@ -10,16 +10,8 @@ import click
 
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.payload import (
-    generate_bytecode_payload,
-    generate_solidity_payload,
-    generate_truffle_payload,
-)
-from mythx_models.response import (
-    AnalysisListResponse,
-    GroupCreationResponse,
-    GroupListResponse,
-)
+from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
+from mythx_models.response import AnalysisListResponse, GroupCreationResponse, GroupListResponse
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
@@ -38,28 +30,12 @@ def write_or_print(ctx, data: str):
 
 
 @click.group()
+@click.option("--debug", is_flag=True, default=False, envvar="MYTHX_DEBUG", help="Provide additional debug output")
 @click.option(
-    "--debug",
-    is_flag=True,
-    default=False,
-    envvar="MYTHX_DEBUG",
-    help="Provide additional debug output",
+    "--access-token", envvar="MYTHX_ACCESS_TOKEN", help="Your access token generated from the MythX dashboard"
 )
-@click.option(
-    "--access-token",
-    envvar="MYTHX_ACCESS_TOKEN",
-    help="Your access token generated from the MythX dashboard",
-)
-@click.option(
-    "--eth-address",
-    envvar="MYTHX_ETH_ADDRESS",
-    help="Your MythX account's Ethereum address",
-)
-@click.option(
-    "--password",
-    envvar="MYTHX_PASSWORD",
-    help="Your MythX account's password as set in the dashboard",
-)
+@click.option("--eth-address", envvar="MYTHX_ETH_ADDRESS", help="Your MythX account's Ethereum address")
+@click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password as set in the dashboard")
 @click.option(
     "--staging/--production",
     default=False,
@@ -75,15 +51,8 @@ def write_or_print(ctx, data: str):
     show_default=True,
     help="The format to display the results in",
 )
-@click.option(
-    "--ci",
-    is_flag=True,
-    default=False,
-    help="Return exit code 1 if high-severity issue is found",
-)
-@click.option(
-    "-o", "--output", default=None, help="Output file to write the results into"
-)
+@click.option("--ci", is_flag=True, default=False, help="Return exit code 1 if high-severity issue is found")
+@click.option("-o", "--output", default=None, help="Output file to write the results into")
 @click.pass_context
 def cli(ctx, **kwargs):
     """Your CLI for interacting with https://mythx.io/
@@ -105,9 +74,7 @@ def cli(ctx, **kwargs):
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"],
-            staging=kwargs["staging"],
-            middlewares=[toolname_mw],
+            access_token=kwargs["access_token"], staging=kwargs["staging"], middlewares=[toolname_mw]
         )
     elif kwargs["eth_address"] and kwargs["password"]:
         ctx.obj["client"] = Client(
@@ -178,59 +145,22 @@ def find_solidity_files(project_dir):
 
 
 @cli.command()
-@click.argument(
-    "target", default=None, nargs=-1, required=False  # allow multiple targets
-)
+@click.argument("target", default=None, nargs=-1, required=False)  # allow multiple targets
 @click.option(
     "--async/--wait",  # TODO: make default on full
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
+@click.option("--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True)
+@click.option("--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None)
+@click.option("--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None)
+@click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
+@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
 @click.option(
-    "--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True
-)
-@click.option(
-    "--group-id",
-    type=click.STRING,
-    help="The group ID to add the analysis to",
-    default=None,
-)
-@click.option(
-    "--group-name",
-    type=click.STRING,
-    help="The group name to attach to the analysis",
-    default=None,
-)
-@click.option(
-    "--min-severity",
-    type=click.STRING,
-    help="Ignore SWC IDs below the designated level",
-    default=None,
-)
-@click.option(
-    "--swc-blacklist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to ignore",
-    default=None,
-)
-@click.option(
-    "--solc-version",
-    type=click.STRING,
-    help="The solc version to use for Solidity compilation",
-    default=None,
+    "--solc-version", type=click.STRING, help="The solc version to use for Solidity compilation", default=None
 )
 @click.pass_obj
-def analyze(
-    ctx,
-    target,
-    async_flag,
-    mode,
-    group_id,
-    group_name,
-    min_severity,
-    swc_blacklist,
-    solc_version,
-):
+def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, swc_blacklist, solc_version):
     """Analyze the given directory or arguments with MythX.
     \f
 
@@ -262,17 +192,13 @@ def analyze(
                         "Did you run truffle compile?"
                     )
                 )
-            LOGGER.debug(
-                "Detected Truffle project with files:\n{}".format("\n".join(files))
-            )
+            LOGGER.debug("Detected Truffle project with files:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
             files = find_solidity_files(Path.cwd())
-            click.confirm(
-                "Do you really want to submit {} Solidity files?".format(len(files))
-            )
+            click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
             LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_solidity_payload(file, solc_version))
@@ -287,16 +213,12 @@ def analyze(
                 jobs.append(generate_bytecode_payload(target_elem))
                 continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
-                LOGGER.debug(
-                    "Trying to interpret {} as a solidity file".format(target_elem)
-                )
+                LOGGER.debug("Trying to interpret {} as a solidity file".format(target_elem))
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             else:
                 raise click.exceptions.UsageError(
-                    "Could not interpret argument {} as bytecode or Solidity file".format(
-                        target_elem
-                    )
+                    "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
                 )
 
     uuids = []
@@ -415,11 +337,7 @@ def group_open(ctx, name):
     """
 
     resp: GroupCreationResponse = ctx["client"].create_group(group_name=name)
-    write_or_print(
-        "Opened group with ID {} and name '{}'".format(
-            resp.group.identifier, resp.group.name
-        )
-    )
+    write_or_print("Opened group with ID {} and name '{}'".format(resp.group.identifier, resp.group.name))
 
 
 @group.command("close")
@@ -435,11 +353,7 @@ def group_close(ctx, identifiers):
 
     for identifier in identifiers:
         resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
-        write_or_print(
-            "Closed group with ID {} and name '{}'".format(
-                resp.group.identifier, resp.group.name
-            )
-        )
+        write_or_print("Closed group with ID {} and name '{}'".format(resp.group.identifier, resp.group.name))
 
 
 @analysis.command("list")
@@ -495,12 +409,7 @@ def analysis_list(ctx, number):
     help="Ignore SWC IDs below the designated level",
     default=None,
 )
-@click.option(
-    "--swc-blacklist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to ignore",
-    default=None,
-)
+@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
 @click.pass_obj
 def analysis_report(ctx, uuids, min_severity, swc_blacklist):
     """Fetch the report for a single or multiple job UUIDs.

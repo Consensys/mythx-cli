@@ -6,13 +6,7 @@ import click
 
 from mythx_models.response import DetectedIssuesResponse, Severity
 
-SEVERITY_ORDER = (
-    Severity.UNKNOWN,
-    Severity.NONE,
-    Severity.LOW,
-    Severity.MEDIUM,
-    Severity.HIGH,
-)
+SEVERITY_ORDER = (Severity.UNKNOWN, Severity.NONE, Severity.LOW, Severity.MEDIUM, Severity.HIGH)
 
 
 def get_source_location_by_offset(source, offset):
@@ -27,15 +21,11 @@ def get_source_location_by_offset(source, offset):
 
 
 def generate_dashboard_link(uuid: str, staging=False):
-    return "https://dashboard.{}mythx.io/#/console/analyses/{}".format(
-        "staging." if staging else "", uuid
-    )
+    return "https://dashboard.{}mythx.io/#/console/analyses/{}".format("staging." if staging else "", uuid)
 
 
 def filter_report(
-    resp: DetectedIssuesResponse,
-    min_severity: Union[str, Severity] = None,
-    swc_blacklist: List[str] = None,
+    resp: DetectedIssuesResponse, min_severity: Union[str, Severity] = None, swc_blacklist: List[str] = None
 ):
     """Filter issues based on an SWC blacklist and minimum severity.
 
@@ -51,16 +41,12 @@ def filter_report(
     if type(swc_blacklist) == str:
         swc_blacklist = swc_blacklist.split(",")
     swc_blacklist = [str(x).strip().upper() for x in swc_blacklist]
-    swc_blacklist = [
-        "SWC-{}".format(x) if not x.startswith("SWC") else x for x in swc_blacklist
-    ]
+    swc_blacklist = ["SWC-{}".format(x) if not x.startswith("SWC") else x for x in swc_blacklist]
 
     new_issues = []
     for report in resp.issue_reports:
         for issue in report.issues:
-            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(
-                min_severity
-            )
+            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(min_severity)
             if issue.swc_id not in swc_blacklist and is_severe:
                 new_issues.append(issue)
         report.issues = new_issues
