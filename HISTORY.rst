@@ -2,6 +2,15 @@
 History
 =======
 
+0.4.0 (2020-01-02)
+------------------
+
+- Add :code:`--output` flag to print to file
+- Refactor test suite
+- Update coverage to 5.0.1
+- Update Sphinx to 2.3.1
+- Update tox to 3.14.3
+
 0.3.0 (2019-12-16)
 ------------------
 
