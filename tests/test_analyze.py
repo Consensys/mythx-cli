@@ -54,6 +54,7 @@ def setup_truffle_test():
         ("solidity", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
+        ("solidity", ["analyze", "."], ISSUES_TABLE, True, 0),
         ("solidity", ["--output", "test.log", "analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
         ("solidity", ["analyze", "--solc-version", "9001", "outdated.sol"], VERSION_ERROR, True, 2),
         ("truffle", ["analyze", "--async"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
