@@ -136,8 +136,8 @@ def find_solidity_files(project_dir):
     :return: Solidity files in `project_dir` or `None`
     """
 
-    output_pattern = Path(project_dir) / "*.sol"
-    artifact_files = list(glob(str(output_pattern.absolute())))
+    output_pattern = Path(project_dir)
+    artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
     if not artifact_files:
         return None
 
@@ -197,8 +197,12 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
+            # TODO: refactor with .sol routine below
             files = find_solidity_files(Path.cwd())
-            click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+            # TODO: test consent
+            consent = click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+            if not consent:
+                return
             LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
             for file in files:
                 jobs.append(generate_solidity_payload(file, solc_version))
@@ -216,6 +220,14 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 LOGGER.debug("Trying to interpret {} as a solidity file".format(target_elem))
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
+            elif Path(target_elem).is_dir():
+                files = find_solidity_files(Path.cwd())
+                consent = click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+                if not consent:
+                    return
+                LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
+                for file in files:
+                    jobs.append(generate_solidity_payload(file, solc_version))
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
