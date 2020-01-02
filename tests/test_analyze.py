@@ -87,6 +87,15 @@ def test_bytecode_analyze(mode, params, value, contained, retval):
             assert value not in output
 
 
+def test_exit_on_missing_consent():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        setup_solidity_test()
+        result = runner.invoke(cli, ["analyze"], input="n\n")
+        assert result.exit_code == 0
+        assert result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
+
+
 def test_bytecode_analyze_ci():
     runner = CliRunner()
     with mock_context() as patches:
