@@ -37,11 +37,9 @@ def mock_context(
     analysis_status_response=None,
     group_status_response=None,
 ):
-    with patch("pythx.Client.analyze") as analyze_patch, patch(
-        "pythx.Client.analysis_ready"
-    ) as ready_patch, patch("pythx.Client.report") as report_patch, patch(
-        "pythx.Client.request_by_uuid"
-    ) as input_patch, patch(
+    with patch("pythx.Client.analyze") as analyze_patch, patch("pythx.Client.analysis_ready") as ready_patch, patch(
+        "pythx.Client.report"
+    ) as report_patch, patch("pythx.Client.request_by_uuid") as input_patch, patch(
         "solcx.compile_source"
     ) as compile_patch, patch(
         "pythx.Client.analysis_list"
@@ -86,9 +84,7 @@ def mock_context(
         group_status_patch.return_value = group_status_response or get_test_case(
             "testdata/group-status-response.json", GroupStatusResponse
         )
-        version_patch.return_value = get_test_case(
-            "testdata/version-response.json", VersionResponse
-        )
+        version_patch.return_value = get_test_case("testdata/version-response.json", VersionResponse)
         yield (
             analyze_patch,
             ready_patch,

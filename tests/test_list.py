@@ -10,9 +10,7 @@ from .common import get_test_case, mock_context
 GROUP_LIST = get_test_case("testdata/group-list-response.json", GroupListResponse)
 GROUP_LIST_SIMPLE = get_test_case("testdata/group-list-simple.txt", raw=True)
 GROUP_LIST_TABLE = get_test_case("testdata/group-list-table.txt", raw=True)
-ANALYSIS_LIST = get_test_case(
-    "testdata/analysis-list-response.json", AnalysisListResponse
-)
+ANALYSIS_LIST = get_test_case("testdata/analysis-list-response.json", AnalysisListResponse)
 ANALYSIS_LIST_SIMPLE = get_test_case("testdata/analysis-list-simple.txt", raw=True)
 ANALYSIS_LIST_TABLE = get_test_case("testdata/analysis-list-table.txt", raw=True)
 

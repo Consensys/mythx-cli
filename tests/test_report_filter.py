@@ -8,9 +8,7 @@ from mythx_models.response import DetectedIssuesResponse
 from .common import get_test_case
 
 # contains SWC-110
-RESPONSE = get_test_case(
-    "testdata/detected-issues-response.json", DetectedIssuesResponse
-)
+RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
 
 
 @pytest.mark.parametrize(

@@ -40,9 +40,7 @@ class JSONFormatter(BaseFormatter):
         return resp.to_json()
 
     @staticmethod
-    def format_detected_issues(
-        resp: DetectedIssuesResponse, inp: AnalysisInputResponse
-    ) -> str:
+    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
         """Format an issue report response as compressed JSON."""
 
         return resp.to_json()
