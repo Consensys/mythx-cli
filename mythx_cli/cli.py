@@ -144,6 +144,18 @@ def find_solidity_files(project_dir):
     return artifact_files
 
 
+def walk_solidity_files(solc_version):
+    jobs = []
+    files = find_solidity_files(Path.cwd())
+    consent = click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+    if not consent:
+        sys.exit(0)
+    LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
+    for file in files:
+        jobs.append(generate_solidity_payload(file, solc_version))
+    return jobs
+
+
 @cli.command()
 @click.argument("target", default=None, nargs=-1, required=False)  # allow multiple targets
 @click.option(
@@ -197,15 +209,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
-            # TODO: refactor with .sol routine below
-            files = find_solidity_files(Path.cwd())
-            # TODO: test consent
-            consent = click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
-            if not consent:
-                return
-            LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
-            for file in files:
-                jobs.append(generate_solidity_payload(file, solc_version))
+            jobs = walk_solidity_files(solc_version)
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -221,13 +225,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             elif Path(target_elem).is_dir():
-                files = find_solidity_files(Path.cwd())
-                consent = click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
-                if not consent:
-                    return
-                LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
-                for file in files:
-                    jobs.append(generate_solidity_payload(file, solc_version))
+                jobs = walk_solidity_files(solc_version)
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
