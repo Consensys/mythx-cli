@@ -57,6 +57,7 @@ Usage
                                       [default: table]
       --ci                            Return exit code 1 if high-severity issue is
                                       found
+      -o, --output TEXT               Output file to write the results into
       --help                          Show this message and exit.
 
     Commands:
