@@ -54,6 +54,7 @@ def setup_truffle_test():
         ("solidity", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
+        ("solidity", ["analyze", "."], ISSUES_TABLE, True, 0),
         ("solidity", ["--output", "test.log", "analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
         ("solidity", ["analyze", "--solc-version", "9001", "outdated.sol"], VERSION_ERROR, True, 2),
         ("truffle", ["analyze", "--async"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
@@ -84,6 +85,15 @@ def test_bytecode_analyze(mode, params, value, contained, retval):
             assert value in output
         else:
             assert value not in output
+
+
+def test_exit_on_missing_consent():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        setup_solidity_test()
+        result = runner.invoke(cli, ["analyze"], input="n\n")
+        assert result.exit_code == 0
+        assert result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
 
 
 def test_bytecode_analyze_ci():

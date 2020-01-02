@@ -52,6 +52,7 @@ def write_or_print(ctx, data: str):
     help="The format to display the results in",
 )
 @click.option("--ci", is_flag=True, default=False, help="Return exit code 1 if high-severity issue is found")
+@click.option("-y", "--yes", is_flag=True, default=False, help="Do not prompt for any confirmations")
 @click.option("-o", "--output", default=None, help="Output file to write the results into")
 @click.pass_context
 def cli(ctx, **kwargs):
@@ -136,12 +137,24 @@ def find_solidity_files(project_dir):
     :return: Solidity files in `project_dir` or `None`
     """
 
-    output_pattern = Path(project_dir) / "*.sol"
-    artifact_files = list(glob(str(output_pattern.absolute())))
+    output_pattern = Path(project_dir)
+    artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
     if not artifact_files:
         return None
 
     return artifact_files
+
+
+def walk_solidity_files(ctx, solc_version):
+    jobs = []
+    files = find_solidity_files(Path.cwd())
+    consent = ctx["yes"] or click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+    if not consent:
+        sys.exit(0)
+    LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
+    for file in files:
+        jobs.append(generate_solidity_payload(file, solc_version))
+    return jobs
 
 
 @cli.command()
@@ -197,11 +210,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
-            files = find_solidity_files(Path.cwd())
-            click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
-            LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
-            for file in files:
-                jobs.append(generate_solidity_payload(file, solc_version))
+            jobs = walk_solidity_files(ctx, solc_version)
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -216,6 +225,8 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 LOGGER.debug("Trying to interpret {} as a solidity file".format(target_elem))
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
+            elif Path(target_elem).is_dir():
+                jobs = walk_solidity_files(ctx, solc_version)
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
