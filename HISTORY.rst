@@ -2,6 +2,12 @@
 History
 =======
 
+0.4.1 (2020-01-03)
+------------------
+
+- Add batch directory submission feature
+- Add a :code:`--yes` flag to skip confirmation messages
+
 0.4.0 (2020-01-02)
 ------------------
 
