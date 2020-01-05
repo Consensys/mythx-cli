@@ -2,113 +2,68 @@
 Usage
 =====
 
-Format Options
---------------
-
-A format option is passed to the :code:`--format` option of the :code:`mythx`
-root command. E.g.::
-
-    $ mythx --format json-pretty analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
-
-This will print the report for the given analysis job UUID in pretty-printed
-JSON format to stdout. Currently the following formatters are available:
-
-* :code:`tabular` (default): Print the results in a pretty (extended) ASCII table.
-* :code:`simple`: Print the results in simple plain text (easy to
-  grep). This does not include all result data but a subset of it that seems
-  relevant for most use-cases.
-* :code:`json`: Print all of the result data as a single-line JSON string to
-  stdout.
-* :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
-  indentation of two spaces and alphabetically sorted object keys.
-
-
 Authentication
 --------------
 
-By default the MythX CLI authenticates the user under the free trial account.
-This means that no account needs to be created on first use. Simply run an
-analysis, fetch the results and enjoy the free MythX service!
-
-Of course, registering for a free MythX account and upgrading come with
-`additional perks <https://mythx.io/plans/>`. If you have set up an account,
-head over to the MythX `analysis dashboard <https://dashboard.mythx.io/>`.
-Head to your *Profile* settings and enter your password in the *MythX API Key*
-section. You will be able to copy a new API access token once it has been
-generated. Set the environment variable :code:`MYTHX_ACCESS_TOKEN` with your
-JWT token and start using the MythX CLI as authenticated user. You will be
-able to see all your submitted analyses, their status, reports, and more on
-the dashboard.
-
-Note that you can also pass the JWT token directly to the CLI via the
-:code:`--access-token` option. For security reasons it is however
-recommended to always pass the token through a pre-defined environment
-variable or a shell script you :code:`source` from.
-
-Alternatively, username and password can be used for authentication. This
-functionality is considered deprecated due to security concerns and will be
-removed from the MythX API in the future. For compatibility reasons it has
-been included, however. The username corresponds to the Ethereum address the
-MythX account has been registered under, and the password is the one that the
-user can set in the MythX dashboard. Both can be passed with the
-:code:`--eth-address` and :code:`--password` option respectively, or by setting
-the :code:`MYTHX_ETH_ADDRESS` and :code:`MYTHX_PASSWORD` environment variables.
-
-Note that if an access token is passed in directly as well, it will take
-precedence and no login with username and password is performed.
+Basic MythX services are free of charge.
+No payment information or email address are required and you can start
+using MythX right away by signing up for an account `here <https://dashboard.mythx.io/#/registration>`_.
+Once set up, head over to the `dashboard <https://dashboard.mythx.io/>`_.
+In the *Profile* section various means of authentication are presented.
 
 
-The Grouping Functionality
------------------------------------
+Using Access Tokens
+~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: console
+This is the recommended way of authenticating with the MythX smart contract
+analysis API. In the *Profile* section there is an elements labeled "MythX API Key".
+To generate a new API key, the account password must be entered:
 
-    Usage: mythx group [OPTIONS] COMMAND [ARGS]...
+.. image:: img/api-key-password.png
 
-      Create, modify, and view analysis groups.
+On successful authentication a new JWT token is generated, which can be
+used for further authentication by API clients. It will only be shown once
+and can be copied using the icon on the right of the truncated secret string.
+If the token is lost, a new one can be generated again in the same way as
+explained above.
 
-    Options:
-      --help  Show this message and exit.
+.. image:: img/api-key.png
 
-    Commands:
-      close   Close/seal an existing group.
-      list    Get a list of analysis groups.
-      open    Create a new group to assign future analyses to.
-      status  Get the status of an analysis group.
+This key can be passed to the MythX CLI either as an environment variable
+names :code:`MYTHX_ACCESS_TOKEN` or as an explicit parameter
+:code:`--access-token`.
+For security reasons it is recommended to always pass the token through an
+environment variable, e.g. defined in the settings of a Continuous Integration (CI)
+server or a shell script that can be sourced from.
 
-An analysis group can be regarded as a container. It is supposed to capture groups of
-analyses and display them in an easy-to-read overview in the MythX dashboard.
 
-To open a new group, simply type:
+Using Address and Password (not recommended)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: console
+Alternatively, username and password can be used for authentication.
+This is not recommended as a potential attacker can get access to the MythX
+account as a whole if these credentials are leaked.
+For compatibility reasons this functionality has been included, however it
+is to be expected that this API feature will be disabled in the future.
 
-    $ mythx group open "super important"
-    Opened group with ID 5df7c8932a73230011271d27 and name 'super important'
+The username corresponds to the Ethereum address the MythX account has been
+registered under, and the password is the one that has been set during
+registration, or separately in the MythX dashboard.
+Both can be passed either explicitly using the :code:`--eth-address`
+and :code:`--password` option respectively, or by setting the
+:code:`MYTHX_ETH_ADDRESS` and :code:`MYTHX_PASSWORD` environment variables.
 
-The name is optional and can be omitted if not needed. Now to analyze a sample, simply pass
-the group ID (and optionally the name) as parameters to the :code:`mythx analyze` call:
-
-.. code-block::
-
-    $ mythx analyze --group-name "super important" --group-id 5df7c8932a73230011271d27 --async fallout.sol remythx-mbt385.sol token.sol functiontypes-swc127.sol
-
-This will associate the individual analysis jobs to the same group in the MythX Dashboard:
-
-.. image:: img/dashboard.png
-    :alt: The MythX dashboard showing the analysis group
-    :align: center
-
-After all data has been submitted, the group must be closed again using
-
-.. code-block:: console
-
-    $ mythx group close 5df7c8932a73230011271d27
-    Closed group with ID 5df7c8932a73230011271d27 and name 'super important'
+Note that if username and password, as well as an access token are given,
+the access token will always take precedence and no login action using
+the provided credentials will be performed.
 
 
 The Analysis Functionality
 --------------------------
+
+
+Submitting Analyses
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 
@@ -129,8 +84,8 @@ The Analysis Functionality
       --help                Show this message and exit.
 
 
-Submit a new analysis to MythX. This command works in different scenarios,
-simply by calling :code:`mythx analyze`:
+Submit a new analysis to the MythX API.
+This command works in different scenarios, simply by calling :code:`mythx analyze`:
 
 1. Either :code:`truffle-config.js` or :code:`truffle.js` are found in the
    directory. In this case, the MythX CLI checks the
@@ -139,123 +94,35 @@ simply by calling :code:`mythx analyze`:
    a new job is submitted to the MythX API.
 2. If no Truffle project can be detected, the MythX CLI will automatically
    enumerate all Solidity files (having the :code:`.sol` extension) in the
-   current directory. A confirmation prompt will be displayed asking the user
-   to confirm the submission of the number of smart contracts found. This is
-   done to make sure a user does not accidentally submit a huge repository of
-   Solidity files (unless they actually want it). For automation purposes
-   the prompt can automatically be confirmed by piping :code:`yes` into the
-   command, i.e. :code:`yes | mythx analyze`.
+   current directory and all subdirectories.
+   A prompt will be displayed asking the user to confirm the submission of
+   the number of smart contracts found.
+   This is done to make sure a user does not accidentally submit a huge
+   repository of Solidity files (unless they actually want it).
+   For automation purposes the prompt can be automatically confirmed by
+   providing the :code:`-y/--yes` option, e.g. :code:`mythx --yes analyze`.
 3. To analyze specific Solidity files or bytecode, data can also explicitly
-   be passed to the :code:`analyze` subcommand. The two supported argument
-   types are creation bytecode strings (beginning with :code:`0x`) and
-   Solidity files (valid files ending with with :code:`.sol`). The arguments
-   can have arbitrary order and for each a new analysis request will be
-   submitted.
+   be passed to the :code:`analyze` subcommand.
+   The argument can be a list of creation bytecode strings (beginning with
+   :code:`0x`) and Solidity files (valid files ending with with
+   :code:`.sol`). The arguments can have arbitrary order and for each a new
+   analysis request will be submitted.
+   Otherwise, a directory may be passed. The MythX CLI will then proceed to
+   recursively enumerate all Solidity files in the given directory and add
+   them for submission, similar to the previous point.
 
 If a Solidity file is analyzed in any of the given scenarios, the MythX CLI
 will attempt to automatically compile the file and obtain data such as the
-creation bytecode and the Solidity AST to enrich the request data submitted to
-the MythX API. This will increase the number of detected issues (as e.g.
-symbolic execution tools in the MythX backend can pick up on the bytecode), as
-well as reduce the number of false positive issues. The MythX CLI will try to
-estimate the :code:`solc` version based on the pragma set in the source code.
+creation bytecode and the Solidity AST to enrich the request data
+submitted to the MythX API.
+This will increase the number of detected issues (as e.g. symbolic execution
+tools in the MythX backend can pick up on the bytecode), as well as reduce
+the number of false positive issues. The MythX CLI will try to infer the
+:code:`solc` version based on the pragma set in the source code.
 
 
-Asynchronous Analysis
-~~~~~~~~~~~~~~~~~~~~~
-
-In any of the above scenarios the :code:`analyze` subcommand will poll the
-MythX API for job completion and print the analysis report in the
-user-specified format. In some situations it might not be desired to wait for
-the results. The MythX CLI offers an option to only submit the analysis, print
-the job's UUID, and exit. In any scenario, simply pass the :code:`--async`
-flag. E.g. in the scenario of a Continuous Integration (CI) server the
-submitted UUIDs can be stored in the first step::
-
-    $ mythx analyze --async > uuids.txt
-
-This file can be stored as a CI job artifact. Later, when the (potentially
-very exhaustive and long) analysis run has finished, the reports can be
-retrieved. This is done by simply providing the stored job IDs as an
-argument list to the :code:`mythx report` command::
-
-    $ cat uuids.txt | xargs mythx analysis report
-
-Optionally, the format can be changed here as well, e.g. to JSON, to allow
-for easier automated processing further on.
-
-
-Listing Past Analyses
----------------------
-
-.. code-block:: console
-
-    Usage: mythx analysis list [OPTIONS]
-
-    Options:
-    --number INTEGER RANGE  The number of most recent analysis jobs to display
-    --help                  Show this message and exit.
-
-This subcommand lists the past analyses associated to the current user. Note
-that this functionality is not available for the default trial account to
-ensure the confidentiality of analyses submitted by its users.
-
-By default this subcommand will list the past five analyses associated to the
-authenticated user account. The number of returned analyses can be updated by
-passing the :code:`--number` option. It is worth noting that in its current
-version (:code:`v1.4.34.4`) the API returns only objects of 20 analyses per
-call. If a number greater than this is passed to :code:`mythx analysis list`, the MythX
-CLI will automatically query the next page until the desired number is
-reached.
-
-To prevent too many network requests, the maximum number of analyses that can
-be fetched it capped at 100.::
-
-    $ mythx analysis list
-    ╒══════════════════════════════════════╤══════════╤═════════════════╤══════════════════════════════════╕
-    │ ac5af0dd-bd78-4cfb-b4ed-32f21216aaf6 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:41:36.165000+00:00 │
-    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
-    │ 391db48f-9e89-424f-8063-7626fdd2051e │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:59.868000+00:00 │
-    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
-    │ 5a1fc208-7a7f-425a-bbc5-8512e5c37b50 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:06.092000+00:00 │
-    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
-    │ 1667a99d-6335-4a71-aa78-0d729e25b8e1 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:39:47.736000+00:00 │
-    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
-    │ fa88b710-e423-4535-a7b1-0c8c71833724 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:38:23.064000+00:00 │
-    ╘══════════════════════════════════════╧══════════╧═════════════════╧══════════════════════════════════╛
-
-Fetching Analysis Reports
--------------------------
-
-.. code-block:: console
-
-    Usage: mythx analysis report [OPTIONS] [UUIDS]...
-
-    Options:
-    --help  Show this message and exit.
-
-
-This subcommand prints the report of one or more finished analyses in the
-user-specified format. By default, it will print a simple text representation
-of the report to stdout. This will alos resolve the report's source map
-locations to the corresponding line and column numbers in the Solidity source
-file. This is only possible if the user has specified the source map in their
-request and is passing the Solidity source code as text.::
-
-    $ mythx --format=simple analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
-    UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
-    Title: Assert Violation (Low)
-    Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
-
-
-    /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol:24
-      mapping(uint256 => uint256[]) public estateLandIds;
-
-
-
-
-Fetching Analysis Status
-------------------------
+Fetching the Analysis Status
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: console
 
@@ -271,13 +138,255 @@ This subcommand prints the status of an already submitted analysis.::
     Submitted at: 2019-09-05 20:34:27.606000+00:00
     Status: Finished
 
-By default a simple text representation is printed to stdout, more data on the
-MythX API's status response can be obtained by specifying an alternative output
-format such as :code:`json-pretty`.
+By default a simple text representation is printed to stdout.
+More data on the MythX API's status response can be obtained by specifying
+a different output format such as :code:`json-pretty`.
 
 
-Fetching API Version Information
---------------------------------
+Fetching Analysis Reports
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    Usage: mythx analysis report [OPTIONS] [UUIDS]...
+
+    Options:
+    --help  Show this message and exit.
+
+
+This subcommand prints the report of one or more finished analyses in the
+user-specified format.
+By default, it will print a tabular representation of the report to stdout:
+
+.. code-block:: console
+
+    $ mythx analysis report f9e69a6a-2339-43b0-ad03-125c6cf81a70
+
+    Report for /home/circleci/project/contracts/token.sol
+    https://dashboard.mythx.io/#/console/analyses/f9e69a6a-2339-43b0-ad03-125c6cf81a70
+    ╒════════╤═══════════════════════════════════╤════════════╤═══════════════════════════════════════════╕
+    │   Line │ SWC Title                         │ Severity   │ Short Description                         │
+    ╞════════╪═══════════════════════════════════╪════════════╪═══════════════════════════════════════════╡
+    │     14 │ Integer Overflow and Underflow    │ High       │ The binary addition can overflow.         │
+    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
+    │     13 │ Integer Overflow and Underflow    │ High       │ The binary subtraction can underflow.     │
+    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
+    │      1 │ Floating Pragma                   │ Low        │ A floating pragma is set.                 │
+    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
+    │      5 │ State Variable Default Visibility │ Low        │ The state variable visibility is not set. │
+    ╘════════╧═══════════════════════════════════╧════════════╧═══════════════════════════════════════════╛
+
+
+The :code:`simple` format option will also resolve the report's source map
+locations to the corresponding line and column numbers in the Solidity
+source file.
+This is only possible if the user has specified the source map in their
+request and is passing the Solidity source code as text.::
+
+    $ mythx --format=simple analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
+    UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
+    Title: Assert Violation (Low)
+    Description: It is possible to trigger an exception (opcode 0xfe). Exceptions can be caused by type errors, division by zero, out-of-bounds array access, or assert violations. Note that explicit `assert()` should only be used to check invariants. Use `require()` for regular input checking.
+
+
+    /home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol:24
+      mapping(uint256 => uint256[]) public estateLandIds;
+
+
+Listing Past Analyses
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    Usage: mythx analysis list [OPTIONS]
+
+    Options:
+    --number INTEGER RANGE  The number of most recent analysis jobs to display
+    --help                  Show this message and exit.
+
+This subcommand lists the past analyses associated to the current user.
+
+By default this subcommand will list the past five analyses associated to
+the authenticated user account.
+The number of returned analyses can be updated by passing the
+:code:`--number` option.
+It is worth noting that at the time of writing this document the API only
+returns 20 analysis status objects per call.
+If a number greater than this is passed to :code:`mythx analysis list`,
+the MythX CLI will automatically query the next page until the desired
+number is reached.
+
+To prevent too many network requests, the maximum number of analyses
+that can be fetched it capped at 100.::
+
+    $ mythx analysis list
+    ╒══════════════════════════════════════╤══════════╤═════════════════╤══════════════════════════════════╕
+    │ ac5af0dd-bd78-4cfb-b4ed-32f21216aaf6 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:41:36.165000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 391db48f-9e89-424f-8063-7626fdd2051e │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:59.868000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 5a1fc208-7a7f-425a-bbc5-8512e5c37b50 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:40:06.092000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ 1667a99d-6335-4a71-aa78-0d729e25b8e1 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:39:47.736000+00:00 │
+    ├──────────────────────────────────────┼──────────┼─────────────────┼──────────────────────────────────┤
+    │ fa88b710-e423-4535-a7b1-0c8c71833724 │ Finished │ mythx-cli-0.2.1 │ 2019-10-30 09:38:23.064000+00:00 │
+    ╘══════════════════════════════════════╧══════════╧═════════════════╧══════════════════════════════════╛
+
+
+The Grouping Functionality
+--------------------------
+
+.. code-block:: console
+
+    Usage: mythx group [OPTIONS] COMMAND [ARGS]...
+
+      Create, modify, and view analysis groups.
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      close   Close/seal an existing group.
+      list    Get a list of analysis groups.
+      open    Create a new group to assign future analyses to.
+      status  Get the status of an analysis group.
+
+A group can be regarded as a batch of analyses. They is supposed to capture
+groups of related analyses and display them in an easy-to-read overview in
+the `MythX dashboard overview <https://dashboard.staging.mythx.io/#/console/analyses>`_.
+
+
+Opening Groups
+~~~~~~~~~~~~~~
+
+To open a new group, simply type:
+
+.. code-block:: console
+
+    $ mythx group open "super important"
+    Opened group with ID 5df7c8932a73230011271d27 and name 'super important'
+
+The name is optional and can be omitted if not needed.
+
+
+Adding Analyses to a Group
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To analyze a sample, simply pass the group ID (and optionally the name)
+as parameters to the :code:`mythx analyze` call:
+
+.. code-block::
+
+    $ mythx analyze --group-name "super important" --group-id 5df7c8932a73230011271d27 --async fallout.sol remythx-mbt385.sol token.sol functiontypes-swc127.sol
+
+This will associate the individual analysis jobs to the same group in the
+MythX Dashboard:
+
+.. image:: img/dashboard.png
+    :alt: The MythX dashboard showing the analysis group
+    :align: center
+
+
+Closing Groups
+~~~~~~~~~~~~~~
+
+After all data has been submitted, the group must be closed again:
+
+.. code-block:: console
+
+    $ mythx group close 5df7c8932a73230011271d27
+    Closed group with ID 5df7c8932a73230011271d27 and name 'super important'
+
+MythX analysis groups will always stay open until explicitly closed.
+
+
+Fetching the Group Status
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    $ mythx group status 5e0f761d5171cc001109dd18
+    ╒══════════════════════════════════╤═════════════════════════════════════════════════╕
+    │ ID                               │ 5e0f761d5171cc001109dd18                        │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Name                             │ <unnamed>                                       │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Creation Date                    │ 2020-01-03 17:13:01+0000                        │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Created By                       │ 5c2e4e843204d7001402aedc                        │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Progress                         │ 100/100                                         │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Main Sources                     │ /home/x-dag-ts/project/contracts/sample-127.sol │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Status                           │ Sealed                                          │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Queued Analyses                  │ 0                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Running Analyses                 │ 0                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Failed Analyses                  │ 0                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Finished Analyses                │ 6                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Total Analyses                   │ 6                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ High Severity Vulnerabilities    │ 3                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Medium Severity Vulnerabilities  │ 1                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Low Severity Vulnerabilities     │ 8                                               │
+    ├──────────────────────────────────┼─────────────────────────────────────────────────┤
+    │ Unknown Severity Vulnerabilities │ 0                                               │
+    ╘══════════════════════════════════╧═════════════════════════════════════════════════╛
+
+This subcommand fetches status information on one of multiple given group IDs.
+This will show an overview over the submission time, analysis progress, the
+group status, as well as various statistics over the number of Vulnerabilities
+that have been found once the analysis is completed.
+
+
+Listing Groups
+~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    $ mythx group list
+    ╒══════════════════════════╤════════╤════════════════╤══════════════════════════╕
+    │ 5e0f761dae12730019ac7c95 │ sealed │ token.sol      │ 2020-01-03 17:13:01+0000 │
+    ├──────────────────────────┼────────┼────────────────┼──────────────────────────┤
+    │ 5e0f7398bf92eb00111df09f │ sealed │ token.sol      │ 2020-01-03 17:02:16+0000 │
+    ╘══════════════════════════╧════════╧════════════════╧══════════════════════════╛
+
+This will show an overview over all the user-defined groups.
+It behaves similar to the analysis list command, and the maximum number of
+returned results can also be updated by passing the :code:`--number` option.
+
+
+Format Options
+--------------
+
+A format option is passed to the :code:`--format` option of the
+:code:`mythx` root command. E.g.::
+
+    $ mythx --format json-pretty analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
+
+This will print the report for the given analysis job UUID in pretty-printed
+JSON format to stdout. Currently the following formatters are available:
+
+* :code:`tabular` (default): Print the results in a pretty (extended)
+  ASCII table.
+* :code:`simple`: Print the results in simple plain text (easy to
+  grep). This does not include all result data but a subset of it that seems
+  relevant for most use-cases.
+* :code:`json`: Print all of the result data as a single-line JSON string to
+  stdout.
+* :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
+  indentation of two spaces and alphabetically sorted object keys.
+
+
+API Version Information
+-----------------------
 
 .. code-block:: console
 
