@@ -19,7 +19,7 @@ This is the recommended way of authenticating with the MythX smart contract
 analysis API. In the *Profile* section there is an elements labeled "MythX API Key".
 To generate a new API key, the account password must be entered:
 
-.. image:: img/api-key-password.png
+.. image:: _static/img/api-key-password.png
 
 On successful authentication a new JWT token is generated, which can be
 used for further authentication by API clients. It will only be shown once
@@ -27,7 +27,7 @@ and can be copied using the icon on the right of the truncated secret string.
 If the token is lost, a new one can be generated again in the same way as
 explained above.
 
-.. image:: img/api-key.png
+.. image:: _static/img/api-key.png
 
 This key can be passed to the MythX CLI either as an environment variable
 names :code:`MYTHX_ACCESS_TOKEN` or as an explicit parameter
@@ -282,7 +282,7 @@ as parameters to the :code:`mythx analyze` call:
 This will associate the individual analysis jobs to the same group in the
 MythX Dashboard:
 
-.. image:: img/dashboard.png
+.. image:: _static/img/dashboard.png
     :alt: The MythX dashboard showing the analysis group
     :align: center
 
