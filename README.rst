@@ -14,7 +14,7 @@ A PythX-driven CLI for MythX
 
 
 .. image:: https://readthedocs.org/projects/mythx-cli/badge/?version=latest
-        :target: https://mythx-cli.readthedocs.io/en/latest/?badge=latest
+        :target: https://mythx-cli.readthedocs.io/
         :alt: Documentation Status
 
 .. image:: https://pyup.io/repos/github/dmuhs/mythx-cli/shield.svg
