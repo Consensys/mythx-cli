@@ -46,6 +46,7 @@ def setup_truffle_test():
     (
         ("bytecode", ["--output", "test.log", "analyze", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
         ("bytecode", ["analyze", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
+        ("bytecode", ["analyze", "--create-group", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
         ("bytecode", ["analyze", "--swc-blacklist", "SWC-110", "0xfe"], INPUT_RESPONSE.source_list[0], False, 0),
         ("bytecode", ["analyze", "--min-severity", "high", "0xfe"], INPUT_RESPONSE.source_list[0], False, 0),
         ("bytecode", ["analyze", "lolwut"], FORMAT_ERROR, True, 2),
@@ -54,6 +55,7 @@ def setup_truffle_test():
         ("solidity", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
         ("solidity", ["analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
+        ("solidity", ["analyze", "--create-group", "outdated.sol"], ISSUES_TABLE, True, 0),
         ("solidity", ["analyze", "."], ISSUES_TABLE, True, 0),
         ("solidity", ["--output", "test.log", "analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
         ("solidity", ["analyze", "--solc-version", "9001", "outdated.sol"], VERSION_ERROR, True, 2),
@@ -61,6 +63,7 @@ def setup_truffle_test():
         ("truffle", ["--output", "test.log", "analyze"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
         ("truffle", ["--output", "test.log", "analyze"], ISSUES_TABLE, True, 0),
         ("truffle", ["analyze"], ISSUES_TABLE, True, 0),
+        ("truffle", ["analyze", "--create-group"], ISSUES_TABLE, True, 0),
         ("truffle", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
         ("truffle", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
     ),
@@ -136,7 +139,7 @@ def test_solidity_analyze_blocking_ci():
             assert INPUT_RESPONSE.source_list[0] in result.output
 
 
-def test_solidity_analyze_multiple():
+def test_solidity_analyze_multiple_with_group():
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
         # initialize sample solidity file
@@ -146,7 +149,7 @@ def test_solidity_analyze_multiple():
         with open("outdated2.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE)
 
-        result = runner.invoke(cli, ["analyze", "outdated.sol", "outdated2.sol"])
+        result = runner.invoke(cli, ["analyze", "--create-group", "outdated.sol", "outdated2.sol"])
         assert result.exit_code == 0
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
 

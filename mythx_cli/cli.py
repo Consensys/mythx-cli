@@ -11,7 +11,7 @@ import click
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
-from mythx_models.response import AnalysisListResponse, GroupCreationResponse, GroupListResponse
+from mythx_models.response import AnalysisListResponse, GroupCreationResponse, GroupListResponse, DetectedIssuesResponse
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
@@ -145,9 +145,10 @@ def find_solidity_files(project_dir):
     return artifact_files
 
 
-def walk_solidity_files(ctx, solc_version):
+def walk_solidity_files(ctx, solc_version, base_path=None):
     jobs = []
-    files = find_solidity_files(Path.cwd())
+    walk_path = Path(base_path) if base_path else Path.cwd()
+    files = find_solidity_files(walk_path)
     consent = ctx["yes"] or click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
     if not consent:
         sys.exit(0)
@@ -165,6 +166,7 @@ def walk_solidity_files(ctx, solc_version):
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
 @click.option("--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True)
+@click.option("--create-group", is_flag=True, default=False, help="Create a new group for the analysis")
 @click.option("--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None)
 @click.option("--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None)
 @click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
@@ -173,7 +175,9 @@ def walk_solidity_files(ctx, solc_version):
     "--solc-version", type=click.STRING, help="The solc version to use for Solidity compilation", default=None
 )
 @click.pass_obj
-def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, swc_blacklist, solc_version):
+def analyze(
+    ctx, target, async_flag, mode, create_group, group_id, group_name, min_severity, swc_blacklist, solc_version
+):
     """Analyze the given directory or arguments with MythX.
     \f
 
@@ -181,6 +185,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
     :param target: Arguments passed to the `analyze` subcommand
     :param async_flag: Whether to execute the analysis asynchronously
     :param mode: Full or quick analysis mode
+    :param create_group: Create a new group for the analysis
     :param group_id: The group ID to add the analysis to
     :param group_name: The group name to attach to the analysis
     :param min_severity: Ignore SWC IDs below the designated level
@@ -189,7 +194,14 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
     :return:
     """
 
-    if group_id or group_name:
+    group_name = group_name or ""
+    if create_group:
+        resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)
+        group_id = resp.group.identifier
+        group_name = resp.group.name or ""
+
+    if group_id:
+        # associate all following analyses to the passed or newly created group
         group_mw = GroupDataMiddleware(group_id=group_id, group_name=group_name)
         ctx["client"].handler.middlewares.append(group_mw)
 
@@ -226,7 +238,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             elif Path(target_elem).is_dir():
-                jobs = walk_solidity_files(ctx, solc_version)
+                jobs = walk_solidity_files(ctx, solc_version, base_path=target_elem)
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
@@ -248,7 +260,7 @@ def analyze(ctx, target, async_flag, mode, group_id, group_name, min_severity, s
         while not ctx["client"].analysis_ready(uuid):
             # TODO: Add poll interval option
             time.sleep(3)
-        resp = ctx["client"].report(uuid)
+        resp: DetectedIssuesResponse = ctx["client"].report(uuid)
         inp = ctx["client"].request_by_uuid(uuid)
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist)
