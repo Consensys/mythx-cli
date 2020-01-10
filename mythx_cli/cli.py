@@ -4,7 +4,7 @@ import logging
 import sys
 import time
 from glob import glob
-from os.path import commonpath
+from os.path import abspath, commonpath
 from pathlib import Path
 
 import click
@@ -138,7 +138,7 @@ def sanitize_paths(job):
         # triggers on None and empty list
         # if no source list is given, we are analyzing bytecode only
         return job
-
+    source_list = [abspath(s) for s in source_list]
     if len(source_list) > 1:
         # get common path prefix and remove it
         prefix = commonpath(source_list)
