@@ -147,7 +147,8 @@ def find_solidity_files(project_dir):
 
 def walk_solidity_files(ctx, solc_version, base_path=None):
     jobs = []
-    files = find_solidity_files(Path(base_path) or Path.cwd())
+    walk_path = Path(base_path) if base_path else Path.cwd()
+    files = find_solidity_files(walk_path)
     consent = ctx["yes"] or click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
     if not consent:
         sys.exit(0)
