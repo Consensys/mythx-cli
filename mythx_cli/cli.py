@@ -150,7 +150,7 @@ def sanitize_paths(job):
     job["source_list"] = [s.replace(prefix, "") for s in source_list]
     if job.get("main_source") is not None:
         job["main_source"] = job["main_source"].replace(prefix, "")
-    for name in job.get("sources", {}).keys():
+    for name in list(job.get("sources", {})):
         data = job["sources"].pop(name)
         # sanitize AST data in compiler output
         if data.get("ast") and data["ast"].get("absolutePath"):
