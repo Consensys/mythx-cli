@@ -145,9 +145,9 @@ def find_solidity_files(project_dir):
     return artifact_files
 
 
-def walk_solidity_files(ctx, solc_version):
+def walk_solidity_files(ctx, solc_version, base_path=None):
     jobs = []
-    files = find_solidity_files(Path.cwd())
+    files = find_solidity_files(Path(base_path) or Path.cwd())
     consent = ctx["yes"] or click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
     if not consent:
         sys.exit(0)
@@ -237,7 +237,7 @@ def analyze(
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             elif Path(target_elem).is_dir():
-                jobs = walk_solidity_files(ctx, solc_version)
+                jobs = walk_solidity_files(ctx, solc_version, base_path=target_elem)
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
