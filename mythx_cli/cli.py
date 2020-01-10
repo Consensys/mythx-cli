@@ -1,9 +1,11 @@
 """The main runtime of the MythX CLI."""
-
+import json
 import logging
 import sys
 import time
+from copy import deepcopy
 from glob import glob
+from os.path import commonprefix
 from pathlib import Path
 
 import click
@@ -11,7 +13,7 @@ import click
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
-from mythx_models.response import AnalysisListResponse, GroupCreationResponse, GroupListResponse, DetectedIssuesResponse
+from mythx_models.response import AnalysisListResponse, DetectedIssuesResponse, GroupCreationResponse, GroupListResponse
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
@@ -107,6 +109,61 @@ def group():
 def analysis():
     """Get information on running and finished analyses."""
     pass
+
+
+def sanitize_paths(job):
+    """Remove the common prefix from paths.
+
+    This method takes a job payload, iterates through all paths, and
+    removes all their common prefixes. This is an effort to only submit
+    information on a need-to-know basis to MythX. Unless it's to distinguish
+    between files, the API does not need to know the absolute path of a file.
+    This may even leak user information and should be removed.
+
+    If a common prefix cannot be found (e.g. if there is just one element in
+    the source list), the relative path from the current working directory
+    will be returned.
+
+    This concerns the following fields:
+    - sources
+    - AST absolute path
+    - legacy AST absolute path
+    - source list
+    - main source
+
+    :param job: The payload to sanitize
+    """
+
+    source_list = job.get("source_list")
+    if not source_list:
+        # triggers on None and empty list
+        # if no source list is given, we are analyzing bytecode only
+        return job
+
+    if len(source_list) > 1:
+        # get common path prefix and remove it
+        prefix = commonprefix(source_list)
+    else:
+        # fallback: replace with CWD and get common prefix
+        prefix = commonprefix(source_list + [str(Path.cwd())])
+
+    job["source_list"] = [s.replace(prefix, "") for s in source_list]
+    if job.get("main_source") is not None:
+        job["main_source"] = job["main_source"].replace(prefix, "")
+    for name in job.get("sources", {}).keys():
+        data = job["sources"].pop(name)
+        # sanitize AST data in compiler output
+        if data.get("ast") and data["ast"].get("absolutePath"):
+            sanitized_absolute = data["ast"]["absolutePath"].replace(prefix, "")
+            data["ast"]["absolutePath"] = sanitized_absolute
+        if data.get("legacyAST") and data["legacyAST"].get("absolutePath"):
+            sanitized_absolute = data["legacyAST"]["absolutePath"].replace(prefix, "")
+            data["legacyAST"]["absolutePath"] = sanitized_absolute
+
+        # replace source key names
+        job["sources"][name.replace(prefix, "")] = data
+
+    return job
 
 
 def find_truffle_artifacts(project_dir):
@@ -244,6 +301,7 @@ def analyze(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
                 )
 
+    jobs = [sanitize_paths(job) for job in jobs]
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:
