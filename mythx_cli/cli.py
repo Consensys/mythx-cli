@@ -3,9 +3,8 @@ import json
 import logging
 import sys
 import time
-from copy import deepcopy
 from glob import glob
-from os.path import commonprefix
+from os.path import commonpath
 from pathlib import Path
 
 import click
@@ -142,10 +141,10 @@ def sanitize_paths(job):
 
     if len(source_list) > 1:
         # get common path prefix and remove it
-        prefix = commonprefix(source_list)
+        prefix = commonpath(source_list)
     else:
         # fallback: replace with CWD and get common prefix
-        prefix = commonprefix(source_list + [str(Path.cwd())])
+        prefix = commonpath(source_list + [str(Path.cwd())])
 
     job["source_list"] = [s.replace(prefix, "") for s in source_list]
     if job.get("main_source") is not None:
