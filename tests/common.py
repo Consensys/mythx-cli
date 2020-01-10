@@ -27,6 +27,9 @@ def get_test_case(path: str, obj=None, raw=False):
     return obj.from_dict(dict_data)
 
 
+AST = get_test_case("testdata/test-ast.json")
+
+
 @contextmanager
 def mock_context(
     submission_response=None,
@@ -65,7 +68,7 @@ def mock_context(
         compile_patch.return_value = {
             "contract": {
                 "abi": "test",
-                "ast": "test",
+                "ast": AST,
                 "bin": "test",
                 "bin-runtime": "test",
                 "srcmap": "test",
