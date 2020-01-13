@@ -293,7 +293,13 @@ def analyze(
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             elif Path(target_elem).is_dir():
-                jobs = walk_solidity_files(ctx, solc_version, base_path=target_elem)
+                files = find_truffle_artifacts(Path(target_elem))
+                if files:
+                    # extract truffle artifacts if config found in target
+                    jobs.extend([generate_truffle_payload(file) for file in files])
+                else:
+                    # recursively enumerate sol files if not a truffle project
+                    jobs.extend(walk_solidity_files(ctx, solc_version, base_path=target_elem))
             else:
                 raise click.exceptions.UsageError(
                     "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
