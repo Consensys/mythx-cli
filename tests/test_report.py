@@ -11,6 +11,7 @@ INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", Analysis
 ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
 ISSUES_SIMPLE = get_test_case("testdata/detected-issues-simple.txt", raw=True)
 ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
+ISSUES_SONAR = get_test_case("testdata/detected-issues-sonar.json")
 
 
 def test_report_tabular():
@@ -41,6 +42,31 @@ def test_report_tabular_filter():
         assert result.exit_code == 0
         assert "Assert Violation" not in result.output
         assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+
+
+def test_report_sonar():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        assert result.exit_code == 0
+        assert json.loads(result.output) == ISSUES_SONAR
+
+
+def test_report_sonar_blacklist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "--swc-blacklist",
+                "SWC-110", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        assert result.exit_code == 0
+        assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
+
+
+def test_report_sonar_filter():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "--min-severity", "high", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        assert result.exit_code == 0
+        assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
 
 
 def test_report_json():

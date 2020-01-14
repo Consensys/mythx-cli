@@ -153,7 +153,7 @@ def sanitize_paths(job):
         data = job["sources"].pop(name)
         # sanitize AST data in compiler output
         for ast_key in ("ast", "legacyAST"):
-            if not (data.get(ast_key) and data[ast_key]["absolutePath"]):
+            if not (data.get(ast_key) and data[ast_key].get("absolutePath")):
                 continue
             sanitized_absolute = data[ast_key]["absolutePath"].replace(prefix, "")
             data[ast_key]["absolutePath"] = sanitized_absolute
