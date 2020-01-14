@@ -22,15 +22,27 @@ setup(
     author="Dominik Muhs",
     author_email="dominik.muhs@consensys.net",
     classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Intended Audience :: Developers",
+        "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
+
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Information Technology",
+
+        "Topic :: Security",
+        "Topic :: Software Development :: Libraries :: Python Modules",
+        "Topic :: Software Development :: Quality Assurance",
+        "Topic :: Terminals :: Terminal Emulators/X Terminals",
+        "Topic :: Utilities",
+
+        "Typing :: Typed"
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: Implementation :: PyPy",
     ],
     description="A command line interface for the MythX smart contract security analysis API",
     entry_points={"console_scripts": ["mythx=mythx_cli.cli:cli"]},
