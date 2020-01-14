@@ -36,7 +36,7 @@ setup(
         "Topic :: Terminals :: Terminal Emulators/X Terminals",
         "Topic :: Utilities",
 
-        "Typing :: Typed"
+        "Typing :: Typed",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
