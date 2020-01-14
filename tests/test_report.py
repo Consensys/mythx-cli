@@ -55,8 +55,18 @@ def test_report_sonar():
 def test_report_sonar_blacklist():
     runner = CliRunner()
     with mock_context():
-        result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "--swc-blacklist",
-                "SWC-110", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "sonar",
+                "analysis",
+                "report",
+                "--swc-blacklist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
         assert result.exit_code == 0
         assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
 
@@ -64,7 +74,18 @@ def test_report_sonar_blacklist():
 def test_report_sonar_filter():
     runner = CliRunner()
     with mock_context():
-        result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "--min-severity", "high", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "sonar",
+                "analysis",
+                "report",
+                "--min-severity",
+                "high",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
         assert result.exit_code == 0
         assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
 
