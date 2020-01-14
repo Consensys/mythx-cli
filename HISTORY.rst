@@ -2,6 +2,18 @@
 History
 =======
 
+0.5.0 (2020-01-14)
+------------------
+
+- Add :code:`--create-group` flag to analyze subcommand
+- Add privacy feature to truncate paths in submission
+- Support Truffle projects as target directories
+- Add SonarQube output format option
+- Revamp usage documentation
+- Update coverage to 5.0.3
+- Update package details
+
+
 0.4.1 (2020-01-03)
 ------------------
 
