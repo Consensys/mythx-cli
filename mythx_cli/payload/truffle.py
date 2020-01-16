@@ -1,7 +1,12 @@
 """This module contains functions to generate payloads for Truffle projects."""
 
 import json
+import re
 from copy import copy
+
+
+def patch_bytecode(code):
+    return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
 
 
 def zero_srcmap_indices(src_map: str) -> str:
@@ -46,8 +51,8 @@ def generate_truffle_payload(file):
 
     return {
         "contract_name": artifact.get("contractName"),
-        "bytecode": artifact.get("bytecode") if artifact.get("bytecode") != "0x" else None,
-        "deployed_bytecode": artifact.get("deployedBytecode") if artifact.get("deployedBytecode") != "0x" else None,
+        "bytecode": patch_bytecode(artifact.get("bytecode")) if artifact.get("bytecode") != "0x" else None,
+        "deployed_bytecode": patch_bytecode(artifact.get("deployedBytecode")) if artifact.get("deployedBytecode") != "0x" else None,
         "source_map": zero_srcmap_indices(artifact.get("sourceMap")) if artifact.get("sourceMap") else None,
         "deployed_source_map": zero_srcmap_indices(artifact.get("deployedSourceMap"))
         if artifact.get("deployedSourceMap")
