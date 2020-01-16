@@ -6,7 +6,6 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-
 import click
 
 from mythx_cli import __version__
