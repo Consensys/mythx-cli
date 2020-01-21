@@ -22,10 +22,15 @@ flag to :code:`mythx analyze` will automatically open a group before submitting 
 analysis jobs, and close it after the submission process has been completed. This
 functionality encapsulates all targets passed to the :code:`analyze` subcommand.
 
-E.g. :code:`mythx analyze --create-group dir1/ test.sol test2.sol` will initialize
-an empty group, add all analyses coming from :code:`dir1/` and the two test Solidity
-files into it, and close it once submission has been completed. The analyses will then
-show up in their dedicated group inside the dashboard.
+A short example:
+
+.. code::
+
+    mythx analyze --create-group dir1/ test.sol test2.sol
+
+This command will initialize an empty group, add all analyses coming from :code:`dir1/`
+and the two test Solidity files into it, and close it once submission has been completed.
+The analyses will then show up in their dedicated group inside the dashboard.
 
 
 File Output
@@ -94,16 +99,34 @@ submit analyses asynchronously and check on the job later in the MythX dashboard
 IDs could also be stored in a file as a CI artifact and later retrieved by another part of the pipeline,
 e.g. to kickstart a security or QA pipeline.
 
-An example is the submission of a large truffle project: :code:`mythx analyze --async my-project/`. This
-flag is also best friends with the :code:`--create-group` flag for the :code:`analyze` subcommand. Together
+An example is the submission of a large truffle project:
+.. code::
+
+    mythx analyze --async my-project/
+
+This flag is also best friends with the :code:`--create-group` flag for the :code:`analyze` subcommand. Together
 they help keeping the MythX dashboard overview tidy.
 
 
 The CI Flag
 -----------
 
+MythX is designed to support developers throughout the process of building their product by providing
+continuous security checks. It is self-understood that CI use cases present their own set of challenges,
+and the MythX CLI aims to support this process by providing the `--ci` flag in the base command. This
+flag sets the application's return code to 1 if any issues were found in the analysis.
 
-Fetching Multiple Reports
--------------------------
+The true power of this flag becomes apparent when taking into consideration that it is fully integrated
+with the options available for report filtering. This means that the return code can be set depending on
+the input provided to the :code:`swc-blacklist`, :code:`swc-whitelist`, and :code:`min-severity` options.
+A use case is to make CI jobs only fail on high-severity issues, but excluding a subset of them because
+they are already in the process of being fixed, or insignificant relating to the business logic.
 
+The filtering options can be freely combined with the :code:`--ci` flag to achieve the desiged behaviour.
+A simple example is excluding the (fairly common) floating pragma issue type, and assert and requirement
+violations for testing purposes:
+
+.. code::
+
+    mythx --ci analyze --swc-blacklist 110,123,103 my-project/
 
