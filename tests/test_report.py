@@ -18,8 +18,9 @@ def test_report_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
-        assert result.exit_code == 0
+
         assert result.output == ISSUES_TABLE
+        assert result.exit_code == 0
 
 
 def test_report_tabular_blacklist():
@@ -28,9 +29,10 @@ def test_report_tabular_blacklist():
         result = runner.invoke(
             cli, ["analysis", "report", "--swc-blacklist", "SWC-110", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
-        assert result.exit_code == 0
+
         assert "Assert Violation" not in result.output
         assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+        assert result.exit_code == 0
 
 
 def test_report_tabular_filter():
@@ -39,17 +41,19 @@ def test_report_tabular_filter():
         result = runner.invoke(
             cli, ["analysis", "report", "--min-severity", "high", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
-        assert result.exit_code == 0
+
         assert "Assert Violation" not in result.output
         assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" not in result.output
+        assert result.exit_code == 0
 
 
 def test_report_sonar():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "sonar", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == ISSUES_SONAR
+        assert result.exit_code == 0
 
 
 def test_report_sonar_blacklist():
@@ -67,8 +71,9 @@ def test_report_sonar_blacklist():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
+        assert result.exit_code == 0
 
 
 def test_report_sonar_filter():
@@ -86,16 +91,18 @@ def test_report_sonar_filter():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
+        assert result.exit_code == 0
 
 
 def test_report_json():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == json.loads(ISSUES_RESPONSE.to_json())
+        assert result.exit_code == 0
 
 
 def test_report_json_blacklist():
@@ -113,8 +120,9 @@ def test_report_json_blacklist():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
 
 
 def test_report_json_filter():
@@ -132,8 +140,9 @@ def test_report_json_filter():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
 
 
 def test_report_json_pretty():
@@ -142,8 +151,9 @@ def test_report_json_pretty():
         result = runner.invoke(
             cli, ["--format", "json-pretty", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == json.loads(ISSUES_RESPONSE.to_json())
+        assert result.exit_code == 0
 
 
 def test_report_json_pretty_blacklist():
@@ -161,8 +171,9 @@ def test_report_json_pretty_blacklist():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
 
 
 def test_report_json_pretty_filter():
@@ -180,8 +191,9 @@ def test_report_json_pretty_filter():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
 
 
 def test_report_simple():
@@ -190,8 +202,9 @@ def test_report_simple():
         result = runner.invoke(
             cli, ["--format", "simple", "analysis", "report", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
         )
-        assert result.exit_code == 0
+
         assert result.output == ISSUES_SIMPLE
+        assert result.exit_code == 0
 
 
 def test_report_simple_blacklist():
@@ -209,8 +222,9 @@ def test_report_simple_blacklist():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert "SWC-110" not in result.output
+        assert result.exit_code == 0
 
 
 def test_report_simple_filter():
@@ -228,5 +242,6 @@ def test_report_simple_filter():
                 "ab9092f7-54d0-480f-9b63-1bb1508280e2",
             ],
         )
-        assert result.exit_code == 0
+
         assert "SWC-110" not in result.output
+        assert result.exit_code == 0
