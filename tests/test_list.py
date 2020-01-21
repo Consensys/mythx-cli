@@ -19,61 +19,69 @@ def test_list_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["analysis", "list"])
-        assert result.exit_code == 0
+
         assert result.output == ANALYSIS_LIST_TABLE
+        assert result.exit_code == 0
 
 
 def test_group_list_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["group", "list"])
-        assert result.exit_code == 0
+
         assert result.output == GROUP_LIST_TABLE
+        assert result.exit_code == 0
 
 
 def test_list_json():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "analysis", "list"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
+        assert result.exit_code == 0
 
 
 def test_group_list_json():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "group", "list"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == GROUP_LIST.to_dict()
+        assert result.exit_code == 0
 
 
 def test_list_json_pretty():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "analysis", "list"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
+        assert result.exit_code == 0
 
 
 def test_group_list_json_pretty():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "group", "list"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == GROUP_LIST.to_dict()
+        assert result.exit_code == 0
 
 
 def test_list_simple():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "simple", "analysis", "list"])
-        assert result.exit_code == 0
+
         assert result.output == ANALYSIS_LIST_SIMPLE
+        assert result.exit_code == 0
 
 
 def test_group_list_simple():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "simple", "group", "list"])
-        assert result.exit_code == 0
+
         assert result.output == GROUP_LIST_SIMPLE
+        assert result.exit_code == 0

@@ -17,30 +17,33 @@ def test_version_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["version"])
-        assert result.exit_code == 0
+
         assert result.output == VERSION_TABLE
+        assert result.exit_code == 0
 
 
 def test_version_json():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "version"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == VERSION_RESPONSE.to_dict()
+        assert result.exit_code == 0
 
 
 def test_version_json_pretty():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "version"])
-        assert result.exit_code == 0
+
         assert json.loads(result.output) == VERSION_RESPONSE.to_dict()
+        assert result.exit_code == 0
 
 
 def test_version_simple():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["--format", "simple", "version"])
-        assert result.exit_code == 0
-        print(result.output)
+
         assert result.output == VERSION_SIMPLE
+        assert result.exit_code == 0

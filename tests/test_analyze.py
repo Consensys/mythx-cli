@@ -76,7 +76,6 @@ def test_bytecode_analyze(mode, params, value, contained, retval):
         elif mode == "truffle":
             setup_truffle_test()
         result = runner.invoke(cli, params, input="y\n")
-        assert result.exit_code == retval
 
         if "--output" in params:
             with open("test.log") as f:
@@ -89,14 +88,17 @@ def test_bytecode_analyze(mode, params, value, contained, retval):
         else:
             assert value not in output
 
+        assert result.exit_code == retval
+
 
 def test_exit_on_missing_consent():
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
         setup_solidity_test()
         result = runner.invoke(cli, ["analyze"], input="n\n")
-        assert result.exit_code == 0
+
         assert result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
+        assert result.exit_code == 0
 
 
 def test_bytecode_analyze_ci():
@@ -108,16 +110,18 @@ def test_bytecode_analyze_ci():
         patches[2].return_value = issues_resp
 
         result = runner.invoke(cli, ["--ci", "analyze", "0xfe"])
-        assert result.exit_code == 1
+
         assert INPUT_RESPONSE.source_list[0] in result.output
+        assert result.exit_code == 1
 
 
 def test_bytecode_analyze_invalid():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["analyze", "lolwut"])
-        assert result.exit_code == 2
+
         assert FORMAT_ERROR in result.output
+        assert result.exit_code == 2
 
 
 def test_solidity_analyze_blocking_ci():
@@ -134,9 +138,10 @@ def test_solidity_analyze_blocking_ci():
                 conf_f.write(SOLIDITY_CODE)
 
             result = runner.invoke(cli, ["--ci", "analyze"], input="y\n")
-            assert result.exit_code == 1
+
             assert "Assert Violation" in result.output
             assert INPUT_RESPONSE.source_list[0] in result.output
+            assert result.exit_code == 1
 
 
 def test_solidity_analyze_multiple_with_group():
@@ -150,8 +155,8 @@ def test_solidity_analyze_multiple_with_group():
             conf_f.write(SOLIDITY_CODE)
 
         result = runner.invoke(cli, ["analyze", "--create-group", "outdated.sol", "outdated2.sol"])
-        assert result.exit_code == 0
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
+        assert result.exit_code == 0
 
 
 def test_solidity_analyze_missing_version():
@@ -162,8 +167,9 @@ def test_solidity_analyze_missing_version():
             conf_f.write(SOLIDITY_CODE[1:])
 
         result = runner.invoke(cli, ["analyze", "outdated.sol"])
-        assert result.exit_code == 2
+
         assert PRAGMA_ERROR in result.output
+        assert result.exit_code == 2
 
 
 def test_solidity_analyze_user_solc_version():
@@ -175,8 +181,8 @@ def test_solidity_analyze_user_solc_version():
 
         result = runner.invoke(cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"])
 
-        assert result.exit_code == 0
         assert result.output == ISSUES_TABLE
+        assert result.exit_code == 0
 
 
 def test_truffle_analyze_blocking_ci():
@@ -198,9 +204,10 @@ def test_truffle_analyze_blocking_ci():
             json.dump(TRUFFLE_ARTIFACT, artifact_f)
 
         result = runner.invoke(cli, ["--ci", "analyze"])
-        assert result.exit_code == 1
+
         assert "Assert Violation" in result.output
         assert INPUT_RESPONSE.source_list[0] in result.output
+        assert result.exit_code == 1
 
 
 def test_truffle_analyze_no_files():
@@ -213,5 +220,6 @@ def test_truffle_analyze_no_files():
             conf_f.write("Truffle config stuff")
 
             result = runner.invoke(cli, ["analyze"])
-            assert result.exit_code == 2
+
             assert EMPTY_PROJECT_ERROR in result.output
+            assert result.exit_code == 2
