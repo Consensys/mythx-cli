@@ -83,6 +83,21 @@ a consistent notation for readability purposes.
 Asynchronous Analysis
 ---------------------
 
+As mentioned before, the :code:`analyze` subcommand offers the :code:`--async` flag. This will prevent
+the CLI from blocking after the submission of one or multiple analysis jobs and waiting for them to finish.
+Instead, for each analysis job the job's UUID will be printed to :code:`stdout`, or to a file, if the
+:code:`--output` option is passed as well. This feature is often used in CI scenarios, where the server
+job is not expected to run for very long. It is strongly recommended that this flag is used in combination
+with MythX plans that offer higher analysis times. These scans are more exhaustive, deliver more precise
+results, but as a trade-off take longer to process. In the CI server scenario, a developer might choose to
+submit analyses asynchronously and check on the job later in the MythX dashboard. Alternatively, the job
+IDs could also be stored in a file as a CI artifact and later retrieved by another part of the pipeline,
+e.g. to kickstart a security or QA pipeline.
+
+An example is the submission of a large truffle project: :code:`mythx analyze --async my-project/`. This
+flag is also best friends with the :code:`--create-group` flag for the :code:`analyze` subcommand. Together
+they help keeping the MythX dashboard overview tidy.
+
 
 The CI Flag
 -----------
