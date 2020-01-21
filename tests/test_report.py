@@ -35,6 +35,18 @@ def test_report_tabular_blacklist():
         assert result.exit_code == 0
 
 
+def test_report_tabular_whitelist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(
+            cli, ["analysis", "report", "--swc-whitelist", "SWC-110", "ab9092f7-54d0-480f-9b63-1bb1508280e2"]
+        )
+
+        assert "Assert Violation" in result.output
+        assert "/home/spoons/diligence/mythx-qa/land/contracts/estate/EstateStorage.sol" in result.output
+        assert result.exit_code == 0
+
+
 def test_report_tabular_filter():
     runner = CliRunner()
     with mock_context():
@@ -73,6 +85,26 @@ def test_report_sonar_blacklist():
         )
 
         assert all(x["forRule"] != "SWC-110" for x in json.loads(result.output))
+        assert result.exit_code == 0
+
+
+def test_report_sonar_whitelist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "sonar",
+                "analysis",
+                "report",
+                "--swc-whitelist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
+
+        assert all(x["forRule"] == "SWC-110" for x in json.loads(result.output))
         assert result.exit_code == 0
 
 
@@ -122,6 +154,26 @@ def test_report_json_blacklist():
         )
 
         assert all(x["swcID"] != "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
+
+
+def test_report_json_whitelist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "json",
+                "analysis",
+                "report",
+                "--swc-whitelist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
+
+        assert all(x["swcID"] == "SWC-110" for x in json.loads(result.output)[0]["issues"])
         assert result.exit_code == 0
 
 
@@ -176,6 +228,26 @@ def test_report_json_pretty_blacklist():
         assert result.exit_code == 0
 
 
+def test_report_json_pretty_whitelist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "json-pretty",
+                "analysis",
+                "report",
+                "--swc-whitelist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
+
+        assert all(x["swcID"] == "SWC-110" for x in json.loads(result.output)[0]["issues"])
+        assert result.exit_code == 0
+
+
 def test_report_json_pretty_filter():
     runner = CliRunner()
     with mock_context():
@@ -223,7 +295,26 @@ def test_report_simple_blacklist():
             ],
         )
 
-        assert "SWC-110" not in result.output
+        assert "Assert Violation" not in result.output
+        assert result.exit_code == 0
+
+
+def test_report_simple_whitelist():
+    runner = CliRunner()
+    with mock_context():
+        result = runner.invoke(
+            cli,
+            [
+                "--format",
+                "simple",
+                "analysis",
+                "report",
+                "--swc-whitelist",
+                "SWC-110",
+                "ab9092f7-54d0-480f-9b63-1bb1508280e2",
+            ],
+        )
+        assert "Assert Violation" in result.output
         assert result.exit_code == 0
 
 
