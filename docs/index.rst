@@ -8,6 +8,7 @@ Welcome to MythX CLI's documentation!
    readme
    installation
    usage
+   advanced-usage
    modules
    contributing
    authors

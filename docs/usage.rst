@@ -70,18 +70,20 @@ Submitting Analyses
     $ mythx analyze --help
     Usage: mythx analyze [OPTIONS] [TARGET]...
 
-      Analyze the given directory or arguments with MythX.
+    Analyze the given directory or arguments with MythX.
 
     Options:
-      --async / --wait      Submit the job and print the UUID, or wait for
+    --async / --wait      Submit the job and print the UUID, or wait for
                             execution to finish
-      --mode [quick|full]   [default: quick]
-      --group-id TEXT       The group ID to add the analysis to
-      --group-name TEXT     The group name to attach to the analysis
-      --min-severity TEXT   Ignore SWC IDs below the designated level
-      --swc-blacklist TEXT  A comma-separated list of SWC IDs to ignore
-      --solc-version TEXT   The solc version to use for Solidity compilation
-      --help                Show this message and exit.
+    --mode [quick|full]   [default: quick]
+    --create-group        Create a new group for the analysis
+    --group-id TEXT       The group ID to add the analysis to
+    --group-name TEXT     The group name to attach to the analysis
+    --min-severity TEXT   Ignore SWC IDs below the designated level
+    --swc-blacklist TEXT  A comma-separated list of SWC IDs to ignore
+    --swc-whitelist TEXT  A comma-separated list of SWC IDs to include
+    --solc-version TEXT   The solc version to use for compilation
+    --help                Show this message and exit.
 
 
 Submit a new analysis to the MythX API.
@@ -383,6 +385,7 @@ JSON format to stdout. Currently the following formatters are available:
   stdout.
 * :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
   indentation of two spaces and alphabetically sorted object keys.
+* :code:`sonar`: Print the results as JSON objects that can be interpreted by SonarQube.
 
 
 API Version Information
