@@ -35,6 +35,18 @@ def normalize_swc_list(swc_list: Union[str, List[str], None]) -> List[str]:
     return swc_list
 
 
+def set_ci_failure():
+    try:
+        ctx = click.get_current_context()
+        if ctx.obj["ci"]:
+            ctx.obj["retval"] = 1
+    except RuntimeError:
+        # skip failure when there is no active click context
+        # i.e. the method has been called outside the click
+        # application.
+        pass
+
+
 def filter_report(
     resp: DetectedIssuesResponse,
     min_severity: Union[str, Severity] = None,
@@ -64,21 +76,8 @@ def filter_report(
 
             if all((is_severe, is_whitelisted, not_blacklisted)):
                 new_issues.append(issue)
+                set_ci_failure()
 
         report.issues = new_issues
 
     return resp
-
-
-def set_fail_on_high_severity_report(resp: DetectedIssuesResponse):
-    """Set return code 1 if CLI is in CI mode and a medium/high-sev issue is found."""
-
-    ctx = click.get_current_context()
-    if not ctx.obj["ci"]:
-        # only set return value if we're in CI mode
-        return
-
-    for issue in resp:
-        if issue.severity == Severity.MEDIUM or issue.severity == Severity.HIGH:
-            ctx.obj["retval"] = 1
-            return

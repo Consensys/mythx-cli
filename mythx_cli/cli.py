@@ -1,11 +1,11 @@
 """The main runtime of the MythX CLI."""
-import json
 import logging
 import sys
 import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
+
 import click
 
 from mythx_cli import __version__
@@ -335,7 +335,6 @@ def analyze(
         inp = ctx["client"].request_by_uuid(uuid)
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
-        util.set_fail_on_high_severity_report(resp)
         ctx["uuid"] = uuid
         write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
 
@@ -524,7 +523,6 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
         ctx["uuid"] = uuid
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
-        util.set_fail_on_high_severity_report(resp)
         write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
     sys.exit(ctx["retval"])
 
