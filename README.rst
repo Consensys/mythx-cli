@@ -4,22 +4,28 @@ A PythX-driven CLI for MythX
 
 
 .. image:: https://img.shields.io/pypi/v/mythx-cli.svg
-        :target: https://pypi.python.org/pypi/mythx-cli
+    :alt: MythX CLI on PyPI
+    :target: https://pypi.python.org/pypi/mythx-cli
+
+.. image:: https://img.shields.io/github/license/dmuhs/mythx-cli
+    :alt: MythX CLI License
+    :target: https://github.com/dmuhs/mythx-cli/blob/master/LICENSE
 
 .. image:: https://img.shields.io/travis/dmuhs/mythx-cli.svg
-        :target: https://travis-ci.org/dmuhs/mythx-cli
+    :alt: MythX CLI Build Status
+    :target: https://travis-ci.org/dmuhs/mythx-cli
 
 .. image:: https://coveralls.io/repos/github/dmuhs/mythx-cli/badge.svg?branch=master
-  :target: https://coveralls.io/github/dmuhs/mythx-cli?branch=master
-
+    :alt: MythX CLI Coverage Stats
+    :target: https://coveralls.io/github/dmuhs/mythx-cli?branch=master
 
 .. image:: https://readthedocs.org/projects/mythx-cli/badge/?version=latest
-        :target: https://mythx-cli.readthedocs.io/
-        :alt: Documentation Status
+    :alt: Documentation Status
+    :target: https://mythx-cli.readthedocs.io/
 
-.. image:: https://pyup.io/repos/github/dmuhs/mythx-cli/shield.svg
-     :target: https://pyup.io/repos/github/dmuhs/mythx-cli/
-     :alt: Updates
+.. image:: https://img.shields.io/pypi/dm/mythx-cli
+    :alt: PyPI - Downloads
+    :target: https://pypi.python.org/pypi/mythx-cli
 
 
 This package aims to provide a simple to use command line interface for the `MythX <https://mythx.io/>`_ smart contract
