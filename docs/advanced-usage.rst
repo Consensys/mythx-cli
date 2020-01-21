@@ -31,6 +31,30 @@ show up in their dedicated group inside the dashboard.
 File Output
 -----------
 
+Especially in scenarios of automation the need often arises to persist data and store it
+as files. Since version :code:`0.4.0` the base :code:`mythx` command carries the
+:code:`--output` option. This allows you to take the :code:`stdout` from any subcommand
+and store it as a file. This can be very helpful for storing analysis job and group IDs
+for long-running asynchronous jobs - which we will also outline in this document.
+
+The :code:`--format` option is fully supported with :code:`--output` and allows the user
+to define what is written to the file. Furthermore, it can be combined with every
+subcommand :code:`mythx` supports.
+
+Examples:
+
+1. :code:`mythx --output=status.json --format=json-pretty status <id>`: Output the status of
+   an analysis job in pretty-printed JSON format to :code:`status.json`.
+2. :code:`mythx --output=report.json --format=json report report <id>`: This is equivalent as
+   above with the difference being that now the analysis job's report is fetched and directly
+   written to the file. This is especially useful for testing new formatters and other
+   integrations with static input.
+3. :code:`mythx --output=analyses.txt analyze --async <targets>`: This performs a quick analysis
+   on the defined targets (e.g. truffle projects, Solidity files) and instead of waiting for the
+   results, simply writes the analysis job IDs to the :code:`analyses.txt` files. This can be
+   helpful for when you need to "remember" long-running analysis IDs and cannot wait for them to
+   finish, e.g. when running full-mode analyses on a CI server.
+
 
 Filtering Reports
 -----------------
