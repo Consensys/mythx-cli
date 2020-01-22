@@ -23,7 +23,7 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 
-import mythx_cli
+import mythx_cli  # isort:skip
 
 # -- General configuration ---------------------------------------------
 
