@@ -12,7 +12,7 @@ from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 from mythx_models.response import AnalysisListResponse, DetectedIssuesResponse, GroupCreationResponse, GroupListResponse
-from pythx import Client, MythXAPIError
+from pythx import Client
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -37,13 +37,6 @@ def write_or_print(ctx, data: str):
 @click.option("--eth-address", envvar="MYTHX_ETH_ADDRESS", help="Your MythX account's Ethereum address")
 @click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password as set in the dashboard")
 @click.option(
-    "--staging/--production",
-    default=False,
-    hidden=True,
-    envvar="MYTHX_STAGING",
-    help="Use the MythX staging environment",
-)
-@click.option(
     "--format",
     "fmt",
     default="table",
@@ -64,7 +57,6 @@ def cli(ctx, **kwargs):
     :param access_token: User JWT access token from the MythX dashboard
     :param eth_address: The MythX account ETH address/username
     :param password: The account password from the MythX dashboard
-    :param staging: Boolean to redirect requests to MythX staging
     :param fmt: The formatter to use for the subcommand output
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
     :param output: Output file to write the results into
@@ -75,23 +67,20 @@ def cli(ctx, **kwargs):
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"], staging=kwargs["staging"], middlewares=[toolname_mw]
+            access_token=kwargs["access_token"], middlewares=[toolname_mw]
         )
     elif kwargs["eth_address"] and kwargs["password"]:
         ctx.obj["client"] = Client(
             eth_address=kwargs["eth_address"],
             password=kwargs["password"],
-            staging=kwargs["staging"],
             middlewares=[toolname_mw],
         )
     else:
-        # default to trial user client
-        ctx.obj["client"] = Client(
-            eth_address="0x0000000000000000000000000000000000000000",
-            password="trial",
-            staging=kwargs["staging"],
-            middlewares=[toolname_mw],
-        )
+        raise click.UsageError((
+            "The trial user has been deprecated. You can still use the MythX CLI for free "
+            "by signing up for a free account at https://mythx.io/ and entering your access "
+            "credentials."
+        ))
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
             logging.getLogger(name).setLevel(logging.DEBUG)
@@ -376,29 +365,19 @@ def group_list(ctx, number):
 
     client: Client = ctx["client"]
     result = GroupListResponse(groups=[], total=0)
-    try:
-        offset = 0
-        while True:
-            resp = client.group_list(offset=offset)
-            if not resp.groups:
-                break
-            offset += len(resp.groups)
-            result.groups.extend(resp.groups)
-            if len(result.groups) >= number:
-                break
+    offset = 0
+    while True:
+        resp = client.group_list(offset=offset)
+        if not resp.groups:
+            break
+        offset += len(resp.groups)
+        result.groups.extend(resp.groups)
+        if len(result.groups) >= number:
+            break
 
-        # trim result to desired result number
-        LOGGER.debug(resp.total)
-        result = GroupListResponse(groups=result[:number], total=resp.total)
-    except MythXAPIError:
-        raise click.UsageError(
-            (
-                "This functionality is only available to registered users. "
-                "Head over to https://mythx.io/ and register a free account to "
-                "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx analysis status <uuid>'."
-            )
-        )
+    # trim result to desired result number
+    LOGGER.debug(resp.total)
+    result = GroupListResponse(groups=result[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
 
 
@@ -468,29 +447,19 @@ def analysis_list(ctx, number):
     """
 
     result = AnalysisListResponse(analyses=[], total=0)
-    try:
-        offset = 0
-        while True:
-            resp = ctx["client"].analysis_list(offset=offset)
-            if not resp.analyses:
-                break
-            offset += len(resp.analyses)
-            result.analyses.extend(resp.analyses)
-            if len(result.analyses) >= number:
-                break
+    offset = 0
+    while True:
+        resp = ctx["client"].analysis_list(offset=offset)
+        if not resp.analyses:
+            break
+        offset += len(resp.analyses)
+        result.analyses.extend(resp.analyses)
+        if len(result.analyses) >= number:
+            break
 
-        # trim result to desired result number
-        LOGGER.debug(resp.total)
-        result = AnalysisListResponse(analyses=result[:number], total=resp.total)
-    except MythXAPIError:
-        raise click.UsageError(
-            (
-                "This functionality is only available to registered users. "
-                "Head over to https://mythx.io/ and register a free account to "
-                "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx analysis status <uuid>'."
-            )
-        )
+    # trim result to desired result number
+    LOGGER.debug(resp.total)
+    result = AnalysisListResponse(analyses=result[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 
