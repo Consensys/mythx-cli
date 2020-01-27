@@ -466,29 +466,19 @@ def analysis_list(ctx, number):
     """
 
     result = AnalysisListResponse(analyses=[], total=0)
-    try:
-        offset = 0
-        while True:
-            resp = ctx["client"].analysis_list(offset=offset)
-            if not resp.analyses:
-                break
-            offset += len(resp.analyses)
-            result.analyses.extend(resp.analyses)
-            if len(result.analyses) >= number:
-                break
+    offset = 0
+    while True:
+        resp = ctx["client"].analysis_list(offset=offset)
+        if not resp.analyses:
+            break
+        offset += len(resp.analyses)
+        result.analyses.extend(resp.analyses)
+        if len(result.analyses) >= number:
+            break
 
-        # trim result to desired result number
-        LOGGER.debug(resp.total)
-        result = AnalysisListResponse(analyses=result[:number], total=resp.total)
-    except MythXAPIError:
-        raise click.UsageError(
-            (
-                "This functionality is only available to registered users. "
-                "Head over to https://mythx.io/ and register a free account to "
-                "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx analysis status <uuid>'."
-            )
-        )
+    # trim result to desired result number
+    LOGGER.debug(resp.total)
+    result = AnalysisListResponse(analyses=result[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
 
 

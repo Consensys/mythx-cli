@@ -87,7 +87,6 @@ class TabularFormatter(BaseFormatter):
         file_to_issue = defaultdict(list)
         for report in resp.issue_reports:
             for issue in report.issues:
-                # handle fake issues for trial users
                 if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
                     res.extend((issue.description_long, ""))
                 for loc in issue.locations:
