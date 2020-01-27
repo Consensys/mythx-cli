@@ -374,29 +374,19 @@ def group_list(ctx, number):
 
     client: Client = ctx["client"]
     result = GroupListResponse(groups=[], total=0)
-    try:
-        offset = 0
-        while True:
-            resp = client.group_list(offset=offset)
-            if not resp.groups:
-                break
-            offset += len(resp.groups)
-            result.groups.extend(resp.groups)
-            if len(result.groups) >= number:
-                break
+    offset = 0
+    while True:
+        resp = client.group_list(offset=offset)
+        if not resp.groups:
+            break
+        offset += len(resp.groups)
+        result.groups.extend(resp.groups)
+        if len(result.groups) >= number:
+            break
 
-        # trim result to desired result number
-        LOGGER.debug(resp.total)
-        result = GroupListResponse(groups=result[:number], total=resp.total)
-    except MythXAPIError:
-        raise click.UsageError(
-            (
-                "This functionality is only available to registered users. "
-                "Head over to https://mythx.io/ and register a free account to "
-                "list your past analyses. Alternatively, you can look up the "
-                "status of a specific job by calling 'mythx analysis status <uuid>'."
-            )
-        )
+    # trim result to desired result number
+    LOGGER.debug(resp.total)
+    result = GroupListResponse(groups=result[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
 
 
