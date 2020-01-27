@@ -31,11 +31,9 @@ def write_or_print(ctx, data: str):
 
 @click.group()
 @click.option("--debug", is_flag=True, default=False, envvar="MYTHX_DEBUG", help="Provide additional debug output")
-@click.option(
-    "--access-token", envvar="MYTHX_ACCESS_TOKEN", help="Your access token generated from the MythX dashboard"
-)
-@click.option("--eth-address", envvar="MYTHX_ETH_ADDRESS", help="Your MythX account's Ethereum address")
-@click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password as set in the dashboard")
+@click.option("--api-key", envvar="MYTHX_API_KEY", help="Your MythX API access token")
+@click.option("--username", envvar="MYTHX_USERNAME", help="Your MythX account's username")
+@click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password")
 @click.option(
     "--format",
     "fmt",
@@ -54,8 +52,8 @@ def cli(ctx, **kwargs):
 
     :param ctx: Click context holding group-level parameters
     :param debug: Boolean to enable the `logging` debug mode
-    :param access_token: User JWT access token from the MythX dashboard
-    :param eth_address: The MythX account ETH address/username
+    :param api_key: User JWT access token from the MythX dashboard
+    :param username: The MythX account ETH address/username
     :param password: The account password from the MythX dashboard
     :param fmt: The formatter to use for the subcommand output
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
@@ -65,22 +63,20 @@ def cli(ctx, **kwargs):
     ctx.obj = dict(kwargs)
     ctx.obj["retval"] = 0
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
-    if kwargs["access_token"] is not None:
+    if kwargs["api_key"] is not None:
+        ctx.obj["client"] = Client(access_token=kwargs["api_key"], middlewares=[toolname_mw])
+    elif kwargs["username"] and kwargs["password"]:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"], middlewares=[toolname_mw]
-        )
-    elif kwargs["eth_address"] and kwargs["password"]:
-        ctx.obj["client"] = Client(
-            eth_address=kwargs["eth_address"],
-            password=kwargs["password"],
-            middlewares=[toolname_mw],
+            eth_address=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
         )
     else:
-        raise click.UsageError((
-            "The trial user has been deprecated. You can still use the MythX CLI for free "
-            "by signing up for a free account at https://mythx.io/ and entering your access "
-            "credentials."
-        ))
+        raise click.UsageError(
+            (
+                "The trial user has been deprecated. You can still use the MythX CLI for free "
+                "by signing up for a free account at https://mythx.io/ and entering your access "
+                "credentials."
+            )
+        )
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
             logging.getLogger(name).setLevel(logging.DEBUG)

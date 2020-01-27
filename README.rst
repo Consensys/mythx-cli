@@ -53,12 +53,10 @@ Usage
 
     Options:
       --debug                         Provide additional debug output
-      --access-token TEXT             Your access token generated from the MythX
-                                      dashboard
-      --eth-address TEXT              Your MythX account's Ethereum address
-      --password TEXT                 Your MythX account's password as set in the
-                                      dashboard
-      --format [simple|json|json-pretty|table]
+      --api-key TEXT                  Your MythX API access token
+      --username TEXT                 Your MythX account's username
+      --password TEXT                 Your MythX account's password
+      --format [simple|json|json-pretty|table|sonar]
                                       The format to display the results in
                                       [default: table]
       --ci                            Return exit code 1 if high-severity issue is

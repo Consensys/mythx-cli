@@ -18,11 +18,3 @@ mythx_cli.cli
     :members:
     :undoc-members:
     :show-inheritance:
-
-mythx_cli.util
---------------
-
-.. automodule:: mythx_cli.util
-    :members:
-    :undoc-members:
-    :show-inheritance:

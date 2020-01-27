@@ -12,8 +12,8 @@ Once set up, head over to the `dashboard <https://dashboard.mythx.io/>`_.
 In the *Profile* section various means of authentication are presented.
 
 
-Using Access Tokens
-~~~~~~~~~~~~~~~~~~~
+Using API Tokens
+~~~~~~~~~~~~~~~~
 
 This is the recommended way of authenticating with the MythX smart contract
 analysis API. In the *Profile* section there is an elements labeled "MythX API Key".
@@ -30,8 +30,8 @@ explained above.
 .. image:: _static/img/api-key.png
 
 This key can be passed to the MythX CLI either as an environment variable
-names :code:`MYTHX_ACCESS_TOKEN` or as an explicit parameter
-:code:`--access-token`.
+names :code:`MYTHX_API_KEY` or as an explicit parameter
+:code:`--api-key`.
 For security reasons it is recommended to always pass the token through an
 environment variable, e.g. defined in the settings of a Continuous Integration (CI)
 server or a shell script that can be sourced from.
@@ -49,12 +49,12 @@ is to be expected that this API feature will be disabled in the future.
 The username corresponds to the Ethereum address the MythX account has been
 registered under, and the password is the one that has been set during
 registration, or separately in the MythX dashboard.
-Both can be passed either explicitly using the :code:`--eth-address`
+Both can be passed either explicitly using the :code:`--username`
 and :code:`--password` option respectively, or by setting the
-:code:`MYTHX_ETH_ADDRESS` and :code:`MYTHX_PASSWORD` environment variables.
+:code:`MYTHX_USERNAME` and :code:`MYTHX_PASSWORD` environment variables.
 
-Note that if username and password, as well as an access token are given,
-the access token will always take precedence and no login action using
+Note that if username and password, as well as an API token are given,
+the API token will always take precedence and no login action using
 the provided credentials will be performed.
 
 
