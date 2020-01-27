@@ -219,7 +219,7 @@ def walk_solidity_files(ctx, solc_version, base_path=None):
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "full"]), default="quick", show_default=True)
+@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default="quick", show_default=True)
 @click.option("--create-group", is_flag=True, default=False, help="Create a new group for the analysis")
 @click.option("--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None)
 @click.option("--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None)
