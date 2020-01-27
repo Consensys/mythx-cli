@@ -12,7 +12,7 @@ from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 from mythx_models.response import AnalysisListResponse, DetectedIssuesResponse, GroupCreationResponse, GroupListResponse
-from pythx import Client
+from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -29,7 +29,16 @@ def write_or_print(ctx, data: str):
         outfile.write(data + "\n")
 
 
-@click.group()
+class APIErrorCatcherGroup(click.Group):
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.main(*args, **kwargs)
+        except MythXAPIError as exc:
+            click.echo("The API returned an error:\n{}".format(exc))
+            sys.exit(1)
+
+
+@click.group(cls=APIErrorCatcherGroup)
 @click.option("--debug", is_flag=True, default=False, envvar="MYTHX_DEBUG", help="Provide additional debug output")
 @click.option("--api-key", envvar="MYTHX_API_KEY", help="Your MythX API access token")
 @click.option("--username", envvar="MYTHX_USERNAME", help="Your MythX account's username")
