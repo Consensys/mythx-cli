@@ -85,13 +85,11 @@ def cli(ctx, **kwargs):
             middlewares=[toolname_mw],
         )
     else:
-        # default to trial user client
-        ctx.obj["client"] = Client(
-            eth_address="0x0000000000000000000000000000000000000000",
-            password="trial",
-            staging=kwargs["staging"],
-            middlewares=[toolname_mw],
-        )
+        raise click.UsageError((
+            "The trial user has been deprecated. You can still use the MythX CLI for free "
+            "by signing up for a free account at https://mythx.io/ and entering your access "
+            "credentials."
+        ))
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
             logging.getLogger(name).setLevel(logging.DEBUG)
