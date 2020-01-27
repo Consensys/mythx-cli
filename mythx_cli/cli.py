@@ -64,21 +64,19 @@ def cli(ctx, **kwargs):
     ctx.obj["retval"] = 0
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["api_key"] is not None:
-        ctx.obj["client"] = Client(
-            access_token=kwargs["api_key"], middlewares=[toolname_mw]
-        )
+        ctx.obj["client"] = Client(access_token=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
         ctx.obj["client"] = Client(
-            eth_address=kwargs["username"],
-            password=kwargs["password"],
-            middlewares=[toolname_mw],
+            eth_address=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
         )
     else:
-        raise click.UsageError((
-            "The trial user has been deprecated. You can still use the MythX CLI for free "
-            "by signing up for a free account at https://mythx.io/ and entering your access "
-            "credentials."
-        ))
+        raise click.UsageError(
+            (
+                "The trial user has been deprecated. You can still use the MythX CLI for free "
+                "by signing up for a free account at https://mythx.io/ and entering your access "
+                "credentials."
+            )
+        )
     if kwargs["debug"]:
         for name in logging.root.manager.loggerDict:
             logging.getLogger(name).setLevel(logging.DEBUG)

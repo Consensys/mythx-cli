@@ -10,9 +10,9 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
+    GroupCreationResponse,
     GroupListResponse,
     GroupStatusResponse,
-    GroupCreationResponse,
     VersionResponse,
 )
 
