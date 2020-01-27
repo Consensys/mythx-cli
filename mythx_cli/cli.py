@@ -12,7 +12,7 @@ from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 from mythx_models.response import AnalysisListResponse, DetectedIssuesResponse, GroupCreationResponse, GroupListResponse
-from pythx import Client, MythXAPIError
+from pythx import Client
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -37,13 +37,6 @@ def write_or_print(ctx, data: str):
 @click.option("--eth-address", envvar="MYTHX_ETH_ADDRESS", help="Your MythX account's Ethereum address")
 @click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password as set in the dashboard")
 @click.option(
-    "--staging/--production",
-    default=False,
-    hidden=True,
-    envvar="MYTHX_STAGING",
-    help="Use the MythX staging environment",
-)
-@click.option(
     "--format",
     "fmt",
     default="table",
@@ -64,7 +57,6 @@ def cli(ctx, **kwargs):
     :param access_token: User JWT access token from the MythX dashboard
     :param eth_address: The MythX account ETH address/username
     :param password: The account password from the MythX dashboard
-    :param staging: Boolean to redirect requests to MythX staging
     :param fmt: The formatter to use for the subcommand output
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
     :param output: Output file to write the results into
@@ -75,13 +67,12 @@ def cli(ctx, **kwargs):
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["access_token"] is not None:
         ctx.obj["client"] = Client(
-            access_token=kwargs["access_token"], staging=kwargs["staging"], middlewares=[toolname_mw]
+            access_token=kwargs["access_token"], middlewares=[toolname_mw]
         )
     elif kwargs["eth_address"] and kwargs["password"]:
         ctx.obj["client"] = Client(
             eth_address=kwargs["eth_address"],
             password=kwargs["password"],
-            staging=kwargs["staging"],
             middlewares=[toolname_mw],
         )
     else:

@@ -12,6 +12,7 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     GroupListResponse,
     GroupStatusResponse,
+    GroupCreationResponse,
     VersionResponse,
 )
 
@@ -39,6 +40,7 @@ def mock_context(
     group_list_response=None,
     analysis_status_response=None,
     group_status_response=None,
+    group_creation_response=None,
 ):
     with patch("pythx.Client.analyze") as analyze_patch, patch("pythx.Client.analysis_ready") as ready_patch, patch(
         "pythx.Client.report"
@@ -53,6 +55,8 @@ def mock_context(
     ) as status_patch, patch(
         "pythx.Client.group_status"
     ) as group_status_patch, patch(
+        "pythx.Client.create_group"
+    ) as group_create_patch, patch(
         "pythx.Client.version"
     ) as version_patch:
         analyze_patch.return_value = submission_response or get_test_case(
@@ -87,6 +91,9 @@ def mock_context(
         group_status_patch.return_value = group_status_response or get_test_case(
             "testdata/group-status-response.json", GroupStatusResponse
         )
+        group_create_patch.return_value = group_creation_response or get_test_case(
+            "testdata/group-creation-response.json", GroupCreationResponse
+        )
         version_patch.return_value = get_test_case("testdata/version-response.json", VersionResponse)
         yield (
             analyze_patch,
@@ -98,5 +105,6 @@ def mock_context(
             group_list_patch,
             status_patch,
             group_status_patch,
+            group_create_patch,
             version_patch,
         )
