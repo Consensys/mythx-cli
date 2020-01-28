@@ -4,9 +4,9 @@ from copy import deepcopy
 
 import pytest
 from click.testing import CliRunner
+from mythx_models.response import AnalysisInputResponse, AnalysisSubmissionResponse, DetectedIssuesResponse, Severity
 
 from mythx_cli.cli import cli
-from mythx_models.response import AnalysisInputResponse, AnalysisSubmissionResponse, DetectedIssuesResponse, Severity
 
 from .common import get_test_case, mock_context
 
@@ -154,7 +154,7 @@ def test_solidity_analyze_multiple_with_group():
         with open("outdated2.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE)
 
-        result = runner.invoke(cli, ["analyze", "--create-group", "outdated.sol", "outdated2.sol"])
+        result = runner.invoke(cli, ["--debug", "analyze", "--create-group", "outdated.sol", "outdated2.sol"])
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
         assert result.exit_code == 0
 
