@@ -1,8 +1,8 @@
 """This module contains the compressed and pretty-printing JSON formatters."""
 
 import json
+from typing import List, Optional, Tuple
 
-from mythx_cli.formatter.base import BaseFormatter
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -13,8 +13,12 @@ from mythx_models.response import (
     VersionResponse,
 )
 
+from mythx_cli.formatter.base import BaseFormatter
+
 
 class JSONFormatter(BaseFormatter):
+    report_requires_input = False
+
     @staticmethod
     def format_group_status(resp: GroupStatusResponse):
         """Format a group status response as compressed JSON."""
@@ -40,10 +44,13 @@ class JSONFormatter(BaseFormatter):
         return resp.to_json()
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
+    def format_detected_issues(
+        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    ) -> str:
         """Format an issue report response as compressed JSON."""
 
-        return resp.to_json()
+        output = [resp.to_dict(as_list=True) for resp, _ in issues_list]
+        return json.dumps(output)
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:
@@ -53,13 +60,15 @@ class JSONFormatter(BaseFormatter):
 
 
 class PrettyJSONFormatter(BaseFormatter):
+    report_requires_input = False
+
     @staticmethod
-    def _print_as_json(obj):
+    def _print_as_json(obj, report_mode=False):
         """Pretty-print the given object's JSON representation."""
 
         json_args = {"indent": 2, "sort_keys": True}
-        if type(obj) == DetectedIssuesResponse:
-            return json.dumps(obj.to_dict(as_list=True), **json_args)
+        if report_mode:
+            return json.dumps([resp.to_dict(as_list=True) for resp, _ in obj], **json_args)
         return json.dumps(obj.to_dict(), **json_args)
 
     @staticmethod
@@ -87,10 +96,10 @@ class PrettyJSONFormatter(BaseFormatter):
         return PrettyJSONFormatter._print_as_json(obj)
 
     @staticmethod
-    def format_detected_issues(obj: DetectedIssuesResponse, inp: AnalysisInputResponse):
+    def format_detected_issues(issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]):
         """Format an issue report response as pretty-printed JSON."""
 
-        return PrettyJSONFormatter._print_as_json(obj)
+        return PrettyJSONFormatter._print_as_json(issues_list, report_mode=True)
 
     @staticmethod
     def format_version(obj: VersionResponse):
