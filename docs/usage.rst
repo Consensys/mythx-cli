@@ -16,7 +16,7 @@ Using API Tokens
 ~~~~~~~~~~~~~~~~
 
 This is the recommended way of authenticating with the MythX smart contract
-analysis API. In the *Profile* section there is an elements labeled "MythX API Key".
+analysis API. In the *Tools* section there is an elements labeled "MythX API Key".
 To generate a new API key, the account password must be entered:
 
 .. image:: _static/img/api-key-password.png
