@@ -1,6 +1,6 @@
 """This module contains a simple text formatter class printing a subset of the response data."""
 
-import click
+from typing import List, Optional, Tuple
 
 from mythx_models.response import (
     AnalysisInputResponse,
@@ -17,6 +17,8 @@ from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class SimpleFormatter(BaseFormatter):
+    report_requires_input = True
+
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response to a simple text representation."""
@@ -70,34 +72,36 @@ class SimpleFormatter(BaseFormatter):
         return "\n".join(res)
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
+    def format_detected_issues(
+        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    ) -> str:
         """Format an issue report to a simple text representation."""
 
-        res = []
-        ctx = click.get_current_context()
         # TODO: Sort by file
-        for report in resp.issue_reports:
-            for issue in report.issues:
-                res.append(generate_dashboard_link(ctx.obj["uuid"]))
-                res.append("Title: {} ({})".format(issue.swc_title or "-", issue.severity))
-                res.append("Description: {}".format(issue.description_long.strip()))
+        for resp, inp in issues_list:
+            res = []
+            for report in resp.issue_reports:
+                for issue in report.issues:
+                    res.append(generate_dashboard_link(resp.uuid))
+                    res.append("Title: {} ({})".format(issue.swc_title or "-", issue.severity))
+                    res.append("Description: {}".format(issue.description_long.strip()))
 
-                for loc in issue.locations:
-                    comp = loc.source_map.components[0]
-                    source_list = loc.source_list or report.source_list
-                    if source_list and 0 >= comp.file_id < len(source_list):
-                        filename = source_list[comp.file_id]
-                        if not inp.sources or filename not in inp.sources:
-                            # Skip files we don't have source for
-                            # (e.g. with unresolved bytecode hashes)
-                            res.append("")
-                            continue
-                        line = get_source_location_by_offset(inp.sources[filename]["source"], comp.offset)
-                        snippet = inp.sources[filename]["source"].split("\n")[line - 1]
-                        res.append("{}:{}".format(filename, line))
-                        res.append("\t" + snippet.strip())
+                    for loc in issue.locations:
+                        comp = loc.source_map.components[0]
+                        source_list = loc.source_list or report.source_list
+                        if source_list and 0 >= comp.file_id < len(source_list):
+                            filename = source_list[comp.file_id]
+                            if not inp.sources or filename not in inp.sources:
+                                # Skip files we don't have source for
+                                # (e.g. with unresolved bytecode hashes)
+                                res.append("")
+                                continue
+                            line = get_source_location_by_offset(inp.sources[filename]["source"], comp.offset)
+                            snippet = inp.sources[filename]["source"].split("\n")[line - 1]
+                            res.append("{}:{}".format(filename, line))
+                            res.append("\t" + snippet.strip())
 
-                    res.append("")
+                        res.append("")
 
         return "\n".join(res)
 
