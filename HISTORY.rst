@@ -2,6 +2,25 @@
 History
 =======
 
+0.5.3 (2020-01-16)
+------------------
+
+- Bump :code:`py-solc-x` to 0.7.0
+
+
+0.5.2 (2020-01-16)
+------------------
+
+- Fix merge release mistake (yeah, sorry.)
+
+
+0.5.1 (2020-01-16)
+------------------
+
+- Add support for new modes (quick, standard, deep)
+- Fix issue where Truffle address placeholders resulted in invalid bytecode
+
+
 0.5.0 (2020-01-14)
 ------------------
 
