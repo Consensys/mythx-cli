@@ -5,16 +5,24 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
+from typing import List, Optional, Tuple
 
 import click
-
-from mythx_cli import __version__
-from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
-from mythx_models.response import AnalysisListResponse, DetectedIssuesResponse, GroupCreationResponse, GroupListResponse
+from mythx_models.response import (
+    AnalysisInputResponse,
+    AnalysisListResponse,
+    DetectedIssuesResponse,
+    GroupCreationResponse,
+    GroupListResponse,
+)
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
+
+from mythx_cli import __version__
+from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
@@ -321,17 +329,23 @@ def analyze(
         write_or_print("\n".join(uuids))
         return
 
+    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
         while not ctx["client"].analysis_ready(uuid):
             # TODO: Add poll interval option
             time.sleep(3)
         resp: DetectedIssuesResponse = ctx["client"].report(uuid)
-        inp = ctx["client"].request_by_uuid(uuid)
+        inp: Optional[AnalysisInputResponse] = ctx["client"].request_by_uuid(
+            uuid
+        ) if formatter.report_requires_input else None
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
-        ctx["uuid"] = uuid
-        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+        # extend response with job UUID to keep formatter logic isolated
+        resp.uuid = uuid
+        issues_list.append((resp, inp))
 
+    write_or_print(formatter.format_detected_issues(issues_list))
     sys.exit(ctx["retval"])
 
 
@@ -491,13 +505,17 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
     :return:
     """
 
+    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
         resp = ctx["client"].report(uuid)
-        inp = ctx["client"].request_by_uuid(uuid)
-        ctx["uuid"] = uuid
+        inp = ctx["client"].request_by_uuid(uuid) if formatter.report_requires_input else None
 
         util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
-        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_detected_issues(resp, inp))
+        resp.uuid = uuid
+        issues_list.append((resp, inp))
+
+    write_or_print(formatter.format_detected_issues(issues_list))
     sys.exit(ctx["retval"])
 
 

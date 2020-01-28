@@ -1,6 +1,7 @@
 """This module contains the base formatter interface."""
 
 import abc
+from typing import List, Optional, Tuple
 
 from mythx_models.response import (
     AnalysisInputResponse,
@@ -13,6 +14,8 @@ from mythx_models.response import (
 
 class BaseFormatter(abc.ABC):
     """The base formatter interface for printing various response types."""
+
+    report_requires_input = False
 
     @staticmethod
     @abc.abstractmethod
@@ -29,7 +32,7 @@ class BaseFormatter(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def format_detected_issues(obj: DetectedIssuesResponse, inp: AnalysisInputResponse):
+    def format_detected_issues(issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]):
         """Format an issue report response."""
 
         pass  # pragma: no cover

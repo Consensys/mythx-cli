@@ -3,9 +3,7 @@
 from collections import defaultdict
 from itertools import zip_longest
 from os.path import basename
-
-import click
-from tabulate import tabulate
+from typing import List, Optional, Tuple
 
 from mythx_models.response import (
     AnalysisInputResponse,
@@ -16,12 +14,15 @@ from mythx_models.response import (
     GroupStatusResponse,
     VersionResponse,
 )
+from tabulate import tabulate
 
 from .base import BaseFormatter
 from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class TabularFormatter(BaseFormatter):
+    report_requires_input = True
+
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response to a tabular representation."""
@@ -80,39 +81,45 @@ class TabularFormatter(BaseFormatter):
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
-    def format_detected_issues(resp: DetectedIssuesResponse, inp: AnalysisInputResponse) -> str:
+    def format_detected_issues(
+        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    ) -> str:
         """Format an issue report to a tabular representation."""
 
         res = []
-        file_to_issue = defaultdict(list)
-        for report in resp.issue_reports:
-            for issue in report.issues:
-                if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
-                    res.extend((issue.description_long, ""))
-                for loc in issue.locations:
-                    for c in loc.source_map.components:
-                        # This is so nested, a barn swallow might be hidden somewhere.
-                        source_list = loc.source_list or report.source_list
-                        if not (source_list and 0 >= c.file_id < len(source_list)):
-                            continue
-                        filename = report.source_list[c.file_id]
-                        if not inp.sources or filename not in inp.sources:
-                            line = "bytecode offset {}".format(c.offset)
-                        else:
-                            line = get_source_location_by_offset(inp.sources[filename]["source"], c.offset)
-                        file_to_issue[filename].append((line, issue.swc_title, issue.severity, issue.description_short))
+        for resp, inp in issues_list:
+            file_to_issue = defaultdict(list)
+            for report in resp.issue_reports:
+                for issue in report.issues:
+                    if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
+                        res.extend((issue.description_long, ""))
+                    for loc in issue.locations:
+                        for c in loc.source_map.components:
+                            # This is so nested, a barn swallow might be hidden somewhere.
+                            source_list = loc.source_list or report.source_list
+                            if not (source_list and 0 >= c.file_id < len(source_list)):
+                                continue
+                            filename = report.source_list[c.file_id]
+                            if not inp.sources or filename not in inp.sources:
+                                line = "bytecode offset {}".format(c.offset)
+                            else:
+                                line = get_source_location_by_offset(inp.sources[filename]["source"], c.offset)
+                            file_to_issue[filename].append(
+                                (resp.uuid, line, issue.swc_title, issue.severity, issue.description_short)
+                            )
 
-        ctx = click.get_current_context()
-        for filename, data in file_to_issue.items():
-            res.append("Report for {}".format(filename))
-            res.extend(
-                (
-                    generate_dashboard_link(ctx.obj["uuid"]),
-                    tabulate(
-                        data, tablefmt="fancy_grid", headers=("Line", "SWC Title", "Severity", "Short Description")
-                    ),
+            for filename, data in file_to_issue.items():
+                res.append("Report for {}".format(filename))
+                res.extend(
+                    (
+                        generate_dashboard_link(data[0][0]),
+                        tabulate(
+                            [d[1:] for d in data],
+                            tablefmt="fancy_grid",
+                            headers=("Line", "SWC Title", "Severity", "Short Description"),
+                        ),
+                    )
                 )
-            )
 
         return "\n".join(res)
 
