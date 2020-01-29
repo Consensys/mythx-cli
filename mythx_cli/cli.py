@@ -48,7 +48,7 @@ class APIErrorCatcherGroup(click.Group):
 
 @click.group(cls=APIErrorCatcherGroup)
 @click.option("--debug", is_flag=True, default=False, envvar="MYTHX_DEBUG", help="Provide additional debug output")
-@click.option("--api-key", envvar="MYTHX_API_KEY", help="Your MythX API access token")
+@click.option("--api-key", envvar="MYTHX_API_KEY", help="Your MythX API key from the dashboard")
 @click.option("--username", envvar="MYTHX_USERNAME", help="Your MythX account's username")
 @click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password")
 @click.option(
@@ -69,7 +69,7 @@ def cli(ctx, **kwargs):
 
     :param ctx: Click context holding group-level parameters
     :param debug: Boolean to enable the `logging` debug mode
-    :param api_key: User JWT access token from the MythX dashboard
+    :param api_key: User JWT api token from the MythX dashboard
     :param username: The MythX account ETH address/username
     :param password: The account password from the MythX dashboard
     :param fmt: The formatter to use for the subcommand output
@@ -81,10 +81,10 @@ def cli(ctx, **kwargs):
     ctx.obj["retval"] = 0
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["api_key"] is not None:
-        ctx.obj["client"] = Client(access_token=kwargs["api_key"], middlewares=[toolname_mw])
+        ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
         ctx.obj["client"] = Client(
-            eth_address=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
+            username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
         )
     else:
         raise click.UsageError(
