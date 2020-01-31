@@ -6,7 +6,8 @@ from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
 from typing import List, Optional, Tuple
-
+import jinja2
+import htmlmin
 import click
 from mythx_models.response import (
     AnalysisInputResponse,
@@ -14,6 +15,7 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     GroupCreationResponse,
     GroupListResponse,
+    AnalysisStatusResponse,
 )
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
@@ -24,16 +26,17 @@ from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 
+DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
 
 @click.pass_obj
-def write_or_print(ctx, data: str):
+def write_or_print(ctx, data: str, mode="a+"):
     if not ctx["output"]:
         click.echo(data)
         return
-    with open(ctx["output"], "a+") as outfile:
+    with open(ctx["output"], mode) as outfile:
         outfile.write(data + "\n")
 
 
@@ -517,6 +520,51 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
 
     write_or_print(formatter.format_detected_issues(issues_list))
     sys.exit(ctx["retval"])
+
+
+@cli.command()
+@click.argument("target")
+@click.option("--template", "-t", "user_template", default=DEFAULT_TEMPLATE)
+@click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
+@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
+@click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
+@click.pass_obj
+def render(ctx, target, user_template, min_severity, swc_blacklist, swc_whitelist):
+    """Render an analysis job or group report as HTML.
+
+    \f
+    """
+
+    client: Client = ctx["client"]
+    with open(user_template) as tpl_f:
+        template = jinja2.Template(tpl_f.read())
+
+    if len(target) == 24:
+        # identified group
+        list_resp = client.analysis_list(group_id=target)
+        click.echo("Fetched {} analyses".format(list_resp.total))
+        issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+        for analysis_ in list_resp.analyses:
+            resp: DetectedIssuesResponse = client.report(analysis_.uuid)
+            inp: Optional[AnalysisInputResponse] = client.request_by_uuid(analysis_.uuid)
+            status: AnalysisStatusResponse = client.status(analysis_.uuid)
+            click.echo(status.to_json())
+            util.filter_report(
+                resp,
+                min_severity=min_severity,
+                swc_blacklist=swc_blacklist,
+                swc_whitelist=swc_whitelist
+            )
+            # extend response with job UUID to keep formatter logic isolated
+            resp.uuid = analysis_.uuid
+            issues_list.append((status, resp, inp))
+
+        write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
+    elif len(target) == 36:
+        # identified analysis UUID
+        pass
+    else:
+        raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
 
 
 @cli.command()
