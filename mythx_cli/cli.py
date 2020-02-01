@@ -522,6 +522,22 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
     sys.exit(ctx["retval"])
 
 
+def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
+    resp: DetectedIssuesResponse = client.report(uuid)
+    inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
+    status: AnalysisStatusResponse = client.status(uuid)
+    util.filter_report(
+        resp,
+        min_severity=min_severity,
+        swc_blacklist=swc_blacklist,
+        swc_whitelist=swc_whitelist
+    )
+    # extend response with job UUID to keep formatter logic isolated
+    resp.uuid = uuid
+
+    return status, resp, inp
+
+
 @cli.command()
 @click.argument("target")
 @click.option("--template", "-t", "user_template", default=DEFAULT_TEMPLATE)
@@ -539,33 +555,40 @@ def render(ctx, target, user_template, min_severity, swc_blacklist, swc_whitelis
     with open(user_template) as tpl_f:
         template = jinja2.Template(tpl_f.read())
 
+    issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
     if len(target) == 24:
         # identified group
         list_resp = client.analysis_list(group_id=target)
-        click.echo("Fetched {} analyses".format(list_resp.total))
-        issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+        offset = 0
+        while len(list_resp.analyses) < list_resp.total:
+            offset += len(list_resp.analyses)
+            list_resp.analyses.extend(client.analysis_list(group_id=target, offset=offset))
+
         for analysis_ in list_resp.analyses:
-            resp: DetectedIssuesResponse = client.report(analysis_.uuid)
-            inp: Optional[AnalysisInputResponse] = client.request_by_uuid(analysis_.uuid)
-            status: AnalysisStatusResponse = client.status(analysis_.uuid)
-            click.echo(status.to_json())
-            util.filter_report(
-                resp,
+            click.echo("Fetching report for analysis {}".format(analysis_.uuid))
+            status, resp, inp = get_analysis_info(
+                client=client,
+                uuid = analysis_.uuid,
                 min_severity=min_severity,
                 swc_blacklist=swc_blacklist,
-                swc_whitelist=swc_whitelist
+                swc_whitelist=swc_whitelist,
             )
-            # extend response with job UUID to keep formatter logic isolated
-            resp.uuid = analysis_.uuid
             issues_list.append((status, resp, inp))
-
-        write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
     elif len(target) == 36:
         # identified analysis UUID
-        pass
+        click.echo("Fetching report for analysis {}".format(target))
+        status, resp, inp = get_analysis_info(
+            client=client,
+            uuid = analysis_.uuid,
+            min_severity=min_severity,
+            swc_blacklist=swc_blacklist,
+            swc_whitelist=swc_whitelist,
+        )
+        issues_list.append((status, resp, inp))
     else:
         raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
 
+    write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
 
 @cli.command()
 @click.pass_obj

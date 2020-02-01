@@ -138,12 +138,13 @@
 <article class="main-content">
     <header class="main-head">MythX Report for {{ target }}</header>
     {% for status, report, input in issues_list %}
+    <a href="https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }}" target="_blank">
+        <h1 id="{{ report.uuid }}">
+            Report {{ loop.index }} ({{ report.uuid }})
+        </h1>
+    </a>
+    {% if report %}
     <section class="status">
-        <a href="https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }}" target="_blank">
-            <h1 id="{{ report.uuid }}">
-                Report {{ loop.index }} ({{ report.uuid }})
-            </h1>
-        </a>
         <table>
             <tr>
                 <th>High</th>
@@ -160,7 +161,6 @@
         </table>
     </section>
     <section class="report">
-        {% if report %}
         <table>
             <tr>
                 <th>ID</th>
@@ -169,22 +169,47 @@
                 <th>File</th>
                 <th>Location</th>
             </tr>
+            {% set line_dict = {} %}
             {% for issue in report %}
             {% for location in issue.decoded_locations %}
             <tr>
                 <td>{{ issue.swc_id }}</td>
                 <td>{{ issue.severity|title }}</td>
                 <td>{{ issue.swc_title }}</td>
-                <td>{% for loc in issue.locations %} {% if loc.source_format == "text" %} {{ loc.source_list[0] }} {%
-                    endif %} {% endfor %}
+                <td>
+                {% for loc in issue.locations %}
+                {% if loc.source_format == "text" %}
+                {{ loc.source_list[0] }}
+                {% endif %}
+                {% endfor %}
                 </td>
+                {% set x=line_dict.__setitem__(location.start_line, issue.severity|lower) %}
                 <td>L: {{ location.start_line }} C: {{ location.start_column }}</td>
             </tr>
             {% endfor %}
             {% endfor %}
         </table>
-        {% endif %}
     </section>
+    <section class="code">
+        <details class="details-tab">
+            <summary>Source Code</summary>
+            {% for filename, data in input.sources.items() %}
+            <p class="source-filename">{{ filename }}</p>
+            <pre>
+                {% for line in data["source"].split("\n") %}
+                {% if loop.index in line_dict %}
+                    <code class="sev-{{ line_dict[loop.index] }}">{{ line }}</code>
+                {% else %}
+                    <code>{{ line }}</code>
+                {% endif %}
+                {% endfor %}
+            </pre>
+            {% endfor %}
+        </details>
+    </section>
+    {% else %}
+    <p>No issues were found.</p>
+    {% endif %}
     {% endfor %}
 </article>
 <footer class="main-footer">
