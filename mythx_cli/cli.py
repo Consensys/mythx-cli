@@ -541,17 +541,20 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
 @cli.command()
 @click.argument("target")
 @click.option("--template", "-t", "user_template", default=DEFAULT_TEMPLATE)
+@click.option("--aesthetic", is_flag=True, default=False, hidden=True)
 @click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
 @click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
 @click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
 @click.pass_obj
-def render(ctx, target, user_template, min_severity, swc_blacklist, swc_whitelist):
+def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, swc_whitelist):
     """Render an analysis job or group report as HTML.
 
     \f
     """
 
     client: Client = ctx["client"]
+    if aesthetic:
+        user_template = Path(__file__).parent / "templates/aesthetic.html"
     with open(user_template) as tpl_f:
         template = jinja2.Template(tpl_f.read())
 

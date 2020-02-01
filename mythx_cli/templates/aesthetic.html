@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+    html {
+        font-family: monospace;
+        font-size: large;
+    }
+
+    .main-head {
+        font-size: 2.5rem;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-top: 5rem;
+    }
+
+    h2 {
+        font-size: 2rem;
+    }
+
+    table {
+        border-style: none;
+        border-spacing: 0;
+        margin-left: auto;
+        margin-right: auto;
+        float: none;
+    }
+
+    .report > table {
+        width: 75vw;
+        margin-top: 1.5rem;
+    }
+
+    .report > table > tbody > tr > th {
+        text-align: left;
+        text-transform: uppercase;
+        padding: 0.5rem;
+    }
+
+    .report > table > tbody > tr > td {
+        text-align: left;
+        padding: 0.5rem;
+    }
+
+    .status > table {
+        width: 60vw;
+        text-align: center;
+        table-layout: fixed;
+    }
+
+    .status > table > tbody > tr > th {
+        text-transform: uppercase;
+        padding: 0.5rem;
+    }
+
+
+    .status > table > tbody > tr > td {
+        font-weight: bold;
+        font-size: 1.2rem;
+        padding: 1rem;
+    }
+
+    .main-nav {
+      grid-area: nav;
+      grid-column: 1;
+      grid-row: 1 / span 2;
+    }
+
+    .main-nav > ul {
+        list-style: none;
+    }
+
+    .main-nav > ul > li {
+        padding: 0.5rem;
+    }
+
+    .main-nav > ul > li > a {
+        color:inherit;
+        text-decoration: none;
+    }
+
+    .main-nav > h2 {
+        text-align: center;
+    }
+
+    .main-content {
+      grid-area: content;
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .main-footer {
+        grid-area: footer;
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    {# COLOURS #}
+
+    body {
+        color: rgba(40, 40, 40);
+    }
+
+    .main-head {
+        color: rgba(255,137,206,1);
+    }
+
+    .main-footer {
+        color: rgba(255,137,206,1);
+    }
+
+    nav {
+        color: rgba(255,137,206,1);
+    }
+
+    article > a {
+        color: rgba(40, 40, 40);
+        text-decoration: none;
+    }
+
+    article > a > h1 {
+        color: rgba(255,137,206,1);
+        font-weight: bold;
+    }
+
+    .status > table > tbody tr > th {
+        background-color: rgba(194,194,231,0.8);
+    }
+
+    .report > table > tbody tr > th {
+        background-color: rgba(194,194,231,0.8);
+    }
+
+    .report > table > tbody tr > td {
+        background-color: rgba(194,194,231,0.6);
+    }
+
+    .sev-low {
+        background-color: rgba(161,219,242,0.7);
+    }
+
+    .sev-medium {
+        background-color: rgba(227,167,221,0.7);
+    }
+
+    .sev-high {
+        background-color: rgba(255,137,206,0.7);
+    }
+
+    .sev-unknown {
+        background-color: rgba(124,172,191,0.7);
+    }
+
+    .details-tab {
+        background-color: rgba(194,194,231,0.8);
+    }
+
+    details[open] {
+        background-color: rgba(194,194,231,1,0.8);
+    }
+
+    #main {
+        display: grid;
+        grid-template-columns: 1fr 5fr;
+        grid-template-rows: auto;
+        grid-gap: 2rem;
+        height: 90vh;
+        width: 90vw;
+        grid-template-areas: "nav" "content"
+    }
+
+    .code {
+        margin-top: 2rem;
+    }
+
+    details {
+        position: relative;
+        width: 100%;
+        margin: 1rem auto;
+        padding: 0 1rem;
+        max-width: calc(100% - 2rem);
+        border-radius: 6px;
+        transition: background-color 0.15s;
+    }
+
+    details > :last-child {
+        margin-bottom: 1rem;
+    }
+
+    summary:focus {
+        outline: none;
+    }
+
+    details::before {
+        width: 100%;
+        height: 100%;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: inherit;
+        opacity: 0.15;
+        box-shadow: 0 0.25em 0.5em #263238;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        z-index: -1;
+    }
+
+    details[open]::before {
+        opacity: 0.6;
+    }
+
+    summary {
+        padding: 1rem 2em 1rem 0;
+        display: block;
+        position: relative;
+        font-size: 1.33em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    summary::before, summary::after {
+        width: 0.75em;
+        height: 2px;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        content: '';
+        background-color: currentColor;
+        text-align: right;
+        transform: translateY(-50%);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    summary::after {
+        transform: translateY(-50%) rotate(90deg);
+    }
+
+    [open] summary::after {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    pre {
+        counter-reset: line;
+        line-height: 0.4rem;
+        padding-left: 1rem;
+        white-space: pre-line;
+    }
+
+    code {
+        counter-increment: line;
+    }
+
+    code::before {
+        content: counter(line);
+        display: inline-block;
+        width: 2rem;
+        border-right: 1px solid #ddd;
+        margin-right: 1.5em;
+        color: #888;
+        -webkit-user-select: none;
+    }
+
+    .source-filename {
+        font-family: monospace;
+        font-size: 1.5rem;
+        text-align: center;
+        border-radius: 6px;
+        margin: auto;
+    }
+
+    #landscape {
+        position: fixed;
+        height: 50vh;
+        width: 100vw;
+        top: 50vh;
+        overflow: hidden;
+        z-index: -999;
+        background-color: #191923;
+        background-size: 100% auto;
+        box-shadow: 0 -0.5rem 5rem 2rem orange;
+        perspective: 100px;
+        perspective-origin: top;
+    }
+    
+    #landscape::before {
+        position: absolute;
+        content: '';
+        width: 300vw;
+        height: inherit;
+        background-color: transparent;
+        background-size: 90px 24px;
+        background-image: linear-gradient(90deg, transparent 30%, #f0f 36%, #f0f 38%, transparent 40%), linear-gradient(0deg, transparent 32%, #f0f 36%, #f0f 38%, transparent 39%);
+        z-index: -998;
+        -webkit-transform: rotateX(30deg) translate(-25%, -25%);
+        animation: grid-scroll 1.5s linear infinite;
+    }
+
+    @keyframes glimmer {
+        0% {
+            background-position: left;
+        }
+        30% {
+            background-position: right;
+        }
+        100% {
+            background-position: right;
+        }
+    }
+
+    @keyframes grid-scroll {
+        from {
+            background-position: 0 0;
+        }
+        to {
+            background-position: 0px 24px;
+        }
+    }
+
+    @keyframes screen-flicker {
+        from {
+            background-position: 0 0;
+        }
+        to {
+            background-position: 0px -12px;
+        }
+    }
+
+    #overlay {
+        position: fixed;
+        height: 100vh;
+        width: 100vw;
+        top: 0;
+        background: -webkit-repeating-linear-gradient(
+            top,
+            transparent 0px,
+            transparent 2px,
+            rgba(0, 0, 0, .3) 5px,
+            rgba(0, 0, 0, .2) 5px
+        );
+
+        z-index: -900;
+    }
+
+    #background {
+        position: fixed;
+        height: 50vh;
+        width: 100vw;
+        top: 0;
+        background-color: #AD8CFF;
+        z-index: -999;
+    }
+    </style>    
+    <title>ＭｙｔｈＸ　Ｒｅｐｏｒｔ　ｆｏｒ　ドヵゕ {{target}} </title>
+</head>
+<body>
+<div id="background"></div>
+<div id="overlay"></div>
+<div id="landscape"></div>
+<div id="main">
+<nav class="main-nav">
+    <h3>【Ｏｖｅｒｖｉｅｗ】</h3>
+    <ul>
+        {% for status, report, input in issues_list %}
+        <li><a href="#{{ report.uuid }}">Ｒｅｐｏｒｔ {{ loop.index }}</a></li>
+        {% endfor %}
+    </ul>
+</nav>
+<article class="main-content">
+    <header class="main-head">ＭｙｔｈＸ　Ｒｅｐｏｒｔ　ｆｏｒ　ドヵゕ {{ target }}</header>
+    {% for status, report, input in issues_list %}
+    <a href="https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }}" target="_blank">
+        <h1 id="{{ report.uuid }}">
+            Ｒｅｐｏｒｔ　{{ loop.index }} ({{ report.uuid }})
+        </h1>
+    </a>
+    {% if report %}
+    <section class="status">
+        <table>
+            <tr>
+                <th>Ｈｉｇｈ　ユ炎壱</th>
+                <th>Ｍｅｄｉｕｍ　無 ツ</th>
+                <th>Ｌｏｗ　悦ム </th>
+                <th>Ｕｎｋｎｏｗｎ　ォス現</th>
+            </tr>
+            <tr>
+                <td class="sev-high">{{ status.vulnerability_statistics.high }}</td>
+                <td class="sev-medium">{{ status.vulnerability_statistics.medium }}</td>
+                <td class="sev-low">{{ status.vulnerability_statistics.low }}</td>
+                <td class="sev-unknown">{{ status.vulnerability_statistics.none }}</td>
+            </tr>
+        </table>
+    </section>
+    <section class="report">
+        <table>
+            <tr>
+                <th>ＩＤ</th>
+                <th>Ｓｅｖｅｒｉｔｙ</th>
+                <th>Ｎａｍｅ</th>
+                <th>Ｆｉｌｅ</th>
+                <th>Ｌｏｃａｔｉｏｎ</th>
+            </tr>
+            {% set line_dict = {} %}
+            {% for issue in report %}
+            {% for location in issue.decoded_locations %}
+            <tr>
+                <td>{{ issue.swc_id }}</td>
+                <td>{{ issue.severity|title }}</td>
+                <td>{{ issue.swc_title }}</td>
+                <td>
+                {% for loc in issue.locations %}
+                {% if loc.source_format == "text" %}
+                {{ loc.source_list[0] }}
+                {% endif %}
+                {% endfor %}
+                </td>
+                {% set x=line_dict.__setitem__(location.start_line, issue.severity|lower) %}
+                <td>L: {{ location.start_line }} C: {{ location.start_column }}</td>
+            </tr>
+            {% endfor %}
+            {% endfor %}
+        </table>
+    </section>
+    <section class="code">
+        <details class="details-tab">
+            <summary>Ｓｏｕｒｃｅ　Ｃｏｄｅ　桜営キ</summary>
+            {% for filename, data in input.sources.items() %}
+            <p class="source-filename">{{ filename }}</p>
+            <pre>
+                {% for line in data["source"].split("\n") %}
+                {% if loop.index in line_dict %}
+                    <code class="sev-{{ line_dict[loop.index] }}">{{ line }}</code>
+                {% else %}
+                    <code>{{ line }}</code>
+                {% endif %}
+                {% endfor %}
+            </pre>
+            {% endfor %}
+        </details>
+    </section>
+    {% else %}
+    <p>Ｎｏ　ｉｓｓｕｅｓ　ｗｅｒｅ　ｆｏｕｎｄ．　オヅゾぱ</p>
+    {% endif %}
+    {% endfor %}
+</article>
+<footer class="main-footer">
+【Ｇｅｎｅｒａｔｅｄ　ｂｙ　ＭｙｔｈＸ　ＣＬＩ】
+</footer>
+</div>
+</body>
+</html>
