@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <style>
-
     html {
         font-family: Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
     }
@@ -32,10 +31,6 @@
     .report > table {
         width: 75vw;
         margin-top: 1.5rem;
-    }
-
-    .report > table > tbody tr:nth-child(odd){
-        background-color: #e2e2e2;
     }
 
     .report > table > tbody > tr > th {
@@ -81,6 +76,11 @@
         padding: 0.5rem;
     }
 
+    .main-nav > ul > li > a {
+        color:inherit;
+        text-decoration: none;
+    }
+
     .main-nav > h2 {
         text-align: center;
     }
@@ -95,6 +95,12 @@
         grid-area: footer;
         grid-column: 2;
         grid-row: 2;
+    }
+
+    {# COLOURS #}
+
+    .report > table > tbody tr:nth-child(odd){
+        background-color: lightgrey;
     }
 
     .sev-low {
@@ -113,6 +119,14 @@
         background-color: lightgrey;
     }
 
+    .details-tab {
+        background-color: #eceff1;
+    }
+
+    details[open] {
+        background-color: #fff;
+    }
+
     #main {
         display: grid;
         grid-template-columns: 1fr 5fr;
@@ -122,7 +136,111 @@
         width: 90vw;
         grid-template-areas: "nav" "content"
     }
-    </style>
+
+    .code {
+        margin-top: 2rem;
+    }
+
+    details {
+        position: relative;
+        width: 100%;
+        margin: 1rem auto;
+        padding: 0 1rem;
+        max-width: calc(100% - 2rem);
+        border-radius: 6px;
+        transition: background-color 0.15s;
+    }
+
+    details > :last-child {
+        margin-bottom: 1rem;
+    }
+
+    summary:focus {
+        outline: none;
+    }
+
+    details::before {
+        width: 100%;
+        height: 100%;
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: inherit;
+        opacity: 0.15;
+        box-shadow: 0 0.25em 0.5em #263238;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        z-index: -1;
+    }
+
+    details[open]::before {
+        opacity: 0.6;
+    }
+
+    summary {
+        padding: 1rem 2em 1rem 0;
+        display: block;
+        position: relative;
+        font-size: 1.33em;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    summary::before, summary::after {
+        width: 0.75em;
+        height: 2px;
+        position: absolute;
+        top: 50%;
+        right: 0;
+        content: '';
+        background-color: currentColor;
+        text-align: right;
+        transform: translateY(-50%);
+        transition: transform 0.2s ease-in-out;
+    }
+
+    summary::after {
+        transform: translateY(-50%) rotate(90deg);
+    }
+
+    [open] summary::after {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    summary::-webkit-details-marker {
+        display: none;
+    }
+
+    pre {
+        counter-reset: line;
+        line-height: 0.4rem;
+        padding-left: 1rem;
+        white-space: pre-line;
+    }
+
+    code {
+        counter-increment: line;
+    }
+
+    code::before {
+        content: counter(line);
+        display: inline-block;
+        width: 2rem;
+        border-right: 1px solid #ddd;
+        margin-right: 1.5em;
+        color: #888;
+        -webkit-user-select: none;
+    }
+
+    .source-filename {
+        font-family: monospace;
+        font-size: 1.5rem;
+        text-align: center;
+        border-radius: 6px;
+        margin: auto;
+    }
+    </style>    
     <title>MythX Report for {{target}} </title>
 </head>
 <body>
