@@ -582,7 +582,7 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
         click.echo("Fetching report for analysis {}".format(target))
         status, resp, inp = get_analysis_info(
             client=client,
-            uuid = target,
+            uuid=target,
             min_severity=min_severity,
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
@@ -592,6 +592,7 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
         raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
 
     write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
+
 
 @cli.command()
 @click.pass_obj
