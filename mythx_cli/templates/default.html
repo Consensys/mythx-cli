@@ -83,6 +83,7 @@
 
     .main-nav > h2 {
         text-align: center;
+        font-weight: bold;
     }
 
     .main-content {
@@ -289,6 +290,10 @@
         padding-top: 0.5rem;
     }
 
+    small {
+        font-size: small;
+    }
+
     </style>
     <title>MythX Report for {{target}} </title>
 </head>
@@ -298,7 +303,7 @@
     <h2>Overview</h2>
     <ul>
         {% for status, report, input in issues_list %}
-        <li><a href="#{{ report.uuid }}">Report {{ loop.index }}</a></li>
+        <li><a href="#{{ report.uuid }}">{{ input.sources.keys()|join(", ") }}</a></li>
         {% endfor %}
     </ul>
 </nav>
@@ -307,7 +312,7 @@
     {% for status, report, input in issues_list %}
     <a href="https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }}" target="_blank">
         <h1 id="{{ report.uuid }}">
-            Report {{ loop.index }} ({{ report.uuid }})
+            Report for {{ input.sources.keys()|join(", ") }} <small>({{ report.uuid }})</small>
         </h1>
     </a>
     {% if report %}
