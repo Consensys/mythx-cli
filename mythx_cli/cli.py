@@ -27,7 +27,8 @@ from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 
-DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
+TEMPLATE_HOME = Path(__file__).parent / "templates"
+DEFAULT_TEMPLATE = "default.html"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
@@ -547,10 +548,9 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
     """
 
     client: Client = ctx["client"]
-    if aesthetic:
-        user_template = Path(__file__).parent / "templates/aesthetic.html"
-    with open(user_template) as tpl_f:
-        template = jinja2.Template(tpl_f.read())
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader([TEMPLATE_HOME, str(Path.cwd())]))
+    user_template = "aesthetic.html" if aesthetic else user_template
+    template = env.get_template(user_template)
 
     issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
     if len(target) == 24:
