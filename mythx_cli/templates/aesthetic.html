@@ -155,11 +155,19 @@
         background-color: rgba(124,172,191,0.7);
     }
 
-    .details-tab {
+    .source-details {
         background-color: rgba(194,194,231,0.8);
     }
 
+    .testcase-inner > table > tbody > tr:nth-child(odd){
+        background-color: rgba(227,167,221,0.7);
+    }
+
     details[open] {
+        background-color: rgba(194,194,231,1,0.8);
+    }
+
+    .testcase-inner > table > tbody > tr:nth-child(odd){
         background-color: rgba(194,194,231,1,0.8);
     }
 
@@ -177,7 +185,7 @@
         margin-top: 2rem;
     }
 
-    details {
+    .source-details {
         position: relative;
         width: 100%;
         margin: 1rem auto;
@@ -187,15 +195,15 @@
         transition: background-color 0.15s;
     }
 
-    details > :last-child {
+    .source-details > :last-child, .code-details > :last-child {
         margin-bottom: 1rem;
     }
 
-    summary:focus {
+    .source-summary:focus,.code-summary:focus, .testcase-summary:focus {
         outline: none;
     }
 
-    details::before {
+    .source-details::before {
         width: 100%;
         height: 100%;
         content: '';
@@ -210,20 +218,23 @@
         z-index: -1;
     }
 
-    details[open]::before {
+    .source-details[open]::before {
         opacity: 0.6;
     }
 
-    summary {
+    .source-summary, .code-summary {
         padding: 1rem 2em 1rem 0;
         display: block;
         position: relative;
-        font-size: 1.33em;
         font-weight: bold;
         cursor: pointer;
     }
 
-    summary::before, summary::after {
+    .source-summary {
+        font-size: 1.33em;
+    }
+
+    .source-summary::before, .source-summary::after {
         width: 0.75em;
         height: 2px;
         position: absolute;
@@ -236,15 +247,15 @@
         transition: transform 0.2s ease-in-out;
     }
 
-    summary::after {
+    .source-summary::after {
         transform: translateY(-50%) rotate(90deg);
     }
 
-    [open] summary::after {
+    [open] .source-summary::after {
         transform: translateY(-50%) rotate(180deg);
     }
 
-    summary::-webkit-details-marker {
+    .source-summary::-webkit-details-marker, .code-summary::-webkit-details-marker {
         display: none;
     }
 
@@ -253,6 +264,14 @@
         line-height: 0.4rem;
         padding-left: 1rem;
         white-space: pre-line;
+    }
+
+    .code-details {
+        margin: 0;
+    }
+
+    .code-summary {
+        padding: 0;
     }
 
     code {
@@ -277,6 +296,38 @@
         margin: auto;
     }
 
+    .testcase-inner {
+        padding-left: 2rem;
+    }
+
+    .testcase-inner > .testcase-inner {
+        padding: 1rem;
+    }
+
+    .testcase-inner > table {
+        width: 100%;
+        table-layout: fixed;
+        max-width: 60vw;
+        border-spacing: 1rem;
+        margin-left: 3rem;
+        line-height: 1rem;
+        text-align: left;
+    }
+
+    .testcase-inner > table > tbody > tr > td {
+        word-wrap: break-word;
+        padding-right: 0.5rem;
+    }
+
+    .testcase-inner > table > tbody > tr > th {
+        width: 10rem;
+        vertical-align: top;
+    }
+
+    .testcase-summary {
+        padding-top: 0.5rem;
+    }
+
     #landscape {
         position: fixed;
         height: 50vh;
@@ -290,7 +341,7 @@
         perspective: 100px;
         perspective-origin: top;
     }
-    
+
     #landscape::before {
         position: absolute;
         content: '';
@@ -358,7 +409,7 @@
         background-color: #AD8CFF;
         z-index: -999;
     }
-    </style>    
+    </style>
     <title>ＭｙｔｈＸ　Ｒｅｐｏｒｔ　ｆｏｒ　ドヵゕ {{target}} </title>
 </head>
 <body>
@@ -422,22 +473,48 @@
                 {% endif %}
                 {% endfor %}
                 </td>
-                {% set x=line_dict.__setitem__(location.start_line, issue.severity|lower) %}
+                {% set x=line_dict.__setitem__(location.start_line, (issue.severity|lower, issue.extra_data["testCases"])) %}
                 <td>L: {{ location.start_line }} C: {{ location.start_column }}</td>
             </tr>
             {% endfor %}
             {% endfor %}
         </table>
     </section>
-    <section class="code">
-        <details class="details-tab">
-            <summary>Ｓｏｕｒｃｅ　Ｃｏｄｅ　桜営キ</summary>
+     <section class="code">
+        <details class="source-details">
+            <summary class="source-summary">Source Code</summary>
             {% for filename, data in input.sources.items() %}
             <p class="source-filename">{{ filename }}</p>
             <pre>
                 {% for line in data["source"].split("\n") %}
                 {% if loop.index in line_dict %}
-                    <code class="sev-{{ line_dict[loop.index] }}">{{ line }}</code>
+                <details class="code-details">
+                <summary class="code-summary">
+                    <code class="sev-{{ line_dict[loop.index][0] }}">{{ line }}</code>
+                </summary>
+                    {% if line_dict[loop.index][1] %}
+                    {% for case in line_dict[loop.index][1] %}
+                    <details>
+                        <summary class="testcase-summary">Test Case {{ loop.index }}</summary>
+                        {% for step in case["steps"] %}
+                            <details class="testcase-inner">
+                                <summary class="testcase-summary">Step {{ loop.index }}</summary>
+                                <table>
+                                    {% for key, value in step.items() %}
+                                    <tr>
+                                        <th>{{ key }}</th>
+                                        <td>{{ value }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </table>
+                            </details>
+                        {% endfor %}
+                    </details>
+                    {% endfor %}
+                    {% else %}
+                    <p>No test cases to display.</p>
+                    {% endif %}
+                </details>
                 {% else %}
                     <code>{{ line }}</code>
                 {% endif %}
