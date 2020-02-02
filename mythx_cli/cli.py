@@ -582,7 +582,7 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
         click.echo("Fetching report for analysis {}".format(target))
         status, resp, inp = get_analysis_info(
             client=client,
-            uuid = analysis_.uuid,
+            uuid = target,
             min_severity=min_severity,
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
