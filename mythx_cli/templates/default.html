@@ -127,6 +127,10 @@
         background-color: #fff;
     }
 
+    .testcase-inner > table > tbody > tr:nth-child(odd){
+        background-color: #eceff1;
+    }
+
     #main {
         display: grid;
         grid-template-columns: 1fr 5fr;
@@ -257,12 +261,15 @@
         padding-left: 2rem;
     }
 
+    .testcase-inner > .testcase-inner {
+        padding: 1rem;
+    }
+
     .testcase-inner > table {
         width: 100%;
         table-layout: fixed;
         max-width: 60vw;
-        border-style: double;
-        border-spacing: 5px;
+        border-spacing: 1rem;
         margin-left: 3rem;
         line-height: 1rem;
         text-align: left;
@@ -270,11 +277,16 @@
 
     .testcase-inner > table > tbody > tr > td {
         word-wrap: break-word;
+        padding-right: 0.5rem;
     }
 
     .testcase-inner > table > tbody > tr > th {
         width: 10rem;
         vertical-align: top;
+    }
+
+    .testcase-summary {
+        padding-top: 0.5rem;
     }
 
     </style>
@@ -367,7 +379,7 @@
                             <table>
                                 {% for key, value in case["initialState"]["accounts"].items() %}
                                 <tr>
-                                    <th>{{ key|title }}</th>
+                                    <th>{{ key }}</th>
                                     <td>{{ value }}</td>
                                 </tr>
                                 {% endfor %}
@@ -380,7 +392,7 @@
                                 <table>
                                     {% for key, value in step.items() %}
                                     <tr>
-                                        <th>{{ key|title }}</th>
+                                        <th>{{ key }}</th>
                                         <td>{{ value }}</td>
                                     </tr>
                                     {% endfor %}
