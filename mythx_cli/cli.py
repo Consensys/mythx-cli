@@ -145,10 +145,10 @@ def sanitize_paths(job):
     source_list = [abspath(s) for s in source_list]
     if len(source_list) > 1:
         # get common path prefix and remove it
-        prefix = commonpath(source_list)
+        prefix = commonpath(source_list) + "/"
     else:
         # fallback: replace with CWD and get common prefix
-        prefix = commonpath(source_list + [str(Path.cwd())])
+        prefix = commonpath(source_list + [str(Path.cwd())]) + "/"
 
     job["source_list"] = [s.replace(prefix, "") for s in source_list]
     if job.get("main_source") is not None:

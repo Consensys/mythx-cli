@@ -5,12 +5,12 @@ import pytest
 from mythx_cli.cli import sanitize_paths
 
 CWD = "/home/user/work/project"
-FILE_1 = "/test-1.sol"
-FILE_2 = "/test-2.sol"
-TEST_PATH_1 = "/home/user/work/project/src" + FILE_1
-TEST_PATH_2 = "/home/user/work/project/src" + FILE_2
-SANI_PATH_1 = "/src" + FILE_1
-SANI_PATH_2 = "/src" + FILE_2
+FILE_1 = "test-1.sol"
+FILE_2 = "test-2.sol"
+TEST_PATH_1 = "/home/user/work/project/src/" + FILE_1
+TEST_PATH_2 = "/home/user/work/project/src/" + FILE_2
+SANI_PATH_1 = "src/" + FILE_1
+SANI_PATH_2 = "src/" + FILE_2
 
 
 @pytest.mark.parametrize(
