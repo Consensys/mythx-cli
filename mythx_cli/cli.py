@@ -6,16 +6,17 @@ from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
 from typing import List, Optional, Tuple
-import jinja2
-import htmlmin
+
 import click
+import htmlmin
+import jinja2
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
+    AnalysisStatusResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
     GroupListResponse,
-    AnalysisStatusResponse,
 )
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
@@ -86,9 +87,7 @@ def cli(ctx, **kwargs):
     if kwargs["api_key"] is not None:
         ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
-        ctx.obj["client"] = Client(
-            username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
-        )
+        ctx.obj["client"] = Client(username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw])
     else:
         raise click.UsageError(
             (
@@ -526,12 +525,7 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
     resp: DetectedIssuesResponse = client.report(uuid)
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
     status: AnalysisStatusResponse = client.status(uuid)
-    util.filter_report(
-        resp,
-        min_severity=min_severity,
-        swc_blacklist=swc_blacklist,
-        swc_whitelist=swc_whitelist
-    )
+    util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
     # extend response with job UUID to keep formatter logic isolated
     resp.uuid = uuid
 
@@ -571,7 +565,7 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
             click.echo("Fetching report for analysis {}".format(analysis_.uuid))
             status, resp, inp = get_analysis_info(
                 client=client,
-                uuid = analysis_.uuid,
+                uuid=analysis_.uuid,
                 min_severity=min_severity,
                 swc_blacklist=swc_blacklist,
                 swc_whitelist=swc_whitelist,
