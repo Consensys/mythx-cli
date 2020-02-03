@@ -271,7 +271,7 @@
     {# NAVIGATION START #}
     <nav class="main-nav">
         {% block navigation scoped %}
-        <h2>{% block navigation_header scoped %}{% endblock %}</h2>
+        <h2>{% block navigation_header scoped %}Overview{% endblock %}</h2>
         <ul>
             {% for status, report, input in issues_list %}
             <li><a href="#{{ report.uuid }}">{{ input.sources.keys()|join(", ") }}</a></li>
