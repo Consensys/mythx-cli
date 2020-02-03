@@ -1,16 +1,22 @@
-from .common import mock_context, get_test_case
+import click
+import pytest
 from click.testing import CliRunner
-from mythx_cli.cli import cli
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
+from mythx_cli.cli import cli
+
+from .common import get_test_case, mock_context
 
 TEST_GROUP_ID = "5E36AE133FB6020011A6B13C"
+TEST_ANALYSIS_ID = "EBE5E298-B998-4B82-BA3E-E922CB0A43C4"
 INPUT_RESPONSE: AnalysisInputResponse = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
-ISSUES_RESPONSE: DetectedIssuesResponse = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
+ISSUES_RESPONSE: DetectedIssuesResponse = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
 
 
-def assert_content(data):
-    assert TEST_GROUP_ID in data
+def assert_content(data, ident):
+    assert ident in data
     for item in INPUT_RESPONSE.source_list:
         assert item in data
     assert INPUT_RESPONSE.bytecode in data
@@ -24,12 +30,20 @@ def assert_content(data):
         assert issue.swc_title in data
 
 
-def test_renderer():
+@pytest.mark.parametrize("ident", (TEST_GROUP_ID, TEST_ANALYSIS_ID, TEST_GROUP_ID.lower(), TEST_ANALYSIS_ID.lower()))
+def test_renderer_group(ident):
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
-        result = runner.invoke(cli, ["--output=test.html", "render", TEST_GROUP_ID])
+        result = runner.invoke(cli, ["--output=test.html", "render", ident])
         with open("test.html") as f:
             data = f.read()
 
-        assert_content(data)
+        assert_content(data, ident)
         assert result.exit_code == 0
+
+
+def test_invalid_id():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["--output=test.html", "render", "foo"])
+    assert result.exception is not None
+    assert result.exit_code == 2
