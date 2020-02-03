@@ -3,8 +3,7 @@
 {% block style %}
     {{ super() }}
     html {
-        font-family: monospace;
-        font-size: larger;
+        font-family: "Courier New", monospace;
     }
 
     {# COLOURS #}
@@ -162,32 +161,8 @@
     }
 {% endblock %}
 
-{% block title %}ＭｙｔｈＸ　Ｒｅｐｏｒｔ　ｆｏｒ　ドヵゕ {{target}}{% endblock %}
-
 {% block extra_html %}
 <div id="background"></div>
 <div id="overlay"></div>
 <div id="landscape"></div>
 {% endblock %}
-
-{% block navigation_header %}【Ｏｖｅｒｖｉｅｗ】{% endblock %}
-
-{% block main_header_name %}ＭｙｔｈＸ　Ｒｅｐｏｒｔ　ｆｏｒ　ドヵゕ {{ target }}{% endblock %}
-
-{% block report_header_name %}Report for {{ input.sources.keys()|join(", ") }}{% endblock %}
-
-{% block section_status_high %}Ｈｉｇｈ　ユ炎壱{% endblock %}
-{% block section_status_medium %}Ｍｅｄｉｕｍ　無 ツ{% endblock %}
-{% block section_status_low %}Ｌｏｗ　悦ム{% endblock %}
-{% block section_status_unknown %}Ｕｎｋｎｏｗｎ　ォス現{% endblock %}
-
-
-{% block section_report_id %}ＩＤ{% endblock %}
-{% block section_report_severity %}Ｓｅｖｅｒｉｔｙ{% endblock %}
-{% block section_report_name %}Ｎａｍｅ{% endblock %}
-{% block section_report_file %}Ｆｉｌｅ{% endblock %}
-{% block section_report_location %}Ｌｏｃａｔｉｏｎ{% endblock %}
-
-{% block no_issues_name %}Ｎｏ　ｉｓｓｕｅｓ　ｗｅｒｅ　ｆｏｕｎｄ．　オヅゾぱ{% endblock %}
-
-{% block footer %}【Ｇｅｎｅｒａｔｅｄ　ｂｙ　ＭｙｔｈＸ　ＣＬＩ】{% endblock %}
