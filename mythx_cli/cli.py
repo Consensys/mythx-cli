@@ -545,6 +545,13 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
     """Render an analysis job or group report as HTML.
 
     \f
+    :param ctx: Click context holding group-level parameters
+    :param target: Group or analysis ID to fetch the data for
+    :param user_template: User-defined template string
+    :param aesthetic: DO NOT TOUCH IF YOU'RE BORING
+    :param min_severity: Ignore SWC IDs below the designated level
+    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
+    :param swc_whitelist: A comma-separated list of SWC IDs to include
     """
 
     client: Client = ctx["client"]
