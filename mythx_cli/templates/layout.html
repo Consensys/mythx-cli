@@ -4,6 +4,10 @@
     {% block head scoped %}
         <style>
             {% block style scoped %}
+                body {
+                    margin: 0;
+                }
+
                 .main-head {
                     font-size: 2.5rem;
                     text-align: center;
@@ -94,9 +98,9 @@
                 }
 
                 .main-footer {
-                    grid-area: footer;
-                    grid-column: 2;
-                    grid-row: 2;
+                    position: fixed;
+                    left: 0;
+                    bottom: 0;
                 }
 
                 #main {
