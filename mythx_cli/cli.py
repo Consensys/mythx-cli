@@ -35,6 +35,8 @@ logging.basicConfig(level=logging.WARNING)
 
 @click.pass_obj
 def write_or_print(ctx, data: str, mode="a+"):
+    """Depending on the context, write the given content to stdout or a given file."""
+
     if not ctx["output"]:
         click.echo(data)
         return
@@ -43,6 +45,8 @@ def write_or_print(ctx, data: str, mode="a+"):
 
 
 class APIErrorCatcherGroup(click.Group):
+    """A custom click group to catch API-related errors."""
+
     def __call__(self, *args, **kwargs):
         try:
             return self.main(*args, **kwargs)
@@ -205,6 +209,13 @@ def find_solidity_files(project_dir):
 
 
 def walk_solidity_files(ctx, solc_version, base_path=None):
+    """Aggregate all Solidity files in the given base path.
+
+    Given a base path, this function will recursively walk through the filesystem
+    and aggregate all Solidity files it comes across. The resulting job list will
+    contain all the Solidity payloads (optionally compiled), ready for submission.
+    """
+
     jobs = []
     walk_path = Path(base_path) if base_path else Path.cwd()
     files = find_solidity_files(walk_path)
@@ -523,6 +534,14 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
 
 
 def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
+    """Fetch information related to the specified analysis job UUID.
+
+    Given a UUID, this function will query the MythX API for the analysis
+    status, the analysis' input data, and the issue report. Furthermore,
+    filtering parameters can be passed to remove certain SWCs or severities
+    from the returned report.
+    """
+
     resp: DetectedIssuesResponse = client.report(uuid)
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
     status: AnalysisStatusResponse = client.status(uuid)
