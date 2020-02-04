@@ -27,8 +27,8 @@ from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 
-TEMPLATE_HOME = Path(__file__).parent / "templates"
-DEFAULT_TEMPLATE = "default.html"
+DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
+# DEFAULT_TEMPLATE = "default.html"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
@@ -554,7 +554,7 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
 
 @cli.command()
 @click.argument("target")
-@click.option("--template", "-t", "user_template", default=DEFAULT_TEMPLATE)
+@click.option("--template", "-t", "user_template", type=click.Path(exists=True), help="A custom report template", default=DEFAULT_TEMPLATE)
 @click.option("--aesthetic", is_flag=True, default=False, hidden=True)
 @click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
 @click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
@@ -574,9 +574,14 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
     """
 
     client: Client = ctx["client"]
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader([TEMPLATE_HOME, str(Path.cwd())]))
-    user_template = "aesthetic.html" if aesthetic else user_template
-    template = env.get_template(user_template)
+    user_template = Path(user_template)
+    template_path = str(user_template.parent)
+    template_dirs = [template_path]
+    if DEFAULT_TEMPLATE.parent not in template_dirs:
+        template_dirs.append(DEFAULT_TEMPLATE.parent)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
+    template_file = "aesthetic.html" if aesthetic else user_template.name
+    template = env.get_template(template_file)
 
     issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
     if len(target) == 24:
