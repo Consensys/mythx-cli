@@ -1,4 +1,3 @@
-import click
 import pytest
 from click.testing import CliRunner
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
