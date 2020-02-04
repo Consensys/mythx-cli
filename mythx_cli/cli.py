@@ -8,8 +8,13 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import click
-import htmlmin
 import jinja2
+
+import htmlmin
+from mythx_cli import __version__
+from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -21,11 +26,6 @@ from mythx_models.response import (
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
-
-from mythx_cli import __version__
-from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 
 DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
 # DEFAULT_TEMPLATE = "default.html"
@@ -554,7 +554,14 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
 
 @cli.command()
 @click.argument("target")
-@click.option("--template", "-t", "user_template", type=click.Path(exists=True), help="A custom report template", default=str(DEFAULT_TEMPLATE))
+@click.option(
+    "--template",
+    "-t",
+    "user_template",
+    type=click.Path(exists=True),
+    help="A custom report template",
+    default=str(DEFAULT_TEMPLATE),
+)
 @click.option("--aesthetic", is_flag=True, default=False, hidden=True)
 @click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
 @click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)

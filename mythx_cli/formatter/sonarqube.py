@@ -1,10 +1,9 @@
 import json
 from typing import List, Optional, Tuple
 
+from mythx_cli.formatter.json import JSONFormatter
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 from mythx_models.response.issue import Severity, SourceType
-
-from mythx_cli.formatter.json import JSONFormatter
 
 
 class SonarQubeFormatter(JSONFormatter):

@@ -1,8 +1,8 @@
 import pytest
 from click.testing import CliRunner
-from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.cli import cli
+from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from .common import get_test_case, mock_context
 
@@ -35,7 +35,8 @@ def assert_content(data, ident, is_template):
 
 
 @pytest.mark.parametrize(
-    "ident,template", (
+    "ident,template",
+    (
         (TEST_GROUP_ID, False),
         (TEST_ANALYSIS_ID, False),
         (TEST_GROUP_ID.lower(), False),
@@ -43,8 +44,8 @@ def assert_content(data, ident, is_template):
         (TEST_GROUP_ID, True),
         (TEST_ANALYSIS_ID, True),
         (TEST_GROUP_ID.lower(), True),
-        (TEST_ANALYSIS_ID.lower(), True)
-    )
+        (TEST_ANALYSIS_ID.lower(), True),
+    ),
 )
 def test_renderer_group(ident, template):
     runner = CliRunner()
