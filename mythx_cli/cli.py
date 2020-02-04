@@ -8,9 +8,17 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import click
+import jinja2
+
+import htmlmin
+from mythx_cli import __version__
+from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
+    AnalysisStatusResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
     GroupListResponse,
@@ -19,25 +27,26 @@ from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
-from mythx_cli import __version__
-from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
-
+DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
+# DEFAULT_TEMPLATE = "default.html"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
 
 @click.pass_obj
-def write_or_print(ctx, data: str):
+def write_or_print(ctx, data: str, mode="a+"):
+    """Depending on the context, write the given content to stdout or a given file."""
+
     if not ctx["output"]:
         click.echo(data)
         return
-    with open(ctx["output"], "a+") as outfile:
+    with open(ctx["output"], mode) as outfile:
         outfile.write(data + "\n")
 
 
 class APIErrorCatcherGroup(click.Group):
+    """A custom click group to catch API-related errors."""
+
     def __call__(self, *args, **kwargs):
         try:
             return self.main(*args, **kwargs)
@@ -83,9 +92,7 @@ def cli(ctx, **kwargs):
     if kwargs["api_key"] is not None:
         ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
-        ctx.obj["client"] = Client(
-            username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw]
-        )
+        ctx.obj["client"] = Client(username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw])
     else:
         raise click.UsageError(
             (
@@ -142,10 +149,10 @@ def sanitize_paths(job):
     source_list = [abspath(s) for s in source_list]
     if len(source_list) > 1:
         # get common path prefix and remove it
-        prefix = commonpath(source_list)
+        prefix = commonpath(source_list) + "/"
     else:
         # fallback: replace with CWD and get common prefix
-        prefix = commonpath(source_list + [str(Path.cwd())])
+        prefix = commonpath(source_list + [str(Path.cwd())]) + "/"
 
     job["source_list"] = [s.replace(prefix, "") for s in source_list]
     if job.get("main_source") is not None:
@@ -202,6 +209,13 @@ def find_solidity_files(project_dir):
 
 
 def walk_solidity_files(ctx, solc_version, base_path=None):
+    """Aggregate all Solidity files in the given base path.
+
+    Given a base path, this function will recursively walk through the filesystem
+    and aggregate all Solidity files it comes across. The resulting job list will
+    contain all the Solidity payloads (optionally compiled), ready for submission.
+    """
+
     jobs = []
     walk_path = Path(base_path) if base_path else Path.cwd()
     files = find_solidity_files(walk_path)
@@ -517,6 +531,99 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
 
     write_or_print(formatter.format_detected_issues(issues_list))
     sys.exit(ctx["retval"])
+
+
+def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
+    """Fetch information related to the specified analysis job UUID.
+
+    Given a UUID, this function will query the MythX API for the analysis
+    status, the analysis' input data, and the issue report. Furthermore,
+    filtering parameters can be passed to remove certain SWCs or severities
+    from the returned report.
+    """
+
+    resp: DetectedIssuesResponse = client.report(uuid)
+    inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
+    status: AnalysisStatusResponse = client.status(uuid)
+    util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
+    # extend response with job UUID to keep formatter logic isolated
+    resp.uuid = uuid
+
+    return status, resp, inp
+
+
+@cli.command()
+@click.argument("target")
+@click.option(
+    "--template",
+    "-t",
+    "user_template",
+    type=click.Path(exists=True),
+    help="A custom report template",
+    default=str(DEFAULT_TEMPLATE),
+)
+@click.option("--aesthetic", is_flag=True, default=False, hidden=True)
+@click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
+@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
+@click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
+@click.pass_obj
+def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, swc_whitelist):
+    """Render an analysis job or group report as HTML.
+
+    \f
+    :param ctx: Click context holding group-level parameters
+    :param target: Group or analysis ID to fetch the data for
+    :param user_template: User-defined template string
+    :param aesthetic: DO NOT TOUCH IF YOU'RE BORING
+    :param min_severity: Ignore SWC IDs below the designated level
+    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
+    :param swc_whitelist: A comma-separated list of SWC IDs to include
+    """
+
+    client: Client = ctx["client"]
+    user_template = Path(user_template)
+    template_path = str(user_template.parent)
+    template_dirs = [template_path]
+    if DEFAULT_TEMPLATE.parent not in template_dirs:
+        template_dirs.append(DEFAULT_TEMPLATE.parent)
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
+    template_file = "aesthetic.html" if aesthetic else user_template.name
+    template = env.get_template(template_file)
+
+    issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    if len(target) == 24:
+        # identified group
+        list_resp = client.analysis_list(group_id=target)
+        offset = 0
+        while len(list_resp.analyses) < list_resp.total:
+            offset += len(list_resp.analyses)
+            list_resp.analyses.extend(client.analysis_list(group_id=target, offset=offset))
+
+        for analysis_ in list_resp.analyses:
+            click.echo("Fetching report for analysis {}".format(analysis_.uuid))
+            status, resp, inp = get_analysis_info(
+                client=client,
+                uuid=analysis_.uuid,
+                min_severity=min_severity,
+                swc_blacklist=swc_blacklist,
+                swc_whitelist=swc_whitelist,
+            )
+            issues_list.append((status, resp, inp))
+    elif len(target) == 36:
+        # identified analysis UUID
+        click.echo("Fetching report for analysis {}".format(target))
+        status, resp, inp = get_analysis_info(
+            client=client,
+            uuid=target,
+            min_severity=min_severity,
+            swc_blacklist=swc_blacklist,
+            swc_whitelist=swc_whitelist,
+        )
+        issues_list.append((status, resp, inp))
+    else:
+        raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
+
+    write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
 
 
 @cli.command()
