@@ -14,30 +14,52 @@ ISSUES_RESPONSE: DetectedIssuesResponse = get_test_case(
 )
 
 
-def assert_content(data, ident):
-    assert ident in data
-    for item in INPUT_RESPONSE.source_list:
-        assert item in data
-    assert INPUT_RESPONSE.bytecode in data
-    for filename in INPUT_RESPONSE.sources.keys():
-        assert filename in data
-    for source in map(lambda x: x["source"], INPUT_RESPONSE.sources.values()):
-        for line in source.split("\n"):
-            assert line in data
-    for issue in ISSUES_RESPONSE:
-        assert issue.swc_id in data
-        assert issue.swc_title in data
+def assert_content(data, ident, is_template):
+    if not is_template:
+        assert ident in data
+        for item in INPUT_RESPONSE.source_list:
+            assert item in data
+        assert INPUT_RESPONSE.bytecode in data
+        for filename in INPUT_RESPONSE.sources.keys():
+            assert filename in data
+        for source in map(lambda x: x["source"], INPUT_RESPONSE.sources.values()):
+            for line in source.split("\n"):
+                assert line in data
+        for issue in ISSUES_RESPONSE:
+            assert issue.swc_id in data
+            assert issue.swc_title in data
+    else:
+        assert "mythx_models.response.analysis_status.analysisstatusresponse" in data
+        assert "mythx_models.response.detected_issues.detectedissuesresponse" in data
+        assert "mythx_models.response.analysis_input.analysisinputresponse" in data
 
 
-@pytest.mark.parametrize("ident", (TEST_GROUP_ID, TEST_ANALYSIS_ID, TEST_GROUP_ID.lower(), TEST_ANALYSIS_ID.lower()))
-def test_renderer_group(ident):
+@pytest.mark.parametrize(
+    "ident,template", (
+        (TEST_GROUP_ID, False),
+        (TEST_ANALYSIS_ID, False),
+        (TEST_GROUP_ID.lower(), False),
+        (TEST_ANALYSIS_ID.lower(), False),
+        (TEST_GROUP_ID, True),
+        (TEST_ANALYSIS_ID, True),
+        (TEST_GROUP_ID.lower(), True),
+        (TEST_ANALYSIS_ID.lower(), True)
+    )
+)
+def test_renderer_group(ident, template):
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
-        result = runner.invoke(cli, ["--output=test.html", "render", ident])
+        if template:
+            with open("template.html", "w+") as tpl_f:
+                tpl_f.write("{{ issues_list }}")
+            arg_list = ["--output=test.html", "render", "--template=template.html", ident]
+        else:
+            arg_list = ["--output=test.html", "render", ident]
+        result = runner.invoke(cli, arg_list)
         with open("test.html") as f:
             data = f.read()
 
-        assert_content(data, ident)
+        assert_content(data, ident, template)
         assert result.exit_code == 0
 
 
