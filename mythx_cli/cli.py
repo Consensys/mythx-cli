@@ -205,6 +205,31 @@ def sanitize_paths(job):
     return job
 
 
+def is_interface(job) -> bool:
+    """Detect interface contracts.
+
+    This utility function is used to detect interface contracts in solc and Truffle
+    artifacts. This is done by checking whether any bytecode or source maps are to be
+    found in the speficied job. This check is performed after the payload has been
+    assembled to cover Truffle and Solidity analysis jobs.
+
+    :param job: The payload to perform the check on
+    :return: True if the submitted job is for an interface, False otherwise
+    """
+
+    filter_values = ("", "0x", None)
+    detected = all((
+        job.get("bytecode") in filter_values,
+        job.get("source_map") in filter_values,
+        job.get("deployed_source_map") in filter_values,
+        job.get("deployed_bytecode") in filter_values,
+    ))
+    if detected:
+        LOGGER.debug("Removing interface contract {} from job list".format(job.get("main_source")))
+        return True
+    return False
+
+
 def find_truffle_artifacts(project_dir):
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
@@ -416,6 +441,7 @@ def analyze(
                 )
 
     jobs = [sanitize_paths(job) for job in jobs]
+    jobs = [job for job in jobs if not is_interface(job)]
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:
