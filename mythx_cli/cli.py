@@ -586,7 +586,12 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
     template_dirs = [template_path]
     if DEFAULT_TEMPLATE.parent not in template_dirs:
         template_dirs.append(DEFAULT_TEMPLATE.parent)
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs))
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(template_dirs),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True
+    )
     template_file = "aesthetic.html" if aesthetic else user_template.name
     template = env.get_template(template_file)
 
@@ -623,7 +628,8 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
     else:
         raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
 
-    write_or_print(htmlmin.minify(template.render(issues_list=issues_list, target=target)), mode="w+")
+    rendered = template.render(issues_list=issues_list, target=target)
+    write_or_print(htmlmin.minify(rendered, remove_comments=True), mode="w+")
 
 
 @cli.command()
