@@ -3,10 +3,15 @@
 from typing import List, Union
 
 import click
-
 from mythx_models.response import DetectedIssuesResponse, Severity
 
-SEVERITY_ORDER = (Severity.UNKNOWN, Severity.NONE, Severity.LOW, Severity.MEDIUM, Severity.HIGH)
+SEVERITY_ORDER = (
+    Severity.UNKNOWN,
+    Severity.NONE,
+    Severity.LOW,
+    Severity.MEDIUM,
+    Severity.HIGH,
+)
 
 
 def get_source_location_by_offset(source, offset):
@@ -21,7 +26,9 @@ def get_source_location_by_offset(source, offset):
 
 
 def generate_dashboard_link(uuid: str, staging=False):
-    return "https://dashboard.{}mythx.io/#/console/analyses/{}".format("staging." if staging else "", uuid)
+    return "https://dashboard.{}mythx.io/#/console/analyses/{}".format(
+        "staging." if staging else "", uuid
+    )
 
 
 def normalize_swc_list(swc_list: Union[str, List[str], None]) -> List[str]:
@@ -70,7 +77,9 @@ def filter_report(
     new_issues = []
     for report in resp.issue_reports:
         for issue in report.issues:
-            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(min_severity)
+            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(
+                min_severity
+            )
             not_blacklisted = issue.swc_id not in swc_blacklist
             is_whitelisted = issue.swc_id in swc_whitelist if swc_whitelist else True
 

@@ -3,7 +3,6 @@
 import json
 from typing import List, Optional, Tuple
 
-from mythx_cli.formatter.base import BaseFormatter
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -13,6 +12,8 @@ from mythx_models.response import (
     GroupStatusResponse,
     VersionResponse,
 )
+
+from mythx_cli.formatter.base import BaseFormatter
 
 
 class JSONFormatter(BaseFormatter):
@@ -44,7 +45,9 @@ class JSONFormatter(BaseFormatter):
 
     @staticmethod
     def format_detected_issues(
-        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+        issues_list: List[
+            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        ]
     ) -> str:
         """Format an issue report response as compressed JSON."""
 
@@ -67,7 +70,9 @@ class PrettyJSONFormatter(BaseFormatter):
 
         json_args = {"indent": 2, "sort_keys": True}
         if report_mode:
-            return json.dumps([resp.to_dict(as_list=True) for resp, _ in obj], **json_args)
+            return json.dumps(
+                [resp.to_dict(as_list=True) for resp, _ in obj], **json_args
+            )
         return json.dumps(obj.to_dict(), **json_args)
 
     @staticmethod
@@ -95,7 +100,11 @@ class PrettyJSONFormatter(BaseFormatter):
         return PrettyJSONFormatter._print_as_json(obj)
 
     @staticmethod
-    def format_detected_issues(issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]):
+    def format_detected_issues(
+        issues_list: List[
+            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        ]
+    ):
         """Format an issue report response as pretty-printed JSON."""
 
         return PrettyJSONFormatter._print_as_json(issues_list, report_mode=True)

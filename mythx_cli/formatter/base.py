@@ -32,7 +32,11 @@ class BaseFormatter(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def format_detected_issues(issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]):
+    def format_detected_issues(
+        issues_list: List[
+            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        ]
+    ):
         """Format an issue report response."""
 
         pass  # pragma: no cover

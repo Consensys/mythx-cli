@@ -1,14 +1,16 @@
 import pytest
 from click.testing import CliRunner
+from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.cli import cli
-from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from .common import get_test_case, mock_context
 
 TEST_GROUP_ID = "5E36AE133FB6020011A6B13C"
 TEST_ANALYSIS_ID = "EBE5E298-B998-4B82-BA3E-E922CB0A43C4"
-INPUT_RESPONSE: AnalysisInputResponse = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
+INPUT_RESPONSE: AnalysisInputResponse = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
 ISSUES_RESPONSE: DetectedIssuesResponse = get_test_case(
     "testdata/detected-issues-response.json", DetectedIssuesResponse
 )
@@ -53,7 +55,12 @@ def test_renderer_group(ident, template):
         if template:
             with open("template.html", "w+") as tpl_f:
                 tpl_f.write("{{ issues_list }}")
-            arg_list = ["--output=test.html", "render", "--template=template.html", ident]
+            arg_list = [
+                "--output=test.html",
+                "render",
+                "--template=template.html",
+                ident,
+            ]
         else:
             arg_list = ["--output=test.html", "render", ident]
         result = runner.invoke(cli, arg_list)

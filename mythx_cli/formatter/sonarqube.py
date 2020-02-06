@@ -1,9 +1,10 @@
 import json
 from typing import List, Optional, Tuple
 
-from mythx_cli.formatter.json import JSONFormatter
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 from mythx_models.response.issue import Severity, SourceType
+
+from mythx_cli.formatter.json import JSONFormatter
 
 
 class SonarQubeFormatter(JSONFormatter):
@@ -11,7 +12,9 @@ class SonarQubeFormatter(JSONFormatter):
 
     @staticmethod
     def format_detected_issues(
-        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+        issues_list: List[
+            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        ]
     ) -> str:
         new_reports = []
         for resp, _ in issues_list:
@@ -22,7 +25,9 @@ class SonarQubeFormatter(JSONFormatter):
                         for raw_loc in issue.locations:
                             if raw_loc.source_type != SourceType.SOLIDITY_FILE:
                                 continue
-                            new_issue["onInputFile"] = raw_loc.source_list[raw_loc.source_map.components[0].file_id]
+                            new_issue["onInputFile"] = raw_loc.source_list[
+                                raw_loc.source_map.components[0].file_id
+                            ]
                             new_issue["atLineNr"] = loc.start_line
 
                     new_issue.update(
@@ -31,7 +36,9 @@ class SonarQubeFormatter(JSONFormatter):
                             "forRule": issue.swc_id,
                             "ruleType": issue.severity.name,
                             "remediationEffortMinutes": 0,
-                            "severity": "vulnerability" if issue.severity == Severity.HIGH else issue.severity.name,
+                            "severity": "vulnerability"
+                            if issue.severity == Severity.HIGH
+                            else issue.severity.name,
                             "message": issue.description_long,
                         }
                     )

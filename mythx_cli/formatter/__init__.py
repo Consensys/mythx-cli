@@ -11,4 +11,10 @@ FORMAT_RESOLVER = {
     "sonar": SonarQubeFormatter(),
 }
 
-__all__ = [JSONFormatter, PrettyJSONFormatter, SimpleFormatter, TabularFormatter, SonarQubeFormatter]
+__all__ = [
+    JSONFormatter,
+    PrettyJSONFormatter,
+    SimpleFormatter,
+    TabularFormatter,
+    SonarQubeFormatter,
+]

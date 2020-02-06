@@ -8,13 +8,8 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import click
-import jinja2
-
 import htmlmin
-from mythx_cli import __version__
-from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.payload import generate_bytecode_payload, generate_solidity_payload, generate_truffle_payload
+import jinja2
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -26,6 +21,15 @@ from mythx_models.response import (
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
+
+from mythx_cli import __version__
+from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.payload import (
+    generate_bytecode_payload,
+    generate_solidity_payload,
+    generate_truffle_payload,
+)
 
 DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
 # DEFAULT_TEMPLATE = "default.html"
@@ -56,10 +60,22 @@ class APIErrorCatcherGroup(click.Group):
 
 
 @click.group(cls=APIErrorCatcherGroup)
-@click.option("--debug", is_flag=True, default=False, envvar="MYTHX_DEBUG", help="Provide additional debug output")
-@click.option("--api-key", envvar="MYTHX_API_KEY", help="Your MythX API key from the dashboard")
-@click.option("--username", envvar="MYTHX_USERNAME", help="Your MythX account's username")
-@click.option("--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password")
+@click.option(
+    "--debug",
+    is_flag=True,
+    default=False,
+    envvar="MYTHX_DEBUG",
+    help="Provide additional debug output",
+)
+@click.option(
+    "--api-key", envvar="MYTHX_API_KEY", help="Your MythX API key from the dashboard"
+)
+@click.option(
+    "--username", envvar="MYTHX_USERNAME", help="Your MythX account's username"
+)
+@click.option(
+    "--password", envvar="MYTHX_PASSWORD", help="Your MythX account's password"
+)
 @click.option(
     "--format",
     "fmt",
@@ -68,9 +84,22 @@ class APIErrorCatcherGroup(click.Group):
     show_default=True,
     help="The format to display the results in",
 )
-@click.option("--ci", is_flag=True, default=False, help="Return exit code 1 if high-severity issue is found")
-@click.option("-y", "--yes", is_flag=True, default=False, help="Do not prompt for any confirmations")
-@click.option("-o", "--output", default=None, help="Output file to write the results into")
+@click.option(
+    "--ci",
+    is_flag=True,
+    default=False,
+    help="Return exit code 1 if high-severity issue is found",
+)
+@click.option(
+    "-y",
+    "--yes",
+    is_flag=True,
+    default=False,
+    help="Do not prompt for any confirmations",
+)
+@click.option(
+    "-o", "--output", default=None, help="Output file to write the results into"
+)
 @click.pass_context
 def cli(ctx, **kwargs):
     """Your CLI for interacting with https://mythx.io/
@@ -92,7 +121,11 @@ def cli(ctx, **kwargs):
     if kwargs["api_key"] is not None:
         ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
-        ctx.obj["client"] = Client(username=kwargs["username"], password=kwargs["password"], middlewares=[toolname_mw])
+        ctx.obj["client"] = Client(
+            username=kwargs["username"],
+            password=kwargs["password"],
+            middlewares=[toolname_mw],
+        )
     else:
         raise click.UsageError(
             (
@@ -219,7 +252,9 @@ def walk_solidity_files(ctx, solc_version, base_path=None):
     jobs = []
     walk_path = Path(base_path) if base_path else Path.cwd()
     files = find_solidity_files(walk_path)
-    consent = ctx["yes"] or click.confirm("Do you really want to submit {} Solidity files?".format(len(files)))
+    consent = ctx["yes"] or click.confirm(
+        "Do you really want to submit {} Solidity files?".format(len(files))
+    )
     if not consent:
         sys.exit(0)
     LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
@@ -229,20 +264,62 @@ def walk_solidity_files(ctx, solc_version, base_path=None):
 
 
 @cli.command()
-@click.argument("target", default=None, nargs=-1, required=False)  # allow multiple targets
+@click.argument(
+    "target", default=None, nargs=-1, required=False
+)  # allow multiple targets
 @click.option(
     "--async/--wait",  # TODO: make default on full
     "async_flag",
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default="quick", show_default=True)
-@click.option("--create-group", is_flag=True, default=False, help="Create a new group for the analysis")
-@click.option("--group-id", type=click.STRING, help="The group ID to add the analysis to", default=None)
-@click.option("--group-name", type=click.STRING, help="The group name to attach to the analysis", default=None)
-@click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
-@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
-@click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
-@click.option("--solc-version", type=click.STRING, help="The solc version to use for compilation", default=None)
+@click.option(
+    "--mode",
+    type=click.Choice(["quick", "standard", "deep"]),
+    default="quick",
+    show_default=True,
+)
+@click.option(
+    "--create-group",
+    is_flag=True,
+    default=False,
+    help="Create a new group for the analysis",
+)
+@click.option(
+    "--group-id",
+    type=click.STRING,
+    help="The group ID to add the analysis to",
+    default=None,
+)
+@click.option(
+    "--group-name",
+    type=click.STRING,
+    help="The group name to attach to the analysis",
+    default=None,
+)
+@click.option(
+    "--min-severity",
+    type=click.STRING,
+    help="Ignore SWC IDs below the designated level",
+    default=None,
+)
+@click.option(
+    "--swc-blacklist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to ignore",
+    default=None,
+)
+@click.option(
+    "--swc-whitelist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to include",
+    default=None,
+)
+@click.option(
+    "--solc-version",
+    type=click.STRING,
+    help="The solc version to use for compilation",
+    default=None,
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -297,7 +374,9 @@ def analyze(
                         "Did you run truffle compile?"
                     )
                 )
-            LOGGER.debug("Detected Truffle project with files:\n{}".format("\n".join(files)))
+            LOGGER.debug(
+                "Detected Truffle project with files:\n{}".format("\n".join(files))
+            )
             for file in files:
                 jobs.append(generate_truffle_payload(file))
 
@@ -314,7 +393,9 @@ def analyze(
                 jobs.append(generate_bytecode_payload(target_elem))
                 continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
-                LOGGER.debug("Trying to interpret {} as a solidity file".format(target_elem))
+                LOGGER.debug(
+                    "Trying to interpret {} as a solidity file".format(target_elem)
+                )
                 jobs.append(generate_solidity_payload(target_elem, solc_version))
                 continue
             elif Path(target_elem).is_dir():
@@ -324,10 +405,14 @@ def analyze(
                     jobs.extend([generate_truffle_payload(file) for file in files])
                 else:
                     # recursively enumerate sol files if not a truffle project
-                    jobs.extend(walk_solidity_files(ctx, solc_version, base_path=target_elem))
+                    jobs.extend(
+                        walk_solidity_files(ctx, solc_version, base_path=target_elem)
+                    )
             else:
                 raise click.exceptions.UsageError(
-                    "Could not interpret argument {} as bytecode or Solidity file".format(target_elem)
+                    "Could not interpret argument {} as bytecode or Solidity file".format(
+                        target_elem
+                    )
                 )
 
     jobs = [sanitize_paths(job) for job in jobs]
@@ -343,7 +428,9 @@ def analyze(
         write_or_print("\n".join(uuids))
         return
 
-    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    issues_list: List[
+        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+    ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
         while not ctx["client"].analysis_ready(uuid):
@@ -354,7 +441,12 @@ def analyze(
             uuid
         ) if formatter.report_requires_input else None
 
-        util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
+        util.filter_report(
+            resp,
+            min_severity=min_severity,
+            swc_blacklist=swc_blacklist,
+            swc_whitelist=swc_whitelist,
+        )
         # extend response with job UUID to keep formatter logic isolated
         resp.uuid = uuid
         issues_list.append((resp, inp))
@@ -442,7 +534,11 @@ def group_open(ctx, name):
     """
 
     resp: GroupCreationResponse = ctx["client"].create_group(group_name=name)
-    write_or_print("Opened group with ID {} and name '{}'".format(resp.group.identifier, resp.group.name))
+    write_or_print(
+        "Opened group with ID {} and name '{}'".format(
+            resp.group.identifier, resp.group.name
+        )
+    )
 
 
 @group.command("close")
@@ -458,7 +554,11 @@ def group_close(ctx, identifiers):
 
     for identifier in identifiers:
         resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
-        write_or_print("Closed group with ID {} and name '{}'".format(resp.group.identifier, resp.group.name))
+        write_or_print(
+            "Closed group with ID {} and name '{}'".format(
+                resp.group.identifier, resp.group.name
+            )
+        )
 
 
 @analysis.command("list")
@@ -504,8 +604,18 @@ def analysis_list(ctx, number):
     help="Ignore SWC IDs below the designated level",
     default=None,
 )
-@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
-@click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
+@click.option(
+    "--swc-blacklist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to ignore",
+    default=None,
+)
+@click.option(
+    "--swc-whitelist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to include",
+    default=None,
+)
 @click.pass_obj
 def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
     """Fetch the report for a single or multiple job UUIDs.
@@ -519,13 +629,24 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
     :return:
     """
 
-    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    issues_list: List[
+        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+    ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
         resp = ctx["client"].report(uuid)
-        inp = ctx["client"].request_by_uuid(uuid) if formatter.report_requires_input else None
+        inp = (
+            ctx["client"].request_by_uuid(uuid)
+            if formatter.report_requires_input
+            else None
+        )
 
-        util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
+        util.filter_report(
+            resp,
+            min_severity=min_severity,
+            swc_blacklist=swc_blacklist,
+            swc_whitelist=swc_whitelist,
+        )
         resp.uuid = uuid
         issues_list.append((resp, inp))
 
@@ -545,7 +666,12 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
     resp: DetectedIssuesResponse = client.report(uuid)
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
     status: AnalysisStatusResponse = client.status(uuid)
-    util.filter_report(resp, min_severity=min_severity, swc_blacklist=swc_blacklist, swc_whitelist=swc_whitelist)
+    util.filter_report(
+        resp,
+        min_severity=min_severity,
+        swc_blacklist=swc_blacklist,
+        swc_whitelist=swc_whitelist,
+    )
     # extend response with job UUID to keep formatter logic isolated
     resp.uuid = uuid
 
@@ -563,11 +689,28 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
     default=str(DEFAULT_TEMPLATE),
 )
 @click.option("--aesthetic", is_flag=True, default=False, hidden=True)
-@click.option("--min-severity", type=click.STRING, help="Ignore SWC IDs below the designated level", default=None)
-@click.option("--swc-blacklist", type=click.STRING, help="A comma-separated list of SWC IDs to ignore", default=None)
-@click.option("--swc-whitelist", type=click.STRING, help="A comma-separated list of SWC IDs to include", default=None)
+@click.option(
+    "--min-severity",
+    type=click.STRING,
+    help="Ignore SWC IDs below the designated level",
+    default=None,
+)
+@click.option(
+    "--swc-blacklist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to ignore",
+    default=None,
+)
+@click.option(
+    "--swc-whitelist",
+    type=click.STRING,
+    help="A comma-separated list of SWC IDs to include",
+    default=None,
+)
 @click.pass_obj
-def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, swc_whitelist):
+def render(
+    ctx, target, user_template, aesthetic, min_severity, swc_blacklist, swc_whitelist
+):
     """Render an analysis job or group report as HTML.
 
     \f
@@ -590,19 +733,27 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
         loader=jinja2.FileSystemLoader(template_dirs),
         trim_blocks=True,
         lstrip_blocks=True,
-        keep_trailing_newline=True
+        keep_trailing_newline=True,
     )
     template_file = "aesthetic.html" if aesthetic else user_template.name
     template = env.get_template(template_file)
 
-    issues_list: List[Tuple[AnalysisStatusResponse, DetectedIssuesResponse, Optional[AnalysisInputResponse]]] = []
+    issues_list: List[
+        Tuple[
+            AnalysisStatusResponse,
+            DetectedIssuesResponse,
+            Optional[AnalysisInputResponse],
+        ]
+    ] = []
     if len(target) == 24:
         # identified group
         list_resp = client.analysis_list(group_id=target)
         offset = 0
         while len(list_resp.analyses) < list_resp.total:
             offset += len(list_resp.analyses)
-            list_resp.analyses.extend(client.analysis_list(group_id=target, offset=offset))
+            list_resp.analyses.extend(
+                client.analysis_list(group_id=target, offset=offset)
+            )
 
         for analysis_ in list_resp.analyses:
             click.echo("Fetching report for analysis {}".format(analysis_.uuid))
@@ -626,7 +777,9 @@ def render(ctx, target, user_template, aesthetic, min_severity, swc_blacklist, s
         )
         issues_list.append((status, resp, inp))
     else:
-        raise click.UsageError("Invalid target. Please provide a valid group or analysis job ID.")
+        raise click.UsageError(
+            "Invalid target. Please provide a valid group or analysis job ID."
+        )
 
     rendered = template.render(issues_list=issues_list, target=target)
     write_or_print(htmlmin.minify(rendered, remove_comments=True), mode="w+")

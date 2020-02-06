@@ -5,8 +5,6 @@ from itertools import zip_longest
 from os.path import basename
 from typing import List, Optional, Tuple
 
-from tabulate import tabulate
-
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -16,6 +14,7 @@ from mythx_models.response import (
     GroupStatusResponse,
     VersionResponse,
 )
+from tabulate import tabulate
 
 from .base import BaseFormatter
 from .util import generate_dashboard_link, get_source_location_by_offset
@@ -28,7 +27,10 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response to a tabular representation."""
 
-        data = [(a.uuid, a.status, a.client_tool_name, a.submitted_at) for a in resp.analyses]
+        data = [
+            (a.uuid, a.status, a.client_tool_name, a.submitted_at)
+            for a in resp.analyses
+        ]
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
@@ -54,11 +56,18 @@ class TabularFormatter(BaseFormatter):
             (
                 ("ID", resp.group.identifier),
                 ("Name", resp.group.name or "<unnamed>"),
-                ("Creation Date", resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z")),
+                (
+                    "Creation Date",
+                    resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                ),
                 ("Created By", resp.group.created_by),
                 ("Progress", "{}/100".format(resp.group.progress)),
             )
-            + tuple(zip_longest(("Main Sources",), resp.group.main_source_files, fillvalue=""))
+            + tuple(
+                zip_longest(
+                    ("Main Sources",), resp.group.main_source_files, fillvalue=""
+                )
+            )
             + (
                 ("Status", resp.group.status.title()),
                 ("Queued Analyses", resp.group.analysis_statistics.queued or 0),
@@ -66,10 +75,22 @@ class TabularFormatter(BaseFormatter):
                 ("Failed Analyses", resp.group.analysis_statistics.failed or 0),
                 ("Finished Analyses", resp.group.analysis_statistics.finished or 0),
                 ("Total Analyses", resp.group.analysis_statistics.total or 0),
-                ("High Severity Vulnerabilities", resp.group.vulnerability_statistics.high or 0),
-                ("Medium Severity Vulnerabilities", resp.group.vulnerability_statistics.medium or 0),
-                ("Low Severity Vulnerabilities", resp.group.vulnerability_statistics.low or 0),
-                ("Unknown Severity Vulnerabilities", resp.group.vulnerability_statistics.none or 0),
+                (
+                    "High Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.high or 0,
+                ),
+                (
+                    "Medium Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.medium or 0,
+                ),
+                (
+                    "Low Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.low or 0,
+                ),
+                (
+                    "Unknown Severity Vulnerabilities",
+                    resp.group.vulnerability_statistics.none or 0,
+                ),
             )
         )
         return tabulate(data, tablefmt="fancy_grid")
@@ -83,7 +104,9 @@ class TabularFormatter(BaseFormatter):
 
     @staticmethod
     def format_detected_issues(
-        issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+        issues_list: List[
+            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        ]
     ) -> str:
         """Format an issue report to a tabular representation."""
 
@@ -92,7 +115,11 @@ class TabularFormatter(BaseFormatter):
             file_to_issue = defaultdict(list)
             for report in resp.issue_reports:
                 for issue in report.issues:
-                    if issue.swc_id == "" and issue.swc_title == "" and not issue.locations:
+                    if (
+                        issue.swc_id == ""
+                        and issue.swc_title == ""
+                        and not issue.locations
+                    ):
                         res.extend((issue.description_long, ""))
                     for loc in issue.locations:
                         for c in loc.source_map.components:
@@ -104,9 +131,17 @@ class TabularFormatter(BaseFormatter):
                             if not inp.sources or filename not in inp.sources:
                                 line = "bytecode offset {}".format(c.offset)
                             else:
-                                line = get_source_location_by_offset(inp.sources[filename]["source"], c.offset)
+                                line = get_source_location_by_offset(
+                                    inp.sources[filename]["source"], c.offset
+                                )
                             file_to_issue[filename].append(
-                                (resp.uuid, line, issue.swc_title, issue.severity, issue.description_short)
+                                (
+                                    resp.uuid,
+                                    line,
+                                    issue.swc_title,
+                                    issue.severity,
+                                    issue.description_short,
+                                )
                             )
 
             for filename, data in file_to_issue.items():
@@ -117,7 +152,12 @@ class TabularFormatter(BaseFormatter):
                         tabulate(
                             [d[1:] for d in data],
                             tablefmt="fancy_grid",
-                            headers=("Line", "SWC Title", "Severity", "Short Description"),
+                            headers=(
+                                "Line",
+                                "SWC Title",
+                                "Severity",
+                                "Short Description",
+                            ),
                         ),
                     )
                 )

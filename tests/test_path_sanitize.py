@@ -20,23 +20,41 @@ SANI_PATH_2 = "src/" + FILE_2
         ({"source_list": None}, {"source_list": None}),
         ({}, {}),
         (
-            {"sources": {TEST_PATH_1: {"ast": {"absolutePath": TEST_PATH_1}}}, "source_list": [TEST_PATH_1]},
-            {"sources": {SANI_PATH_1: {"ast": {"absolutePath": SANI_PATH_1}}}, "source_list": [SANI_PATH_1]},
+            {
+                "sources": {TEST_PATH_1: {"ast": {"absolutePath": TEST_PATH_1}}},
+                "source_list": [TEST_PATH_1],
+            },
+            {
+                "sources": {SANI_PATH_1: {"ast": {"absolutePath": SANI_PATH_1}}},
+                "source_list": [SANI_PATH_1],
+            },
         ),
         (
-            {"sources": {TEST_PATH_1: {"legacyAST": {"absolutePath": TEST_PATH_1}}}, "source_list": [TEST_PATH_1]},
-            {"sources": {SANI_PATH_1: {"legacyAST": {"absolutePath": SANI_PATH_1}}}, "source_list": [SANI_PATH_1]},
+            {
+                "sources": {TEST_PATH_1: {"legacyAST": {"absolutePath": TEST_PATH_1}}},
+                "source_list": [TEST_PATH_1],
+            },
+            {
+                "sources": {SANI_PATH_1: {"legacyAST": {"absolutePath": SANI_PATH_1}}},
+                "source_list": [SANI_PATH_1],
+            },
         ),
         (
             {
                 "sources": {
-                    TEST_PATH_1: {"legacyAST": {"absolutePath": TEST_PATH_1}, "ast": {"absolutePath": TEST_PATH_1}}
+                    TEST_PATH_1: {
+                        "legacyAST": {"absolutePath": TEST_PATH_1},
+                        "ast": {"absolutePath": TEST_PATH_1},
+                    }
                 },
                 "source_list": [TEST_PATH_1],
             },
             {
                 "sources": {
-                    SANI_PATH_1: {"legacyAST": {"absolutePath": SANI_PATH_1}, "ast": {"absolutePath": SANI_PATH_1}}
+                    SANI_PATH_1: {
+                        "legacyAST": {"absolutePath": SANI_PATH_1},
+                        "ast": {"absolutePath": SANI_PATH_1},
+                    }
                 },
                 "source_list": [SANI_PATH_1],
             },
@@ -44,15 +62,27 @@ SANI_PATH_2 = "src/" + FILE_2
         (
             {
                 "sources": {
-                    TEST_PATH_1: {"legacyAST": {"absolutePath": TEST_PATH_1}, "ast": {"absolutePath": TEST_PATH_1}},
-                    TEST_PATH_2: {"legacyAST": {"absolutePath": TEST_PATH_2}, "ast": {"absolutePath": TEST_PATH_2}},
+                    TEST_PATH_1: {
+                        "legacyAST": {"absolutePath": TEST_PATH_1},
+                        "ast": {"absolutePath": TEST_PATH_1},
+                    },
+                    TEST_PATH_2: {
+                        "legacyAST": {"absolutePath": TEST_PATH_2},
+                        "ast": {"absolutePath": TEST_PATH_2},
+                    },
                 },
                 "source_list": [TEST_PATH_1, TEST_PATH_2],
             },
             {
                 "sources": {
-                    FILE_1: {"legacyAST": {"absolutePath": FILE_1}, "ast": {"absolutePath": FILE_1}},
-                    FILE_2: {"legacyAST": {"absolutePath": FILE_2}, "ast": {"absolutePath": FILE_2}},
+                    FILE_1: {
+                        "legacyAST": {"absolutePath": FILE_1},
+                        "ast": {"absolutePath": FILE_1},
+                    },
+                    FILE_2: {
+                        "legacyAST": {"absolutePath": FILE_2},
+                        "ast": {"absolutePath": FILE_2},
+                    },
                 },
                 "source_list": [FILE_1, FILE_2],
             },

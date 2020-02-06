@@ -4,16 +4,27 @@ from copy import deepcopy
 
 import pytest
 from click.testing import CliRunner
+from mythx_models.response import (
+    AnalysisInputResponse,
+    AnalysisSubmissionResponse,
+    DetectedIssuesResponse,
+    Severity,
+)
 
 from mythx_cli.cli import cli
-from mythx_models.response import AnalysisInputResponse, AnalysisSubmissionResponse, DetectedIssuesResponse, Severity
 
 from .common import get_test_case, mock_context
 
 FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
-SUBMISSION_RESPONSE = get_test_case("testdata/analysis-submission-response.json", AnalysisSubmissionResponse)
-ISSUES_RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
-INPUT_RESPONSE = get_test_case("testdata/analysis-input-response.json", AnalysisInputResponse)
+SUBMISSION_RESPONSE = get_test_case(
+    "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
+)
+ISSUES_RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
+INPUT_RESPONSE = get_test_case(
+    "testdata/analysis-input-response.json", AnalysisInputResponse
+)
 ISSUES_TABLE = get_test_case("testdata/detected-issues-table.txt", raw=True)
 SOLIDITY_CODE = """pragma solidity 0.4.13;
 
@@ -21,7 +32,9 @@ contract OutdatedCompilerVersion {
     uint public x = 1;
 }
 """
-VERSION_ERROR = "Error: Error installing solc version v9001: Invalid version string: '9001'"
+VERSION_ERROR = (
+    "Error: Error installing solc version v9001: Invalid version string: '9001'"
+)
 PRAGMA_ERROR = "No pragma found - please specify a solc version with --solc-version"
 EMPTY_PROJECT_ERROR = "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
 TRUFFLE_ARTIFACT = get_test_case("testdata/truffle-artifact.json")
@@ -44,28 +57,106 @@ def setup_truffle_test():
 @pytest.mark.parametrize(
     "mode,params,value,contained,retval",
     (
-        ("bytecode", ["--output", "test.log", "analyze", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
+        (
+            "bytecode",
+            ["--output", "test.log", "analyze", "0xfe"],
+            INPUT_RESPONSE.source_list[0],
+            True,
+            0,
+        ),
         ("bytecode", ["analyze", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
-        ("bytecode", ["analyze", "--create-group", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
-        ("bytecode", ["analyze", "--swc-blacklist", "SWC-110", "0xfe"], INPUT_RESPONSE.source_list[0], False, 0),
-        ("bytecode", ["analyze", "--min-severity", "high", "0xfe"], INPUT_RESPONSE.source_list[0], False, 0),
+        (
+            "bytecode",
+            ["analyze", "--create-group", "0xfe"],
+            INPUT_RESPONSE.source_list[0],
+            True,
+            0,
+        ),
+        (
+            "bytecode",
+            ["analyze", "--swc-blacklist", "SWC-110", "0xfe"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
+        (
+            "bytecode",
+            ["analyze", "--min-severity", "high", "0xfe"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
         ("bytecode", ["analyze", "lolwut"], FORMAT_ERROR, True, 2),
-        ("solidity", ["analyze", "--async"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
+        (
+            "solidity",
+            ["analyze", "--async"],
+            SUBMISSION_RESPONSE.analysis.uuid,
+            True,
+            0,
+        ),
         ("solidity", ["analyze"], ISSUES_TABLE, True, 0),
-        ("solidity", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
-        ("solidity", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
+        (
+            "solidity",
+            ["analyze", "--swc-blacklist", "SWC-110"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
+        (
+            "solidity",
+            ["analyze", "--min-severity", "high"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
         ("solidity", ["analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
-        ("solidity", ["analyze", "--create-group", "outdated.sol"], ISSUES_TABLE, True, 0),
+        (
+            "solidity",
+            ["analyze", "--create-group", "outdated.sol"],
+            ISSUES_TABLE,
+            True,
+            0,
+        ),
         ("solidity", ["analyze", "."], ISSUES_TABLE, True, 0),
-        ("solidity", ["--output", "test.log", "analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
-        ("solidity", ["analyze", "--solc-version", "9001", "outdated.sol"], VERSION_ERROR, True, 2),
+        (
+            "solidity",
+            ["--output", "test.log", "analyze", "outdated.sol"],
+            ISSUES_TABLE,
+            True,
+            0,
+        ),
+        (
+            "solidity",
+            ["analyze", "--solc-version", "9001", "outdated.sol"],
+            VERSION_ERROR,
+            True,
+            2,
+        ),
         ("truffle", ["analyze", "--async"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
-        ("truffle", ["--output", "test.log", "analyze"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
+        (
+            "truffle",
+            ["--output", "test.log", "analyze"],
+            SUBMISSION_RESPONSE.analysis.uuid,
+            True,
+            0,
+        ),
         ("truffle", ["--output", "test.log", "analyze"], ISSUES_TABLE, True, 0),
         ("truffle", ["analyze"], ISSUES_TABLE, True, 0),
         ("truffle", ["analyze", "--create-group"], ISSUES_TABLE, True, 0),
-        ("truffle", ["analyze", "--swc-blacklist", "SWC-110"], INPUT_RESPONSE.source_list[0], False, 0),
-        ("truffle", ["analyze", "--min-severity", "high"], INPUT_RESPONSE.source_list[0], False, 0),
+        (
+            "truffle",
+            ["analyze", "--swc-blacklist", "SWC-110"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
+        (
+            "truffle",
+            ["analyze", "--min-severity", "high"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            0,
+        ),
     ),
 )
 def test_bytecode_analyze(mode, params, value, contained, retval):
@@ -97,7 +188,9 @@ def test_exit_on_missing_consent():
         setup_solidity_test()
         result = runner.invoke(cli, ["analyze"], input="n\n")
 
-        assert result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
+        assert (
+            result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
+        )
         assert result.exit_code == 0
 
 
@@ -154,7 +247,10 @@ def test_solidity_analyze_multiple_with_group():
         with open("outdated2.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE)
 
-        result = runner.invoke(cli, ["--debug", "analyze", "--create-group", "outdated.sol", "outdated2.sol"])
+        result = runner.invoke(
+            cli,
+            ["--debug", "analyze", "--create-group", "outdated.sol", "outdated2.sol"],
+        )
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
         assert result.exit_code == 0
 
@@ -179,7 +275,9 @@ def test_solidity_analyze_user_solc_version():
         with open("outdated.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE[1:])
 
-        result = runner.invoke(cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"])
+        result = runner.invoke(
+            cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"]
+        )
 
         assert result.output == ISSUES_TABLE
         assert result.exit_code == 0

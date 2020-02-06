@@ -1,14 +1,16 @@
 from copy import deepcopy
 
 import pytest
+from mythx_models.response import DetectedIssuesResponse
 
 from mythx_cli.formatter.util import filter_report
-from mythx_models.response import DetectedIssuesResponse
 
 from .common import get_test_case
 
 # contains SWC-110
-RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssuesResponse)
+RESPONSE = get_test_case(
+    "testdata/detected-issues-response.json", DetectedIssuesResponse
+)
 
 
 @pytest.mark.parametrize(
@@ -82,7 +84,9 @@ RESPONSE = get_test_case("testdata/detected-issues-response.json", DetectedIssue
 )
 def test_report_filter_blacklist(blacklist, whitelist, severity, contained):
     resp = deepcopy(RESPONSE)
-    filter_report(resp, swc_blacklist=blacklist, swc_whitelist=whitelist, min_severity=severity)
+    filter_report(
+        resp, swc_blacklist=blacklist, swc_whitelist=whitelist, min_severity=severity
+    )
 
     if contained:
         assert "SWC-110" in resp
