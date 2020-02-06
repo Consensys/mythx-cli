@@ -53,7 +53,7 @@ Usage
 
     Options:
       --debug                         Provide additional debug output
-      --api-key TEXT                  Your MythX API access token
+      --api-key TEXT                  Your MythX API key from the dashboard
       --username TEXT                 Your MythX account's username
       --password TEXT                 Your MythX account's password
       --format [simple|json|json-pretty|table|sonar]
@@ -69,6 +69,7 @@ Usage
       analysis  Get information on running and finished analyses.
       analyze   Analyze the given directory or arguments with MythX.
       group     Create, modify, and view analysis groups.
+      render    Render an analysis job or group report as HTML.
       version   Display API version information.
 
 
