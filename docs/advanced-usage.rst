@@ -139,8 +139,38 @@ analyses inside a group, or an individual analysis job. The :code:`--template` f
 submit their own report template. This bears the question: How is a custom template written? This section
 aims to explain the two ways of writing a custom template:
 
-1. Extend the default :code:`layout.html` with the pre-defined blocks
-2. Write a new template from scratch
+1. Write a new template from scratch
+2. Extend the default :code:`layout.html` with the pre-defined blocks
+
+
+Writing a New Template From Scratch
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Is the default layout too complex? Do block names confuse you? No worries! The MythX CLI of course
+also support completely user-defined templates. These templates can be specified using
+`Jinja2 <https://jinja.palletsprojects.com/>`_. With basic knowledge of HTML, CSS, Jinja, and
+possibly also JavaScript (if you feel fancy), it is fairly easy to write a template. Explaining the
+inner workings of Jinja and the core principles of web design are out of scope for this section.
+It is relevant to know what context MythX provides for user-defined templates. There are two core
+items that are rendered onto the template. The :code:`issues_list`, and the :code:`target`.
+
+The :code:`target` is a string containing either the analysis group ID, or the analysis job UUID
+that the user has passed to the :code`render` subcommand.
+
+The :code:`issues_list` is a list of tuples. Each tuple contains three elements. These are in order:
+1. The analysis' status model object
+2. The analysis' issue report object
+3. The analysis' input model object
+
+These objects along with their methods and properties can be looked up in the
+`MythX domain model package <https://mythx-models.readthedocs.io/>`_. Generating a simple report is
+as easy as iterating over the :code:`issues_list` parameter and displaying the properties of each
+tuple element in the desired way:
+
+.. code-block:: jinja
+
+    {% for status, report, input in issues_list %}
+    {# my template code #}
 
 
 Extending the Default Template
