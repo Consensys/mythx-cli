@@ -130,3 +130,190 @@ violations for testing purposes:
 
     mythx --ci analyze --swc-blacklist 110,123,103 my-project/
 
+
+Custom Report Rendering
+-----------------------
+
+The MythX CLI exposes a subcommand :code:`render`, which allows the user to generate HTML reports of the
+analyses inside a group, or an individual analysis job. The :code:`--template` flag allows the user to
+submit their own report template. This bears the question: How is a custom template written? This section
+aims to explain the two ways of writing a custom template:
+
+1. Extend the default :code:`layout.html` with the pre-defined blocks
+2. Write a new template from scratch
+
+
+Extending the Default Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The MythX CLI default template is generated from two files: :code:`layout.html` and :code:`default.html`.
+The former defines the overall structure of the report page, namely the
+`CSS grid <https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Grid_Layout>`_ and the components built
+on top of it. The latter template extends the layout file and adds the default theme's color scheme and
+fonts.
+
+In `Jinja2 <http://jinja.palletsprojects.com/>`_, the templating language used by the report renderer,
+templates can be extended by defining so-called blocks in the template file to be extended. Blocks can
+contain content already to define a sane default. Otherwise, the extending template can choose to
+overwrite specific blocks of the extended templates to inject customized content. This is a powerful
+mechanic that is extensively used by the report rendering engine. A short example:
+
+Let's assume we have a base template :code:`base.html` that defines the following code in its HTML head
+tag:
+
+.. code-block:: jinja
+
+    <head>
+        <title>{% block title %}Default{% endblock %}</title>
+    </head>
+
+An extending template :code:`extended.html` might them contain the following code:
+
+.. code-block:: jinja
+
+    {% extends "base.html" %}
+    {% block title %}My Extended Title{% endblock %}
+
+In the final template, we will get the combined code:
+
+.. code-block:: html
+
+    <head>
+        <title>My Extended Title</title>
+    </head>
+
+The advantages here are obvious: By providing a sane default template with reasonable
+block definitions, the MythX CLI can allow the user to make quick and rather deep updates
+to the final HTML template without them needing to go through the hassle of reading and
+understanding the HTML, CSS, and Jinja statements written in the overall default template
+- even though this knowledge becomes more useful the deeper the user aims to change things up.
+
+More details can be found in the official `Jinja template inheritance docs
+<https://jinja.palletsprojects.com/en/2.11.x/templates/#template-inheritance>`_.
+
+All blocks in the default template are scoped, meaning that the extending template has access
+to all context variables around the block in the base template file. This allows the user to
+e.g. access report objects inside the block from the extending layout to customize the way
+things are displayed. The blocks defined in the layout template are as follows:
+
+- :code:`head`
+    Defines the :code:`head` HTML tag. This will overwrite all default content
+    including CSS styles and the site title.
+- :code:`style`
+    Defines the CSS styles. If you want to keep the default template's style,
+    consider using :code:`{{ super() }}` insite the extending block definition to insert the
+    styles from the parent template.
+- :code:`title`
+    Defines the site title as it appears in the Browser tab and header.
+- :code:`extra_html`
+    This is a block that is empty by default. It allows the user to insert
+    extra HTML tags at the beginning of the body element - before anything else is defined.
+    This is expecially useful for overlays, but with the flexibility of custom CSS styles for
+    the inserted element, it can be positioned elsewhere in absolute terms,
+- :code:`navigation`
+    Defines the content of the navigation bar on the left-hand side of the page. It should
+    contain an overview of all the reports inside the template and allow the user to click
+    on a navigation link that jumps directly to the selected analysis report.
+- :code:`navigation_header`
+    Defines the heading (:code:`h2`) of the navigation bar. By default it is defined as
+    :code:`Overview`.
+- :code:`main_header`
+    Defines the content of the main header (a :code:`header` tag with class :code:`main-head`).
+    This tag is displayed on top of the main page's report listing. If only the name needs to
+    be customized, it is recommended to use the :code:`main_header_name` block instead.
+- :code:`main_header_name`
+    Defines the main header name. It is displayed on top of the main page's report listing.
+    By default it is :code:`MythX Report for {{ target }}` where the :code:`target` variable
+    is the group or analysis job ID submitted by the user to the :code:`render` subcommand.
+- :code:`report_header`
+    Defines the report header. This is the section on top of each analysis report inside the
+    main page's report listing. By default it contains a heading with the analysis job's main
+    source file(s), and a small link to the official MythX dashboard's analysis report labelled
+    with the analysis UUID. More fine-grained customization can be done using the blocks below.
+- :code:`report_header_name`
+    Defines the report header name. This is the heading on top of each report, containing the
+    main source file(s) of the analysis job. By default, this heading has the analysis job's
+    UUID as ID. This is done so a user can reference the tag's ID in the navigation bar to
+    quickly jump to specific report listing entries.
+- :code:`report_header_link`
+    Defines the report link behind the the report header name. By default, this link is
+    encapsulated in a :code:`small` tag and references the default MythX dashboard at
+    https://dashboard.mythx.io/.
+- :code:`report_header_link_name`
+    Defines the report header's link name. This is the link displayed next to the heading of
+    the report pointing to the official MythX dashboard. By default, the current report's UUID
+    is displayed.
+- :code:`section_status`
+    Defines the report's status section. The purpose of this section is to give the user a quick
+    overview over the vulnerabilities that have been found in a job. By default this is a table
+    displaying how many vulnerabilities per severity level have been found in the report.
+- :code:`section_status_high`
+    Defines the column name for :code:`high` severity vulnerabilities in the analysis status
+    overview. This block can be used to e.g. change the column name to its equivalent in another
+    language.
+- :code:`section_status_medium`
+    Defines the column name for :code:`medium` severity vulnerabilities in the analysis status
+    overview. This block can be used to e.g. change the column name to its equivalent in another
+    language.
+- :code:`section_status_low`
+    Defines the column name for :code:`low` severity vulnerabilities in the analysis status
+    overview. This block can be used to e.g. change the column name to its equivalent in another
+    language.
+- :code:`section_status_unknown`
+    Defines the column name for :code:`unknown` severity vulnerabilities in the analysis status
+    overview. This block can be used to e.g. change the column name to its equivalent in another
+    language.
+- :code:`section_report`
+    Defines the central report section of an analysis job in the main page's report listing. By
+    default this section displays a table is displayed showing the SWC-IDs of the found
+    vulnerabilities along with its verbose name, the file name it was found in, and location
+    information carrying line and column number. More fine-grained customization can be done with
+    the blocks below.
+- :code:`section_report_id`
+    Defines the SWC-ID column name in the report issues overview table. This block can be used
+    to e.g. change the column name to its equivalent in another language.
+- :code:`section_report_severity`
+    Defines the severity column name in the report issues overview table. This block can be used
+    to e.g. change the column name to its equivalent in another language.
+- :code:`section_report_name`
+    Defines the SWC title column name in the report issues overview table. This block can be used
+    to e.g. change the column name to its equivalent in another language.
+- :code:`section_report_file`
+    Defines the file name column name in the report issues overview table. This block can be used
+    to e.g. change the column name to its equivalent in another language. It should be noted that
+    in the table data field, only source file entries of "text" source format issues are
+    considered as their source list entries contain clear-text filenames. For bytecode locations,
+    a Keccak256 hash of the contract's deployed bytecode would be used. To not confuse readers,
+    this behaviour is omitted and skipped during the default template rendering.
+- :code:`section_report_location`
+    Defines the issue location column name in the report issues overview table. This block can be
+    used to e.g. change the column name to its equivalent in another language.
+- :code:`section_code`
+    Defines the code section. By default, this section displays a listing of the source code
+    (hidden behind a collapsible :code:`details` tag) where the found issues are highlighted inline.
+    Furthermore, if the issue has any test cases attached to it, these will be rendered as
+    collapsible items that are displayed once the user clicks on a code line that is highlighted
+    with an issue. More fine-grained customization can be done using the blocks defined below.
+- :code:`section_code_name`
+    Defines the name of the collapsible to display the source code. This block can be used to e.g.
+    change the column name to its equivalent in another language.
+- :code:`section_case_name`
+    Defines the name of the collapsible to display the issue test case. This block can be used to
+    e.g. change the column name to its equivalent in another language.
+- :code:`section_code_step_name`
+    Defines the name of the collapsible to display a test case's step name. This block can be used
+    to e.g. change the column name to its equivalent in another language.
+- :code:`section_code_empty_name`
+    Defines the name of the message that is displayed when no test cases are attached to the
+    current issue. This is often the case for static analysis issues (like floating pragmas or the
+    use of deprecated Solidity functions). This block can be used to e.g. change the column name to
+    its equivalent in another language.
+- :code:`no_issues_name`
+    Defines the name of the message that is displayed when no issues were found in the report of
+    this particular analysis job. This block can be used to e.g. change the column name to its
+    equivalent in another language.
+- :code:`footer`
+    Defines the content of the footer. By default, the footer carries the class :code:`main-footer`,
+    which by default has an absolute fixed position at the bottom. This block by default gives credits
+    to MythX CLI, which was used to generate the report. It can be customized with the user's own
+    branding. Kudos to the MythX CLI is not required, but always appreciated. :)
