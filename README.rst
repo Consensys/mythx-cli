@@ -56,7 +56,7 @@ Usage
       --api-key TEXT                  Your MythX API key from the dashboard
       --username TEXT                 Your MythX account's username
       --password TEXT                 Your MythX account's password
-      --format [simple|json|json-pretty|table|sonar]
+      --format [simple|json|json-pretty|table]
                                       The format to display the results in
                                       [default: table]
       --ci                            Return exit code 1 if high-severity issue is
