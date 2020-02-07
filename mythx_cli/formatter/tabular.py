@@ -121,8 +121,9 @@ class TabularFormatter(BaseFormatter):
                         and not issue.locations
                     ):
                         res.extend((issue.description_long, ""))
+                    source_formats = [loc.source_format for loc in issue.locations]
                     for loc in issue.locations:
-                        if loc.source_format != "text":
+                        if loc.source_format != "text" and "text" in source_formats:
                             continue
                         for c in loc.source_map.components:
                             # This is so nested, a barn swallow might be hidden somewhere.
