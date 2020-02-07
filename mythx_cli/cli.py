@@ -218,14 +218,20 @@ def is_interface(job) -> bool:
     """
 
     filter_values = ("", "0x", None)
-    detected = all((
-        job.get("bytecode") in filter_values,
-        job.get("source_map") in filter_values,
-        job.get("deployed_source_map") in filter_values,
-        job.get("deployed_bytecode") in filter_values,
-    ))
+    detected = all(
+        (
+            job.get("bytecode") in filter_values,
+            job.get("source_map") in filter_values,
+            job.get("deployed_source_map") in filter_values,
+            job.get("deployed_bytecode") in filter_values,
+        )
+    )
     if detected:
-        LOGGER.debug("Removing interface contract {} from job list".format(job.get("main_source")))
+        LOGGER.debug(
+            "Removing interface contract {} from job list".format(
+                job.get("main_source")
+            )
+        )
         return True
     return False
 

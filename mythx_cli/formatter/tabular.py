@@ -122,12 +122,14 @@ class TabularFormatter(BaseFormatter):
                     ):
                         res.extend((issue.description_long, ""))
                     for loc in issue.locations:
+                        if loc.source_format != "text":
+                            continue
                         for c in loc.source_map.components:
                             # This is so nested, a barn swallow might be hidden somewhere.
                             source_list = loc.source_list or report.source_list
-                            if not (source_list and 0 >= c.file_id < len(source_list)):
+                            if not (source_list and 0 <= c.file_id < len(source_list)):
                                 continue
-                            filename = report.source_list[c.file_id]
+                            filename = source_list[c.file_id]
                             if not inp.sources or filename not in inp.sources:
                                 line = "bytecode offset {}".format(c.offset)
                             else:
