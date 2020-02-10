@@ -9,7 +9,7 @@ Basic MythX services are free of charge.
 No payment information or email address are required and you can start
 using MythX right away by signing up for an account `here <https://dashboard.mythx.io/#/registration>`_.
 Once set up, head over to the `dashboard <https://dashboard.mythx.io/>`_.
-In the *Profile* section various means of authentication are presented.
+In the *Tools* section various means of authentication are presented.
 
 
 Using API Tokens
