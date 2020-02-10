@@ -1,3 +1,5 @@
+"""This module contains various formatters for printing report data."""
+
 from .json import JSONFormatter, PrettyJSONFormatter
 from .simple_stdout import SimpleFormatter
 from .sonarqube import SonarQubeFormatter

@@ -74,6 +74,7 @@ class APIErrorCatcherGroup(click.Group):
             sys.exit(1)
 
 
+# noinspection PyIncorrectDocstring
 @click.group(cls=APIErrorCatcherGroup)
 @click.option(
     "--debug",

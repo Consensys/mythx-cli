@@ -1,3 +1,5 @@
+"""This module contains the SonarQube formatter class ."""
+
 import json
 from typing import List, Optional, Tuple
 
