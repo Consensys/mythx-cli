@@ -149,7 +149,7 @@ Writing a New Template From Scratch
 
 Is the default layout too complex? Do block names confuse you? No worries! The MythX CLI of course
 also support completely user-defined templates. These templates can be specified using
-`Jinja2 <https://jinja.palletsprojects.com/>`_. With basic knowledge of HTML, CSS, Jinja, and
+`the Jinja2 syntax <https://jinja.palletsprojects.com/>`_. With basic knowledge of HTML, CSS, Jinja, and
 possibly also JavaScript (if you feel fancy), it is fairly easy to write a template. Explaining the
 inner workings of Jinja and the core principles of web design are out of scope for this section.
 It is relevant to know what context MythX provides for user-defined templates. There are two core
