@@ -77,7 +77,7 @@ Usage
 Installation
 ------------
 
-The MythX CLI runs on Python 3.6+, including 3.8-dev and pypy.
+The MythX CLI runs on Python 3.6+, including 3.8 and pypy3.
 
 To get started, simply run
 
