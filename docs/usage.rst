@@ -156,10 +156,17 @@ Fetching Analysis Reports
 
 .. code-block:: console
 
+    $ mythx analysis report --help
     Usage: mythx analysis report [OPTIONS] [UUIDS]...
 
+      Fetch the report for a single or multiple job UUIDs.
+
     Options:
-    --help  Show this message and exit.
+      --min-severity [low|medium|high]
+                                      Ignore SWC IDs below the designated level
+      --swc-blacklist TEXT            A comma-separated list of SWC IDs to ignore
+      --swc-whitelist TEXT            A comma-separated list of SWC IDs to include
+      --help                          Show this message and exit.
 
 
 This subcommand prints the report of one or more finished analyses in the
