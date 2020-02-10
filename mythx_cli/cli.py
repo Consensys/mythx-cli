@@ -5,7 +5,7 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Union
 
 import click
 import htmlmin
@@ -32,14 +32,19 @@ from mythx_cli.payload import (
 )
 
 DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
-# DEFAULT_TEMPLATE = "default.html"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
 
 @click.pass_obj
-def write_or_print(ctx, data: str, mode="a+"):
-    """Depending on the context, write the given content to stdout or a given file."""
+def write_or_print(ctx, data: str, mode="a+") -> None:
+    """Depending on the context, write the given content to stdout or a given file.
+
+    :param ctx: Click context holding group-level parameters
+    :param data: The data to print or write to a file
+    :param mode: The mode to open the file in (if file output enabled)
+    :return:
+    """
 
     if not ctx["output"]:
         click.echo(data)
@@ -49,7 +54,16 @@ def write_or_print(ctx, data: str, mode="a+"):
 
 
 class APIErrorCatcherGroup(click.Group):
-    """A custom click group to catch API-related errors."""
+    """A custom click group to catch API-related errors.
+
+    This custom Group implementation catches :code:`MythXAPIError`
+    exceptions, which get raised when the API returns a non-200
+    status code. It is used to notify the user about the error that
+    happened instead of triggering an uncaught exception traceback.
+
+    It is given to the main CLI entrypoint and propagated to all
+    subcommands.
+    """
 
     def __call__(self, *args, **kwargs):
         try:
@@ -101,7 +115,7 @@ class APIErrorCatcherGroup(click.Group):
     "-o", "--output", default=None, help="Output file to write the results into"
 )
 @click.pass_context
-def cli(ctx, **kwargs):
+def cli(ctx, **kwargs) -> None:
     """Your CLI for interacting with https://mythx.io/
     \f
 
@@ -140,18 +154,30 @@ def cli(ctx, **kwargs):
 
 
 @cli.group()
-def group():
-    """Create, modify, and view analysis groups."""
+def group() -> None:
+    """Create, modify, and view analysis groups.
+    \f
+
+    This subcommand holds all group-related actions, such as creating,
+    listing, closing groups, as well as fetching the status of one
+    or more group IDs.
+    """
     pass
 
 
 @cli.group()
-def analysis():
-    """Get information on running and finished analyses."""
+def analysis() -> None:
+    """Get information on running and finished analyses.
+    \f
+
+    This subcommand holds all analysis-related actions, such as submitting new
+    analyses, listing existing ones, fetching their status, as well as fetching
+    the reports of one or more finished analysis jobs.
+    """
     pass
 
 
-def sanitize_paths(job):
+def sanitize_paths(job: Dict) -> Dict:
     """Remove the common prefix from paths.
 
     This method takes a job payload, iterates through all paths, and
@@ -172,6 +198,7 @@ def sanitize_paths(job):
     - main source
 
     :param job: The payload to sanitize
+    :return: The sanitized job
     """
 
     source_list = job.get("source_list")
@@ -236,7 +263,7 @@ def is_interface(job) -> bool:
     return False
 
 
-def find_truffle_artifacts(project_dir):
+def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
     This function will skip the Migrations.json file and return all other files
@@ -255,7 +282,7 @@ def find_truffle_artifacts(project_dir):
     return [f for f in artifact_files if not f.endswith("Migrations.json")]
 
 
-def find_solidity_files(project_dir):
+def find_solidity_files(project_dir: str) -> Optional[List[str]]:
     """Return all Solidity files in the given directory.
 
     This will match all files with the `.sol` extension.
@@ -272,12 +299,17 @@ def find_solidity_files(project_dir):
     return artifact_files
 
 
-def walk_solidity_files(ctx, solc_version, base_path=None):
+def walk_solidity_files(ctx, solc_version: str, base_path: Optional[str] = None) -> List[Dict]:
     """Aggregate all Solidity files in the given base path.
 
     Given a base path, this function will recursively walk through the filesystem
     and aggregate all Solidity files it comes across. The resulting job list will
     contain all the Solidity payloads (optionally compiled), ready for submission.
+
+    :param ctx: :param ctx: Click context holding group-level parameters
+    :param solc_version: The solc version to use for Solidity compilation
+    :param base_path: The base path to walk through from
+    :return:
     """
 
     jobs = []
@@ -354,17 +386,17 @@ def walk_solidity_files(ctx, solc_version, base_path=None):
 @click.pass_obj
 def analyze(
     ctx,
-    target,
-    async_flag,
-    mode,
-    create_group,
-    group_id,
-    group_name,
-    min_severity,
-    swc_blacklist,
-    swc_whitelist,
-    solc_version,
-):
+    target: List[str],
+    async_flag: bool,
+    mode: str,
+    create_group: bool,
+    group_id: str,
+    group_name: str,
+    min_severity: str,
+    swc_blacklist: str,
+    swc_whitelist: str,
+    solc_version: str,
+) -> None:
     """Analyze the given directory or arguments with MythX.
     \f
 
@@ -490,7 +522,7 @@ def analyze(
 @analysis.command("status")
 @click.argument("uuids", default=None, nargs=-1)
 @click.pass_obj
-def analysis_status(ctx, uuids):
+def analysis_status(ctx, uuids: List[str]) -> None:
     """Get the status of an already submitted analysis.
     \f
 
@@ -511,7 +543,7 @@ def analysis_status(ctx, uuids):
     help="The number of most recent groups to display",
 )
 @click.pass_obj
-def group_list(ctx, number):
+def group_list(ctx, number: int) -> None:
     """Get a list of analysis groups.
     \f
 
@@ -541,7 +573,7 @@ def group_list(ctx, number):
 @group.command("status")
 @click.argument("gids", default=None, nargs=-1)
 @click.pass_obj
-def group_status(ctx, gids):
+def group_status(ctx, gids: List[str]) -> None:
     """Get the status of an analysis group.
     \f
 
@@ -557,7 +589,7 @@ def group_status(ctx, gids):
 @group.command("open")
 @click.argument("name", default="", nargs=1)
 @click.pass_obj
-def group_open(ctx, name):
+def group_open(ctx, name: str) -> None:
     """Create a new group to assign future analyses to.
     \f
 
@@ -576,7 +608,7 @@ def group_open(ctx, name):
 @group.command("close")
 @click.argument("identifiers", nargs=-1, required=True)
 @click.pass_obj
-def group_close(ctx, identifiers):
+def group_close(ctx, identifiers: List[str]) -> None:
     """Close/seal an existing group.
     \f
 
@@ -602,7 +634,7 @@ def group_close(ctx, identifiers):
     help="The number of most recent analysis jobs to display",
 )
 @click.pass_obj
-def analysis_list(ctx, number):
+def analysis_list(ctx, number: int) -> None:
     """Get a list of submitted analyses.
     \f
 
@@ -649,7 +681,7 @@ def analysis_list(ctx, number):
     default=None,
 )
 @click.pass_obj
-def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
+def analysis_report(ctx, uuids: List[str], min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]) -> None:
     """Fetch the report for a single or multiple job UUIDs.
     \f
 
@@ -686,7 +718,7 @@ def analysis_report(ctx, uuids, min_severity, swc_blacklist, swc_whitelist):
     sys.exit(ctx["retval"])
 
 
-def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
+def get_analysis_info(client, uuid: str, min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
     Given a UUID, this function will query the MythX API for the analysis
@@ -741,8 +773,8 @@ def get_analysis_info(client, uuid, min_severity, swc_blacklist, swc_whitelist):
 )
 @click.pass_obj
 def render(
-    ctx, target, user_template, aesthetic, min_severity, swc_blacklist, swc_whitelist
-):
+    ctx, target: str, user_template: str, aesthetic: bool, min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]
+) -> None:
     """Render an analysis job or group report as HTML.
 
     \f
@@ -819,7 +851,7 @@ def render(
 
 @cli.command()
 @click.pass_obj
-def version(ctx):
+def version(ctx) -> None:
     """Display API version information.
     \f
 
