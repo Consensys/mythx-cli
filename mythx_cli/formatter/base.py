@@ -19,7 +19,7 @@ class BaseFormatter(abc.ABC):
 
     @staticmethod
     @abc.abstractmethod
-    def format_analysis_list(obj: AnalysisListResponse):
+    def format_analysis_list(obj: AnalysisListResponse) -> str:
         """Format an analysis list response."""
 
         pass  # pragma: no cover
@@ -36,14 +36,14 @@ class BaseFormatter(abc.ABC):
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ]
-    ):
+    ) -> str:
         """Format an issue report response."""
 
         pass  # pragma: no cover
 
     @staticmethod
     @abc.abstractmethod
-    def format_version(obj: VersionResponse):
+    def format_version(obj: VersionResponse) -> str:
         """Format a version response."""
 
         pass  # pragma: no cover

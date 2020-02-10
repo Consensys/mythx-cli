@@ -8,6 +8,15 @@ from mythx_cli.formatter.json import JSONFormatter
 
 
 class SonarQubeFormatter(JSONFormatter):
+    """The SonarQube issue formatter.
+
+    The goal of this formatter is to deliver JSON output that allows MythX issue reports
+    to be fed into the SonarQube QA system. It does not require the analysis input.
+
+    This is an ongoing project and currently not
+    displayed in the official documentation. Please let me know if you have access to a
+    SonarQube instance and want to try it out!
+    """
     report_requires_input = False
 
     @staticmethod
@@ -16,6 +25,7 @@ class SonarQubeFormatter(JSONFormatter):
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ]
     ) -> str:
+        """Format an issue report to a SonarQube JSON representation."""
         new_reports = []
         for resp, _ in issues_list:
             for report in resp.issue_reports:

@@ -22,6 +22,14 @@ from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class TabularFormatter(BaseFormatter):
+    """The tabular formatter.
+
+    This formatter displays an ASCII table. It is enabled by default and
+    requires the analysis input data to display each issue's line number
+    in the source file. It might break on very large field sizes as
+    cell-internal line breaks are not supported by the tabulate library
+    yet.
+    """
     report_requires_input = True
 
     @staticmethod
@@ -35,7 +43,7 @@ class TabularFormatter(BaseFormatter):
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
-    def format_group_list(resp: GroupListResponse):
+    def format_group_list(resp: GroupListResponse) -> str:
         """Format an analysis group response to a tabular representation."""
 
         data = [
@@ -50,7 +58,7 @@ class TabularFormatter(BaseFormatter):
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
-    def format_group_status(resp: GroupStatusResponse):
+    def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response to a tabular representation."""
 
         data = (

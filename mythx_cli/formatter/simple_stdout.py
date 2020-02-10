@@ -18,6 +18,13 @@ from .util import generate_dashboard_link, get_source_location_by_offset
 
 
 class SimpleFormatter(BaseFormatter):
+    """The simple text formatter.
+
+    This formatter generates simplified text output. It also displays
+    the source locations of issues by line in the Solidity source code
+    if given. Therefore, this formatter requires the analysis input to
+    be given.
+    """
     report_requires_input = True
 
     @staticmethod
@@ -34,7 +41,7 @@ class SimpleFormatter(BaseFormatter):
         return "\n".join(res)
 
     @staticmethod
-    def format_group_status(resp: GroupStatusResponse):
+    def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response to a simple text representation."""
 
         res = [
@@ -47,7 +54,7 @@ class SimpleFormatter(BaseFormatter):
         return "\n".join(res)
 
     @staticmethod
-    def format_group_list(resp: GroupListResponse):
+    def format_group_list(resp: GroupListResponse) -> str:
         """Format an analysis group response to a simple text
         representation."""
 
