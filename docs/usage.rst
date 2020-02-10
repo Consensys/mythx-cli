@@ -213,11 +213,16 @@ Listing Past Analyses
 
 .. code-block:: console
 
+    $ mythx analysis list --help
     Usage: mythx analysis list [OPTIONS]
 
+      Get a list of submitted analyses.
+
     Options:
-    --number INTEGER RANGE  The number of most recent analysis jobs to display
-    --help                  Show this message and exit.
+      --number INTEGER RANGE  The number of most recent analysis jobs to display
+                              [default: 5]
+      --help                  Show this message and exit.
+
 
 This subcommand lists the past analyses associated to the current user.
 
