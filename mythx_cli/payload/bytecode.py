@@ -1,4 +1,5 @@
-"""This module contains functions to generate bytecode-only analysis request payloads."""
+"""This module contains functions to generate bytecode-only analysis request
+payloads."""
 
 
 def generate_bytecode_payload(code):

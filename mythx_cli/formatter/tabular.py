@@ -1,4 +1,5 @@
-"""This module contains a tabular data formatter class printing a subset of the response data."""
+"""This module contains a tabular data formatter class printing a subset of the
+response data."""
 
 from collections import defaultdict
 from itertools import zip_longest

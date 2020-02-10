@@ -1,4 +1,5 @@
-"""This module contains a simple text formatter class printing a subset of the response data."""
+"""This module contains a simple text formatter class printing a subset of the
+response data."""
 
 from typing import List, Optional, Tuple
 
@@ -47,7 +48,8 @@ class SimpleFormatter(BaseFormatter):
 
     @staticmethod
     def format_group_list(resp: GroupListResponse):
-        """Format an analysis group response to a simple text representation."""
+        """Format an analysis group response to a simple text
+        representation."""
 
         res = []
         for group in resp:
@@ -61,7 +63,8 @@ class SimpleFormatter(BaseFormatter):
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
-        """Format an analysis status response to a simple text representation."""
+        """Format an analysis status response to a simple text
+        representation."""
 
         res = [
             "UUID: {}".format(resp.uuid),

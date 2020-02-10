@@ -15,7 +15,8 @@ SEVERITY_ORDER = (
 
 
 def get_source_location_by_offset(source, offset):
-    """Retrieve the Solidity source code location based on the source map offset.
+    """Retrieve the Solidity source code location based on the source map
+    offset.
 
     :param source: The Solidity source to analyze
     :param offset: The source map's offset
@@ -62,12 +63,13 @@ def filter_report(
 ) -> DetectedIssuesResponse:
     """Filter issues based on an SWC blacklist and minimum severity.
 
-    This will remove issues of a specific SWC ID or with a too low severity
-    from the issue reports of the passed :code:`DetectedIssuesResponse` object.
-    The SWC blacklist can be a list of strings in the format "SWC-000" or a
-    comma-separated string. "SWC" is case-insensitive and normalized. The SWC
-    whitelist works in a similar way, just including selected SWCs into the
-    resulting response object.
+    This will remove issues of a specific SWC ID or with a too low
+    severity from the issue reports of the passed
+    :code:`DetectedIssuesResponse` object. The SWC blacklist can be a
+    list of strings in the format "SWC-000" or a comma-separated string.
+    "SWC" is case-insensitive and normalized. The SWC whitelist works in
+    a similar way, just including selected SWCs into the resulting
+    response object.
     """
 
     min_severity = Severity(min_severity.title()) if min_severity else Severity.UNKNOWN

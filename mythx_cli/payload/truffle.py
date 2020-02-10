@@ -27,7 +27,8 @@ def zero_srcmap_indices(src_map: str) -> str:
 
 
 def generate_truffle_payload(file):
-    """Generate a MythX analysis request payload based on a truffle build artifact.
+    """Generate a MythX analysis request payload based on a truffle build
+    artifact.
 
     This will send the following artifact entries to MythX for analysis:
 

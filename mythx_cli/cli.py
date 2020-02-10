@@ -38,7 +38,8 @@ logging.basicConfig(level=logging.WARNING)
 
 @click.pass_obj
 def write_or_print(ctx, data: str, mode="a+") -> None:
-    """Depending on the context, write the given content to stdout or a given file.
+    """Depending on the context, write the given content to stdout or a given
+    file.
 
     :param ctx: Click context holding group-level parameters
     :param data: The data to print or write to a file
@@ -117,6 +118,7 @@ class APIErrorCatcherGroup(click.Group):
 @click.pass_context
 def cli(ctx, **kwargs) -> None:
     """Your CLI for interacting with https://mythx.io/
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -156,6 +158,7 @@ def cli(ctx, **kwargs) -> None:
 @cli.group()
 def group() -> None:
     """Create, modify, and view analysis groups.
+
     \f
 
     This subcommand holds all group-related actions, such as creating,
@@ -168,6 +171,7 @@ def group() -> None:
 @cli.group()
 def analysis() -> None:
     """Get information on running and finished analyses.
+
     \f
 
     This subcommand holds all analysis-related actions, such as submitting new
@@ -400,6 +404,7 @@ def analyze(
     solc_version: str,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -526,6 +531,7 @@ def analyze(
 @click.pass_obj
 def analysis_status(ctx, uuids: List[str]) -> None:
     """Get the status of an already submitted analysis.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -547,6 +553,7 @@ def analysis_status(ctx, uuids: List[str]) -> None:
 @click.pass_obj
 def group_list(ctx, number: int) -> None:
     """Get a list of analysis groups.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -577,6 +584,7 @@ def group_list(ctx, number: int) -> None:
 @click.pass_obj
 def group_status(ctx, gids: List[str]) -> None:
     """Get the status of an analysis group.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -593,6 +601,7 @@ def group_status(ctx, gids: List[str]) -> None:
 @click.pass_obj
 def group_open(ctx, name: str) -> None:
     """Create a new group to assign future analyses to.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -612,6 +621,7 @@ def group_open(ctx, name: str) -> None:
 @click.pass_obj
 def group_close(ctx, identifiers: List[str]) -> None:
     """Close/seal an existing group.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -638,6 +648,7 @@ def group_close(ctx, identifiers: List[str]) -> None:
 @click.pass_obj
 def analysis_list(ctx, number: int) -> None:
     """Get a list of submitted analyses.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -691,6 +702,7 @@ def analysis_report(
     swc_whitelist: Optional[List[str]],
 ) -> None:
     """Fetch the report for a single or multiple job UUIDs.
+
     \f
 
     :param ctx: Click context holding group-level parameters
@@ -735,10 +747,10 @@ def get_analysis_info(
 ) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
-    Given a UUID, this function will query the MythX API for the analysis
-    status, the analysis' input data, and the issue report. Furthermore,
-    filtering parameters can be passed to remove certain SWCs or severities
-    from the returned report.
+    Given a UUID, this function will query the MythX API for the
+    analysis status, the analysis' input data, and the issue report.
+    Furthermore, filtering parameters can be passed to remove certain
+    SWCs or severities from the returned report.
     """
 
     resp: DetectedIssuesResponse = client.report(uuid)
@@ -873,6 +885,7 @@ def render(
 @click.pass_obj
 def version(ctx) -> None:
     """Display API version information.
+
     \f
 
     :param ctx: Click context holding group-level parameters
