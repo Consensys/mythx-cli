@@ -25,6 +25,7 @@ class SimpleFormatter(BaseFormatter):
     if given. Therefore, this formatter requires the analysis input to
     be given.
     """
+
     report_requires_input = True
 
     @staticmethod

@@ -17,6 +17,7 @@ class SonarQubeFormatter(JSONFormatter):
     displayed in the official documentation. Please let me know if you have access to a
     SonarQube instance and want to try it out!
     """
+
     report_requires_input = False
 
     @staticmethod

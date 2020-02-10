@@ -22,6 +22,7 @@ class JSONFormatter(BaseFormatter):
     It returns string-encoded JSON objects and does not require the
     analysis input to generate payloads.
     """
+
     report_requires_input = False
 
     @staticmethod
@@ -73,6 +74,7 @@ class PrettyJSONFormatter(BaseFormatter):
     string-encoded JSON object is indented with two spaces for each
     level, and the keys are sorted in alphabetical order.
     """
+
     report_requires_input = False
 
     @staticmethod

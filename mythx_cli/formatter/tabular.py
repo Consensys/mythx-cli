@@ -30,6 +30,7 @@ class TabularFormatter(BaseFormatter):
     cell-internal line breaks are not supported by the tabulate library
     yet.
     """
+
     report_requires_input = True
 
     @staticmethod
