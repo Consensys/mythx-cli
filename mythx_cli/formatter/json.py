@@ -17,16 +17,22 @@ from mythx_cli.formatter.base import BaseFormatter
 
 
 class JSONFormatter(BaseFormatter):
+    """The JSON formatter.
+
+    It returns string-encoded JSON objects and does not require the
+    analysis input to generate payloads.
+    """
+
     report_requires_input = False
 
     @staticmethod
-    def format_group_status(resp: GroupStatusResponse):
+    def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response as compressed JSON."""
 
         return resp.to_json()
 
     @staticmethod
-    def format_group_list(resp: GroupListResponse):
+    def format_group_list(resp: GroupListResponse) -> str:
         """Format a group list response as compressed JSON."""
 
         return resp.to_json()
@@ -62,10 +68,17 @@ class JSONFormatter(BaseFormatter):
 
 
 class PrettyJSONFormatter(BaseFormatter):
+    """The pretty-printing JSON formatter.
+
+    It works exactly as the JSON formatter, with the difference that the
+    string-encoded JSON object is indented with two spaces for each
+    level, and the keys are sorted in alphabetical order.
+    """
+
     report_requires_input = False
 
     @staticmethod
-    def _print_as_json(obj, report_mode=False):
+    def _print_as_json(obj, report_mode=False) -> str:
         """Pretty-print the given object's JSON representation."""
 
         json_args = {"indent": 2, "sort_keys": True}
@@ -76,13 +89,13 @@ class PrettyJSONFormatter(BaseFormatter):
         return json.dumps(obj.to_dict(), **json_args)
 
     @staticmethod
-    def format_group_status(resp: GroupStatusResponse):
+    def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response as pretty-printed JSON."""
 
         return PrettyJSONFormatter._print_as_json(resp)
 
     @staticmethod
-    def format_group_list(resp: GroupListResponse):
+    def format_group_list(resp: GroupListResponse) -> str:
         """Format a group list response as pretty-printed JSON."""
 
         return PrettyJSONFormatter._print_as_json(resp)
@@ -104,13 +117,13 @@ class PrettyJSONFormatter(BaseFormatter):
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ]
-    ):
+    ) -> str:
         """Format an issue report response as pretty-printed JSON."""
 
         return PrettyJSONFormatter._print_as_json(issues_list, report_mode=True)
 
     @staticmethod
-    def format_version(obj: VersionResponse):
+    def format_version(obj: VersionResponse) -> str:
         """Format a version response as pretty-printed JSON."""
 
         return PrettyJSONFormatter._print_as_json(obj)

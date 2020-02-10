@@ -1,6 +1,7 @@
 """This module contains functions to generate Solidity-related payloads."""
 
 import re
+from typing import Dict, Optional
 
 import click
 import solcx
@@ -9,7 +10,7 @@ import solcx.exceptions
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 
-def generate_solidity_payload(file, version):
+def generate_solidity_payload(file: str, version: Optional[str]) -> Dict:
     """Generate a MythX analysis request from a given Solidity file.
 
     This function will open the file, try to detect the used solc version from
@@ -28,6 +29,7 @@ def generate_solidity_payload(file, version):
     * :code:`srcmap-runtime`
 
     :param file: The path pointing towards the Solidity file
+    :param version: The solc version to use for compilation
     :return: The payload dictionary to be sent to MythX
     """
 

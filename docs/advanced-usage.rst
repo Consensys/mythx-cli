@@ -24,9 +24,9 @@ functionality encapsulates all targets passed to the :code:`analyze` subcommand.
 
 A short example:
 
-.. code::
+.. code-block:: console
 
-    mythx analyze --create-group dir1/ test.sol test2.sol
+    $ mythx analyze --create-group dir1/ test.sol test2.sol
 
 This command will initialize an empty group, add all analyses coming from :code:`dir1/`
 and the two test Solidity files into it, and close it once submission has been completed.
@@ -100,9 +100,10 @@ IDs could also be stored in a file as a CI artifact and later retrieved by anoth
 e.g. to kickstart a security or QA pipeline.
 
 An example is the submission of a large truffle project:
-.. code::
 
-    mythx analyze --async my-project/
+.. code-block:: console
+
+    $ mythx analyze --async my-project/
 
 This flag is also best friends with the :code:`--create-group` flag for the :code:`analyze` subcommand. Together
 they help keeping the MythX dashboard overview tidy.
@@ -126,9 +127,9 @@ The filtering options can be freely combined with the :code:`--ci` flag to achie
 A simple example is excluding the (fairly common) floating pragma issue type, and assert and requirement
 violations for testing purposes:
 
-.. code::
+.. code-block:: console
 
-    mythx --ci analyze --swc-blacklist 110,123,103 my-project/
+    $ mythx --ci analyze --swc-blacklist 110,123,103 my-project/
 
 
 Custom Report Rendering
@@ -148,7 +149,7 @@ Writing a New Template From Scratch
 
 Is the default layout too complex? Do block names confuse you? No worries! The MythX CLI of course
 also support completely user-defined templates. These templates can be specified using
-`Jinja2 <https://jinja.palletsprojects.com/>`_. With basic knowledge of HTML, CSS, Jinja, and
+`the Jinja2 syntax <https://jinja.palletsprojects.com/>`_. With basic knowledge of HTML, CSS, Jinja, and
 possibly also JavaScript (if you feel fancy), it is fairly easy to write a template. Explaining the
 inner workings of Jinja and the core principles of web design are out of scope for this section.
 It is relevant to know what context MythX provides for user-defined templates. There are two core

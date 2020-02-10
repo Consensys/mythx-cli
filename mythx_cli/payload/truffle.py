@@ -3,9 +3,19 @@
 import json
 import re
 from copy import copy
+from typing import Any, Dict
 
 
-def patch_bytecode(code):
+def patch_bytecode(code: str) -> str:
+    """Patch Truffle bytecode placeholders.
+
+    This function patches placeholders in Truffle artifact files. These placeholders are meant
+    to be replaced with deployed library/dependency addresses on deployment, but do not form
+    valid EVM bytecode. To produce a valid payload, placeholders are replaced with the zero-address.
+
+    :param code: The bytecode to patch
+    :return: The patched bytecode with the zero-address filled in
+    """
     return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
 
 
@@ -26,8 +36,9 @@ def zero_srcmap_indices(src_map: str) -> str:
     return ";".join(new_entries)
 
 
-def generate_truffle_payload(file):
-    """Generate a MythX analysis request payload based on a truffle build artifact.
+def generate_truffle_payload(file: str) -> Dict[str, Any]:
+    """Generate a MythX analysis request payload based on a truffle build
+    artifact.
 
     This will send the following artifact entries to MythX for analysis:
 
