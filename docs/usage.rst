@@ -139,7 +139,9 @@ Fetching the Analysis Status
       --help  Show this message and exit.
 
 
-This subcommand prints the status of an already submitted analysis.::
+This subcommand prints the status of an already submitted analysis.
+
+.. code-block:: console
 
     $ mythx --format=simple analysis status 381eff48-04db-4f81-a417-8394b6614472
     UUID: 381eff48-04db-4f81-a417-8394b6614472
@@ -196,7 +198,9 @@ The :code:`simple` format option will also resolve the report's source map
 locations to the corresponding line and column numbers in the Solidity
 source file.
 This is only possible if the user has specified the source map in their
-request and is passing the Solidity source code as text.::
+request and is passing the Solidity source code as text.
+
+.. code-block:: console
 
     $ mythx --format=simple analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
     UUID: ab9092f7-54d0-480f-9b63-1bb1508280e2
@@ -237,7 +241,9 @@ the MythX CLI will automatically query the next page until the desired
 number is reached.
 
 To prevent too many network requests, the maximum number of analyses
-that can be fetched it capped at 100.::
+that can be fetched it capped at 100.
+
+.. code-block:: console
 
     $ mythx analysis list
     ╒══════════════════════════════════════╤══════════╤═════════════════╤══════════════════════════════════╕
@@ -258,6 +264,7 @@ The Grouping Functionality
 
 .. code-block:: console
 
+    $ mythx group --help
     Usage: mythx group [OPTIONS] COMMAND [ARGS]...
 
       Create, modify, and view analysis groups.
@@ -279,6 +286,17 @@ the `MythX dashboard overview <https://dashboard.staging.mythx.io/#/console/anal
 Opening Groups
 ~~~~~~~~~~~~~~
 
+.. code-block:: console
+
+    $ mythx group open --help
+    Usage: mythx group open [OPTIONS] [NAME]
+
+      Create a new group to assign future analyses to.
+
+    Options:
+      --help  Show this message and exit.
+
+
 To open a new group, simply type:
 
 .. code-block:: console
@@ -295,7 +313,7 @@ Adding Analyses to a Group
 To analyze a sample, simply pass the group ID (and optionally the name)
 as parameters to the :code:`mythx analyze` call:
 
-.. code-block::
+.. code-block:: console
 
     $ mythx analyze --group-name "super important" --group-id 5df7c8932a73230011271d27 --async fallout.sol remythx-mbt385.sol token.sol functiontypes-swc127.sol
 
@@ -310,6 +328,17 @@ MythX Dashboard:
 Closing Groups
 ~~~~~~~~~~~~~~
 
+.. code-block:: console
+
+    $ mythx group close --help
+    Usage: mythx group close [OPTIONS] IDENTIFIERS...
+
+      Close/seal an existing group.
+
+    Options:
+      --help  Show this message and exit.
+
+
 After all data has been submitted, the group must be closed again:
 
 .. code-block:: console
@@ -322,6 +351,17 @@ MythX analysis groups will always stay open until explicitly closed.
 
 Fetching the Group Status
 ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: console
+
+    $ mythx group status --help
+    Usage: mythx group status [OPTIONS] [GIDS]...
+
+      Get the status of an analysis group.
+
+    Options:
+      --help  Show this message and exit.
+
 
 .. code-block:: console
 
@@ -371,6 +411,19 @@ Listing Groups
 
 .. code-block:: console
 
+    $ mythx group list --help
+    Usage: mythx group list [OPTIONS]
+
+      Get a list of analysis groups.
+
+    Options:
+      --number INTEGER RANGE  The number of most recent groups to display
+                              [default: 5]
+      --help                  Show this message and exit.
+
+
+.. code-block:: console
+
     $ mythx group list
     ╒══════════════════════════╤════════╤════════════════╤══════════════════════════╕
     │ 5e0f761dae12730019ac7c95 │ sealed │ token.sol      │ 2020-01-03 17:13:01+0000 │
@@ -387,7 +440,9 @@ Format Options
 --------------
 
 A format option is passed to the :code:`--format` option of the
-:code:`mythx` root command. E.g.::
+:code:`mythx` root command. E.g.:
+
+.. code-block:: console
 
     $ mythx --format json-pretty analysis report ab9092f7-54d0-480f-9b63-1bb1508280e2
 
@@ -413,6 +468,7 @@ API Version Information
 
 .. code-block:: console
 
+    $ mythx version --help
     Usage: mythx version [OPTIONS]
 
     Options:
@@ -427,7 +483,9 @@ removed, and additional helpful data can be returned.
 
 The MythX team has included a hash of all versions so changes are easily
 noticed simply by comparing the hash an analysis has run under with the one
-returned by the API.::
+returned by the API.
+
+.. code-block:: console
 
     $ mythx version
     API: v1.4.34.4
@@ -445,6 +503,7 @@ Rendering Reports
 
 .. code-block:: console
 
+    $ mythx render --help
     Usage: mythx render [OPTIONS] TARGET
 
       Render an analysis job or group report as HTML.
