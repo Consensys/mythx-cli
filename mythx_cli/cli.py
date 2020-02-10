@@ -5,7 +5,7 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 import click
 import htmlmin
@@ -299,7 +299,9 @@ def find_solidity_files(project_dir: str) -> Optional[List[str]]:
     return artifact_files
 
 
-def walk_solidity_files(ctx, solc_version: str, base_path: Optional[str] = None) -> List[Dict]:
+def walk_solidity_files(
+    ctx, solc_version: str, base_path: Optional[str] = None
+) -> List[Dict]:
     """Aggregate all Solidity files in the given base path.
 
     Given a base path, this function will recursively walk through the filesystem
@@ -681,7 +683,13 @@ def analysis_list(ctx, number: int) -> None:
     default=None,
 )
 @click.pass_obj
-def analysis_report(ctx, uuids: List[str], min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]) -> None:
+def analysis_report(
+    ctx,
+    uuids: List[str],
+    min_severity: Optional[str],
+    swc_blacklist: Optional[List[str]],
+    swc_whitelist: Optional[List[str]],
+) -> None:
     """Fetch the report for a single or multiple job UUIDs.
     \f
 
@@ -718,7 +726,13 @@ def analysis_report(ctx, uuids: List[str], min_severity: Optional[str], swc_blac
     sys.exit(ctx["retval"])
 
 
-def get_analysis_info(client, uuid: str, min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
+def get_analysis_info(
+    client,
+    uuid: str,
+    min_severity: Optional[str],
+    swc_blacklist: Optional[List[str]],
+    swc_whitelist: Optional[List[str]],
+) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
     Given a UUID, this function will query the MythX API for the analysis
@@ -773,7 +787,13 @@ def get_analysis_info(client, uuid: str, min_severity: Optional[str], swc_blackl
 )
 @click.pass_obj
 def render(
-    ctx, target: str, user_template: str, aesthetic: bool, min_severity: Optional[str], swc_blacklist: Optional[List[str]], swc_whitelist: Optional[List[str]]
+    ctx,
+    target: str,
+    user_template: str,
+    aesthetic: bool,
+    min_severity: Optional[str],
+    swc_blacklist: Optional[List[str]],
+    swc_whitelist: Optional[List[str]],
 ) -> None:
     """Render an analysis job or group report as HTML.
 
