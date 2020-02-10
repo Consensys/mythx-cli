@@ -130,10 +130,14 @@ Fetching the Analysis Status
 
 .. code-block:: console
 
+    $ mythx analysis status --help
     Usage: mythx analysis status [OPTIONS] [UUIDS]...
 
+      Get the status of an already submitted analysis.
+
     Options:
-    --help  Show this message and exit.
+      --help  Show this message and exit.
+
 
 This subcommand prints the status of an already submitted analysis.::
 
