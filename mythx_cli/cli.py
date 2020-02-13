@@ -237,7 +237,7 @@ def sanitize_paths(job: Dict) -> Dict:
     return job
 
 
-def is_interface(job) -> bool:
+def is_valid_job(job) -> bool:
     """Detect interface contracts.
 
     This utility function is used to detect interface contracts in solc and Truffle
@@ -250,18 +250,17 @@ def is_interface(job) -> bool:
     """
 
     filter_values = ("", "0x", None)
-    detected = all(
+    if all(
         (
             job.get("bytecode") in filter_values,
             job.get("source_map") in filter_values,
             job.get("deployed_source_map") in filter_values,
             job.get("deployed_bytecode") in filter_values,
         )
-    )
-    if detected:
-        LOGGER.debug(
-            "Removing interface contract {} from job list".format(
-                job.get("main_source")
+    ):
+        click.echo(
+            "Skipping submission for contract {} because no bytecode was produced.".format(
+                job["contract_name"]
             )
         )
         return True
@@ -485,7 +484,7 @@ def analyze(
                 )
 
     jobs = [sanitize_paths(job) for job in jobs]
-    jobs = [job for job in jobs if not is_interface(job)]
+    jobs = [job for job in jobs if not is_valid_job(job)]
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:
