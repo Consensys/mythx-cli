@@ -237,7 +237,7 @@ def sanitize_paths(job: Dict) -> Dict:
     return job
 
 
-def is_interface(job) -> bool:
+def is_valid_job(job) -> bool:
     """Detect interface contracts.
 
     This utility function is used to detect interface contracts in solc and Truffle
@@ -250,18 +250,17 @@ def is_interface(job) -> bool:
     """
 
     filter_values = ("", "0x", None)
-    detected = all(
+    if all(
         (
             job.get("bytecode") in filter_values,
             job.get("source_map") in filter_values,
             job.get("deployed_source_map") in filter_values,
             job.get("deployed_bytecode") in filter_values,
         )
-    )
-    if detected:
-        LOGGER.debug(
-            "Removing interface contract {} from job list".format(
-                job.get("main_source")
+    ):
+        click.echo(
+            "Skipping submission for contract {} because no bytecode was produced.".format(
+                job["contract_name"]
             )
         )
         return True
@@ -329,7 +328,7 @@ def walk_solidity_files(
         sys.exit(0)
     LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
     for file in files:
-        jobs.append(generate_solidity_payload(file, solc_version))
+        jobs.extend(generate_solidity_payload(file, solc_version))
     return jobs
 
 
@@ -462,13 +461,11 @@ def analyze(
             if target_elem.startswith("0x"):
                 LOGGER.debug("Identified target {} as bytecode".format(target_elem))
                 jobs.append(generate_bytecode_payload(target_elem))
-                continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
                 LOGGER.debug(
                     "Trying to interpret {} as a solidity file".format(target_elem)
                 )
-                jobs.append(generate_solidity_payload(target_elem, solc_version))
-                continue
+                jobs.extend(generate_solidity_payload(target_elem, solc_version))
             elif Path(target_elem).is_dir():
                 files = find_truffle_artifacts(Path(target_elem))
                 if files:
@@ -487,7 +484,7 @@ def analyze(
                 )
 
     jobs = [sanitize_paths(job) for job in jobs]
-    jobs = [job for job in jobs if not is_interface(job)]
+    jobs = [job for job in jobs if not is_valid_job(job)]
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:
