@@ -79,21 +79,21 @@ def generate_solidity_payload(file: str, version: Optional[str]) -> Dict:
 
     result = new_result
 
-    contract_name = list(result.keys())[0]
-    creation_bytecode = result[contract_name]["bin"]
-    deployed_bytecode = result[contract_name]["bin-runtime"]
-    source_map = result[contract_name]["srcmap"]
-    deployed_source_map = result[contract_name]["srcmap-runtime"]
-    ast = result[contract_name]["ast"]
+    for contract_name in result.keys():
+        creation_bytecode = result[contract_name]["bin"]
+        deployed_bytecode = result[contract_name]["bin-runtime"]
+        source_map = result[contract_name]["srcmap"]
+        deployed_source_map = result[contract_name]["srcmap-runtime"]
+        ast = result[contract_name]["ast"]
 
-    return {
-        "contract_name": contract_name,
-        "main_source": file,
-        "source_list": [file],
-        "sources": {file: {"source": source, "ast": ast}},
-        "bytecode": creation_bytecode,
-        "source_map": source_map,
-        "deployed_source_map": deployed_source_map,
-        "deployed_bytecode": deployed_bytecode,
-        "solc_version": solc_version,
-    }
+        yield {
+            "contract_name": contract_name,
+            "main_source": file,
+            "source_list": [file],
+            "sources": {file: {"source": source, "ast": ast}},
+            "bytecode": creation_bytecode,
+            "source_map": source_map,
+            "deployed_source_map": deployed_source_map,
+            "deployed_bytecode": deployed_bytecode,
+            "solc_version": solc_version,
+        }

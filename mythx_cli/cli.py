@@ -329,7 +329,7 @@ def walk_solidity_files(
         sys.exit(0)
     LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
     for file in files:
-        jobs.append(generate_solidity_payload(file, solc_version))
+        jobs.extend(generate_solidity_payload(file, solc_version))
     return jobs
 
 
@@ -462,13 +462,11 @@ def analyze(
             if target_elem.startswith("0x"):
                 LOGGER.debug("Identified target {} as bytecode".format(target_elem))
                 jobs.append(generate_bytecode_payload(target_elem))
-                continue
             elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
                 LOGGER.debug(
                     "Trying to interpret {} as a solidity file".format(target_elem)
                 )
-                jobs.append(generate_solidity_payload(target_elem, solc_version))
-                continue
+                jobs.extend(generate_solidity_payload(target_elem, solc_version))
             elif Path(target_elem).is_dir():
                 files = find_truffle_artifacts(Path(target_elem))
                 if files:
