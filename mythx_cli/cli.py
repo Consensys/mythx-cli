@@ -31,7 +31,8 @@ from mythx_cli.payload import (
     generate_truffle_payload,
 )
 
-DEFAULT_TEMPLATE = Path(__file__).parent / "templates/default.html"
+DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
+DEFAULT_MD_TEMPLATE = Path(__file__).parent / "templates/default.md"
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
@@ -774,9 +775,10 @@ def get_analysis_info(
     "user_template",
     type=click.Path(exists=True),
     help="A custom report template",
-    default=str(DEFAULT_TEMPLATE),
+    default=None,
 )
 @click.option("--aesthetic", is_flag=True, default=False, hidden=True)
+@click.option("--markdown", is_flag=True, default=False, help="Render the report as Markdown")
 @click.option(
     "--min-severity",
     type=click.STRING,
@@ -801,6 +803,7 @@ def render(
     target: str,
     user_template: str,
     aesthetic: bool,
+    markdown: bool,
     min_severity: Optional[str],
     swc_blacklist: Optional[List[str]],
     swc_whitelist: Optional[List[str]],
@@ -812,25 +815,41 @@ def render(
     :param target: Group or analysis ID to fetch the data for
     :param user_template: User-defined template string
     :param aesthetic: DO NOT TOUCH IF YOU'RE BORING
+    :param markdown: Flag to render a markdown report
     :param min_severity: Ignore SWC IDs below the designated level
     :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     """
 
     client: Client = ctx["client"]
-    user_template = Path(user_template)
-    template_path = str(user_template.parent)
-    template_dirs = [template_path]
-    if DEFAULT_TEMPLATE.parent not in template_dirs:
-        template_dirs.append(DEFAULT_TEMPLATE.parent)
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dirs),
-        trim_blocks=True,
-        lstrip_blocks=True,
-        keep_trailing_newline=True,
-    )
-    template_file = "aesthetic.html" if aesthetic else user_template.name
-    template = env.get_template(template_file)
+
+    default_template = DEFAULT_MD_TEMPLATE if markdown else DEFAULT_HTML_TEMPLATE
+    # enables user to include library templates in their own
+    template_dirs = [default_template.parent]
+
+    if user_template:
+        user_template = Path(user_template)
+        template_name = user_template.name
+        template_dirs.append(user_template.parent)
+    else:
+        template_name = default_template.name
+
+    env_kwargs = {
+            "trim_blocks": True,
+            "lstrip_blocks": True,
+            "keep_trailing_newline": True,
+        }
+    if not markdown:
+        env_kwargs = {
+            "trim_blocks": True,
+            "lstrip_blocks": True,
+            "keep_trailing_newline": True,
+        }
+        if aesthetic:
+            template_name = "aesthetic.html"
+
+    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs)
+    template = env.get_template(template_name)
 
     issues_list: List[
         Tuple[
@@ -876,7 +895,10 @@ def render(
         )
 
     rendered = template.render(issues_list=issues_list, target=target)
-    write_or_print(htmlmin.minify(rendered, remove_comments=True), mode="w+")
+    if not markdown:
+        rendered = htmlmin.minify(rendered, remove_comments=True)
+
+    write_or_print(rendered, mode="w+")
 
 
 @cli.command()
