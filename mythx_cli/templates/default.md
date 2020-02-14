@@ -20,13 +20,7 @@
 {% for issue in report %}
 {% for loc in issue.locations %}
 {% if loc.source_format == "text" %}
-
-**Issue:** {{ issue.swc_id }} - {{ issue.swc_title }}
-{{ loop.index0 }}
-{{ issue.decoded_locations }}
-
-{#
-{% set location=issue.decoded_locations[0] %}
+{% set location=issue.decoded_locations[loop.index0] %}
 {% set source_file=loc.source_list[0] %}
 **Issue:** {{ issue.swc_id }} - {{ issue.swc_title }}
 **Severity:** {{ issue.severity|title }}
@@ -35,13 +29,12 @@
 **Line:** {{ location.start_line }}
 **Column:** {{ location.start_column }}
 {% set source_data=input.sources[source_file]["source"].split("\n") %}
+
 ```
 {{ source_data[location.start_line-2]}}
 {{ source_data[location.start_line-1]}}
 {{ source_data[location.start_line]}}
 ```
-
-#}
 
 {% endif %}
 {% endfor %}
