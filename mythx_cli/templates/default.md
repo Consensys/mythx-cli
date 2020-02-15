@@ -4,12 +4,13 @@
 # MythX Report for {{ target }}
 {% endblock %}
 
-{% block preample %}{% endblock %}
-
-{% block status %}
+{% block header %}
 ##  Report for {{ input.sources.keys()|join(", ") }}
 [View on MythX Dashboard](https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }})
 
+{% endblock %}
+
+{% block status %}
 | High | Medium | Low | Unknown |
 |------|--------|-----|---------|
 | {{ "%-4s" | format(status.vulnerability_statistics.high,) }} | {{ "%-6s" | format(status.vulnerability_statistics.medium,) }} | {{ "%-3s" | format(status.vulnerability_statistics.low,) }} | {{ "%-7s" | format(status.vulnerability_statistics.none,) }} |
