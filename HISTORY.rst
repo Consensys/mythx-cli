@@ -27,7 +27,7 @@ History
 
 
 0.6.0 & 0.6.1 (2020-01-29)
-------------------
+--------------------------
 
 - Add unified reports (e.g. :code:`json` output of multiple reports in a single JSON object)
 - Add SWC ID whitelist parameter to report filter
