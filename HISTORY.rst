@@ -2,6 +2,42 @@
 History
 =======
 
+0.6.3 (2020-02-15)
+------------------
+
+- Update :code:`sphinx` to 2.4.1
+- Improved Usage Guide documentation
+- Added more verbose descriptions in Advanced Usage guide
+- Add improved Python docstrings, enforce formatting
+- Add more precise type hints across the code base
+- Fix bug where Solidity payloads were truncated
+- Add :code:`mythx render --markdown` parameter for md reports
+- Add :code:`rglob` blacklist to exclude :code:`node_modules` during .sol directory walks
+
+
+0.6.2 (2020-02-08)
+------------------
+
+- Update :code:`pytest` to 5.3.5
+- Add :code:`mythx render` subcommand for HTML report rendering
+- Various HTML template improvements
+- Add :code:`Jinja2` and :code:`htmlmin` dependencies
+- Add documentation for custom template creation
+- Add filtering of Solidity payloads without compiled code (e.g. interfaces)
+
+
+0.6.0 & 0.6.1 (2020-01-29)
+------------------
+
+- Add unified reports (e.g. :code:`json` output of multiple reports in a single JSON object)
+- Add SWC ID whitelist parameter to report filter
+- Integrate report filters with :code:`--ci` flag
+- Add advanced usage guide to documentation
+- Improved messaging across CLI
+- Update :code:`pytest` to 5.3.4
+- Improve test suite assertion diff display
+
+
 0.5.3 (2020-01-16)
 ------------------
 
