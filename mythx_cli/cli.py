@@ -33,6 +33,7 @@ from mythx_cli.payload import (
 
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
 DEFAULT_MD_TEMPLATE = Path(__file__).parent / "templates/default.md"
+RGLOB_BLACKLIST = ["node_modules"]
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
 
@@ -301,7 +302,7 @@ def find_solidity_files(project_dir: str) -> Optional[List[str]]:
     if not artifact_files:
         return None
 
-    return artifact_files
+    return [af for af in artifact_files if all((b not in af for b in RGLOB_BLACKLIST))]
 
 
 def walk_solidity_files(
@@ -334,9 +335,7 @@ def walk_solidity_files(
 
 
 @cli.command()
-@click.argument(
-    "target", default=None, nargs=-1, required=False
-)  # allow multiple targets
+@click.argument("target", default=None, nargs=-1, required=False)
 @click.option(
     "--async/--wait",  # TODO: make default on full
     "async_flag",
@@ -778,7 +777,9 @@ def get_analysis_info(
     default=None,
 )
 @click.option("--aesthetic", is_flag=True, default=False, hidden=True)
-@click.option("--markdown", is_flag=True, default=False, help="Render the report as Markdown")
+@click.option(
+    "--markdown", is_flag=True, default=False, help="Render the report as Markdown"
+)
 @click.option(
     "--min-severity",
     type=click.STRING,
@@ -835,10 +836,10 @@ def render(
         template_name = default_template.name
 
     env_kwargs = {
-            "trim_blocks": True,
-            "lstrip_blocks": True,
-            "keep_trailing_newline": True,
-        }
+        "trim_blocks": True,
+        "lstrip_blocks": True,
+        "keep_trailing_newline": True,
+    }
     if not markdown:
         env_kwargs = {
             "trim_blocks": True,
@@ -848,7 +849,9 @@ def render(
         if aesthetic:
             template_name = "aesthetic.html"
 
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs)
+    env = jinja2.Environment(
+        loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs
+    )
     template = env.get_template(template_name)
 
     issues_list: List[
