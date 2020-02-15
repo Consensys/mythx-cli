@@ -141,7 +141,7 @@ submit their own report template. This bears the question: How is a custom templ
 aims to explain the two ways of writing a custom template:
 
 1. Write a new template from scratch
-2. Extend the default :code:`layout.html` with the pre-defined blocks
+2. Extend the default :code:`layout.html` or :code:`layout.md` with the pre-defined blocks
 
 
 Writing a New Template From Scratch
@@ -174,8 +174,8 @@ tuple element in the desired way:
     {# my template code #}
 
 
-Extending the Default Template
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Extending the Default HTML Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The MythX CLI default template is generated from two files: :code:`layout.html` and :code:`default.html`.
 The former defines the overall structure of the report page, namely the
@@ -348,3 +348,43 @@ things are displayed. The blocks defined in the layout template are as follows:
     which by default has an absolute fixed position at the bottom. This block by default gives credits
     to MythX CLI, which was used to generate the report. It can be customized with the user's own
     branding. Kudos to the MythX CLI is not required, but always appreciated. :)
+
+
+Extending the Default Markdown Template
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Extending the default Markdown template is considerably easier compared to extending the HTML one. This
+is mainly due to the fact that Markdown is a simpler language and the resulting report does not contain
+any interactive elements such as expanding sections to hide the code, or even a navigation bar to quickly
+jump to reports.
+
+To allow flexibility without rewriting the whole :code:`templates/layout.md` file are as follows:
+
+- :code:`heading`
+    This block contains the overall report's heading, such as "MythX Report for ...".
+- :code:`preamble`
+    This text sits right below the heading and is empty by default. It can be used to add a disclaimer,
+    custom branding, report owners, timestamps, etc. to the report; Any meta information that is deemed
+    to be useful in the report's context.
+- :code:`header`
+    This is the header that is displayed for each report in the analysis group - or the single analysis
+    job (depending on the user input). It stands above the report status and issues overview and should
+    describe the job displayed below.
+- :code:`status`
+    This block aims to give a quick overview over the report displayed in more granular detail below. By
+    default it displays table showing the number of vulnerabilities MythX has found grouped by their
+    severity.
+- :code:`report`
+    This block should give detailed information about the issue that has been found. By default, it
+    contains the vulnerability title, SWC ID, Severity, the corresponding source lines, and a short
+    source listing, containing one line before and after the source position. If the source line
+    decoding failed, it will display :code:`undefined` as line locations and omit the source snippet.
+- :code:`no_issues_name`
+    This block should contain the message that is displayed when no issues were found in the report.
+    It is displayed instead of the above :code:`status` and :code:`report` blocks.
+- :code:`postamble`
+    Similar to the :code:`preamble` block, this text is displayed at the end of the report listing.
+    It can be used for displaying license texts and more verbose information that might be needed
+    in the future but are not essential to the report itself. By default it displays a little heart
+    and a link to the MythX CLI Github repository. Kudos are always appreciated and you have my thanks
+    if you keep the credit intact during your awesome customization work. :)
