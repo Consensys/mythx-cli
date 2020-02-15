@@ -49,3 +49,8 @@
 {% endfor %}
 {% endfor %}
 {% endblock %}
+
+{% block postamble %}
+----------
+Made with ♥ by [MythX CLI](https://github.com/dmuhs/mythx-cli)
+{% endblock %}
