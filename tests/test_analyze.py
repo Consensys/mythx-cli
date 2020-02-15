@@ -255,6 +255,25 @@ def test_solidity_analyze_multiple_with_group():
         assert result.exit_code == 0
 
 
+def test_solidity_analyze_recursive_blacklist():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        # initialize sample solidity file
+        with open("outdated.sol", "w+") as conf_f:
+            conf_f.write(SOLIDITY_CODE)
+
+        os.mkdir("./node_modules")
+        with open("./node_modules/outdated2.sol", "w+") as conf_f:
+            # should be ignored
+            conf_f.write(SOLIDITY_CODE)
+
+        result = runner.invoke(
+            cli, ["--debug", "--yes", "analyze", "--create-group", "."]
+        )
+        assert result.output == ISSUES_TABLE
+        assert result.exit_code == 0
+
+
 def test_solidity_analyze_missing_version():
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
