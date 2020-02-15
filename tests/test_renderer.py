@@ -73,6 +73,6 @@ def test_renderer_group(ident, template):
 
 def test_invalid_id():
     runner = CliRunner()
-    result = runner.invoke(cli, ["--output=test.html", "render", "foo"])
+    result = runner.invoke(cli, ["--output=test.html", "render", "--aesthetic", "foo"])
     assert result.exception is not None
     assert result.exit_code == 2
