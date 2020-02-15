@@ -509,16 +509,17 @@ Rendering Reports
       Render an analysis job or group report as HTML.
 
     Options:
-      -t, --template TEXT
+      -t, --template PATH   A custom report template
+      --markdown            Render the report as Markdown
       --min-severity TEXT   Ignore SWC IDs below the designated level
       --swc-blacklist TEXT  A comma-separated list of SWC IDs to ignore
       --swc-whitelist TEXT  A comma-separated list of SWC IDs to include
       --help                Show this message and exit.
 
-The MythX CLI allows you to generate HTML reports for a single analysis job
-(denoted by the job's UUID), or a whole analysis group. For each analysis,
-the current status, the input, and the report for the detected issues are
-fetched and rendered onto a template.
+The MythX CLI allows you to generate HTML or Markdown reports for a single
+analysis job (denoted by the job's UUID), or a whole analysis group. For
+each analysis, the current status, the input, and the report for the
+detected issues are fetched and rendered onto a template.
 
 A custom template can be passed to the :code:`render` subcommand via the
 :code:`--template` or :code:`-t` parameter. The templates are written in
@@ -532,4 +533,10 @@ in the context of the default template - or outside of it if you are creative. ;
 If no template is given, the MythX CLI will use its default template, which is
 located in the installation directory under :code:`templates/default.html`. It
 extends the :code:`templates/layout.html` template and fills in the required
-information and additional styles.
+information and additional styles. The Markdown mode :code:`--markdown` works
+equivalently, by using the default template :code:`templates/default.md`, which
+in turn extends :code:`templates/layout.md`. It is recommended to start extending
+the Markdown templates to get started with custom templating if no prior
+experience with Jinja2 templates exists. The Markdown layout template is
+significantly easier to understand - at the trade-off for being a simpler format
+and having less options for extending it.
