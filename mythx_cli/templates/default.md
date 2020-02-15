@@ -22,14 +22,14 @@
 {% for loc in issue.locations %}
 {% if loc.source_format == "text" %}
 {% set source_file=loc.source_list[0] %}
-**Issue:** {{ issue.swc_id }} - {{ issue.swc_title }}
-**Severity:** {{ issue.severity|title }}
-**Description:** {{ issue.description_long }}
-**Location:** {{ source_file }}
+- **Issue:** {{ issue.swc_id }} - {{ issue.swc_title }}
+- **Severity:** {{ issue.severity|title }}
+- **Description:** {{ issue.description_long }}
+- **Location:** {{ source_file }}
 {% if loop.index0 < issue.decoded_locations|length and issue.decoded_locations[loop.index0].start_line %}
 {% set location=issue.decoded_locations[loop.index0] %}
-**Line:** {{ location.start_line }}
-**Column:** {{ location.start_column }}
+- **Line:** {{ location.start_line }}
+- **Column:** {{ location.start_column }}
 {% set source_data=input.sources[source_file]["source"].split("\n") %}
 
 ```
@@ -38,9 +38,11 @@
 {{ source_data[location.start_line]}}
 ```
 
+
 {% else %}
-**Line:** undefined
-**Column:** undefined
+- **Line:** *undefined*
+- **Column:** *undefined*
+
 
 {% endif %}
 {% endif %}
