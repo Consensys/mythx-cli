@@ -57,105 +57,163 @@ def setup_truffle_test():
 @pytest.mark.parametrize(
     "mode,params,value,contained,retval",
     (
-        (
+        pytest.param(
             "bytecode",
             ["--output", "test.log", "analyze", "0xfe"],
             INPUT_RESPONSE.source_list[0],
             True,
             0,
+            id="bytecode output file",
         ),
-        ("bytecode", ["analyze", "0xfe"], INPUT_RESPONSE.source_list[0], True, 0),
-        (
+        pytest.param(
+            "bytecode",
+            ["analyze", "0xfe"],
+            INPUT_RESPONSE.source_list[0],
+            True,
+            0,
+            id="bytecode analyze param",
+        ),
+        pytest.param(
             "bytecode",
             ["analyze", "--create-group", "0xfe"],
             INPUT_RESPONSE.source_list[0],
             True,
             0,
+            id="bytecode create group",
         ),
-        (
+        pytest.param(
             "bytecode",
             ["analyze", "--swc-blacklist", "SWC-110", "0xfe"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="bytecode blacklist 110",
         ),
-        (
+        pytest.param(
             "bytecode",
             ["analyze", "--min-severity", "high", "0xfe"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="bytecode high sev filter",
         ),
-        ("bytecode", ["analyze", "lolwut"], FORMAT_ERROR, True, 2),
-        (
+        pytest.param(
+            "bytecode",
+            ["analyze", "lolwut"],
+            FORMAT_ERROR,
+            True,
+            2,
+            id="bytecode invalid analyze",
+        ),
+        pytest.param(
             "solidity",
             ["analyze", "--async"],
             SUBMISSION_RESPONSE.analysis.uuid,
             True,
             0,
+            id="solidity analyze async",
         ),
-        ("solidity", ["analyze"], ISSUES_TABLE, True, 0),
-        (
+        pytest.param(
+            "solidity",
+            ["analyze"],
+            ISSUES_TABLE,
+            True,
+            0,
+            id="solidity issue table no params",
+        ),
+        pytest.param(
             "solidity",
             ["analyze", "--swc-blacklist", "SWC-110"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="solidity blacklist 110",
         ),
-        (
+        pytest.param(
             "solidity",
             ["analyze", "--min-severity", "high"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="solidity high sev filter",
         ),
-        ("solidity", ["analyze", "outdated.sol"], ISSUES_TABLE, True, 0),
-        (
+        pytest.param(
+            "solidity",
+            ["analyze", "outdated.sol"],
+            ISSUES_TABLE,
+            True,
+            0,
+            id="solidity issue table file param",
+        ),
+        pytest.param(
             "solidity",
             ["analyze", "--create-group", "outdated.sol"],
             ISSUES_TABLE,
             True,
             0,
+            id="solidity create group",
         ),
-        ("solidity", ["analyze", "."], ISSUES_TABLE, True, 0),
-        (
+        pytest.param(
+            "solidity", ["analyze", "."], ISSUES_TABLE, True, 0, id="solidity cwd"
+        ),
+        pytest.param(
             "solidity",
             ["--output", "test.log", "analyze", "outdated.sol"],
             ISSUES_TABLE,
             True,
             0,
+            id="solidity output file",
         ),
-        (
+        pytest.param(
             "solidity",
             ["analyze", "--solc-version", "9001", "outdated.sol"],
             VERSION_ERROR,
             True,
             2,
+            id="solidity invalid solc version",
         ),
-        ("truffle", ["analyze", "--async"], SUBMISSION_RESPONSE.analysis.uuid, True, 0),
-        (
+        pytest.param(
             "truffle",
-            ["--output", "test.log", "analyze"],
+            ["analyze", "--async"],
             SUBMISSION_RESPONSE.analysis.uuid,
             True,
             0,
+            id="truffle async",
         ),
-        ("truffle", ["--output", "test.log", "analyze"], ISSUES_TABLE, True, 0),
-        ("truffle", ["analyze"], ISSUES_TABLE, True, 0),
-        ("truffle", ["analyze", "--create-group"], ISSUES_TABLE, True, 0),
-        (
+        pytest.param(
+            "truffle",
+            ["--output", "test.log", "analyze"],
+            ISSUES_TABLE,
+            True,
+            0,
+            id="truffle output file",
+        ),
+        pytest.param(
+            "truffle", ["analyze"], ISSUES_TABLE, True, 0, id="truffle issue table"
+        ),
+        pytest.param(
+            "truffle",
+            ["analyze", "--create-group"],
+            ISSUES_TABLE,
+            True,
+            0,
+            id="truffle create group",
+        ),
+        pytest.param(
             "truffle",
             ["analyze", "--swc-blacklist", "SWC-110"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="truffle blacklist 110",
         ),
-        (
+        pytest.param(
             "truffle",
             ["analyze", "--min-severity", "high"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
+            id="truffle high sev filter",
         ),
     ),
 )
