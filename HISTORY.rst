@@ -2,6 +2,18 @@
 History
 =======
 
+0.6.4 (2020-03-15)
+------------------
+
+- Add :code:`--include` flag to :code:`analyze` subcommand
+- Fix minor bug in package description content type definition
+- Update :code:`tox` to 3.14.5
+- Update :code:`sphinx` to 2.4.4
+- Update :code:`py-solc-x` to 0.8.0
+- Update :code:`click` to 7.1.1
+- Update :code:`pytest` 5.4.1
+
+
 0.6.3 (2020-02-15)
 ------------------
 
