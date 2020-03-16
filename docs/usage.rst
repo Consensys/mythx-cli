@@ -83,6 +83,7 @@ Submitting Analyses
       --swc-blacklist TEXT          A comma-separated list of SWC IDs to ignore
       --swc-whitelist TEXT          A comma-separated list of SWC IDs to include
       --solc-version TEXT           The solc version to use for compilation
+      --include TEXT                The contract name(s) to submit to MythX
       --help                        Show this message and exit.
 
 
@@ -123,6 +124,21 @@ tools in the MythX backend can pick up on the bytecode), as well as reduce
 the number of false positive issues. The MythX CLI will try to infer the
 :code:`solc` version based on the pragma set in the source code. An explicit
 compiler version can be specified with the :code:`--solc-version` flag.
+
+By default, the MythX CLI submits an analysis request for each contract it
+encounters. Depending on the project layout, this can result in duplicate
+submission of source code (e.g. when all code is flattened in a single file).
+To avoid this issue, the :code:`--include` parameter can be passed multiple
+times to specify the contracts that are the target of this submission.
+
+.. code-block:: console
+
+    $ mythx analyze --include EstateRegistry --include LANDRegistry --include LANDStorage
+
+
+This will effectively whitelist the specified contract names and exclude every
+other contract from submission. Please note that this option is case sensitive.
+If a contract name cannot be found in the project, an error is thrown.
 
 
 Fetching the Analysis Status
