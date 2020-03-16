@@ -389,6 +389,13 @@ def walk_solidity_files(
     help="The solc version to use for compilation",
     default=None,
 )
+@click.option(
+    "--include",
+    type=click.STRING,
+    multiple=True,
+    help="The contract name(s) to submit to MythX",
+    default=None,
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -402,6 +409,7 @@ def analyze(
     swc_blacklist: str,
     swc_whitelist: str,
     solc_version: str,
+    include: str,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -418,6 +426,7 @@ def analyze(
     :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     :param solc_version: The solc version to use for Solidity compilation
+    :param include: List of contract names to send - exclude everything else
     :return:
     """
 
@@ -483,8 +492,18 @@ def analyze(
                     )
                 )
 
+    # sanitize local paths
     jobs = [sanitize_paths(job) for job in jobs]
+    # filter jobs where no bytecode was produced
     jobs = [job for job in jobs if not is_valid_job(job)]
+    # reduce to whitelisted contract names
+    if include:
+        found_contracts = {job["contract_name"] for job in jobs}
+        overlap = set(include).difference(found_contracts)
+        if overlap:
+            raise click.UsageError(f"The following contracts could not be found: {', '.join(overlap)}")
+        jobs = [job for job in jobs if job["contract_name"] in include]
+
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:

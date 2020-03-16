@@ -166,6 +166,14 @@ def setup_truffle_test():
         ),
         pytest.param(
             "solidity",
+            ["analyze", "--include", "invalid"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            2,
+            id="solidity invalid include",
+        ),
+        pytest.param(
+            "solidity",
             ["analyze", "--solc-version", "9001", "outdated.sol"],
             VERSION_ERROR,
             True,
@@ -198,6 +206,14 @@ def setup_truffle_test():
             True,
             0,
             id="truffle create group",
+        ),
+        pytest.param(
+            "truffle",
+            ["analyze", "--include", "invalid"],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            2,
+            id="truffle invalid include",
         ),
         pytest.param(
             "truffle",
