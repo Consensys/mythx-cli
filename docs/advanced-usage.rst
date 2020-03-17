@@ -152,6 +152,8 @@ imports that would make standard compilation fail:
 These imports will have to be remapped. This can be done by passing the :code:`--remap-import` parameter
 to the :code:`analyze` call:
 
+.. code-block:: console
+
     $ mythx analyze --remap-import "openzeppelin-zos/=$(pwd)/node_modules/openzeppelin-zos/" myContract.sol
 
 This parameter can be defined multiple times to declare various import remappings in the context
