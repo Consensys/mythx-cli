@@ -409,7 +409,7 @@ def analyze(
     swc_blacklist: str,
     swc_whitelist: str,
     solc_version: str,
-    include: str,
+    include: Tuple[str],
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -442,6 +442,7 @@ def analyze(
         ctx["client"].handler.middlewares.append(group_mw)
 
     jobs = []
+    include = list(include)
 
     if not target:
         if Path("truffle-config.js").exists() or Path("truffle.js").exists():
@@ -467,29 +468,30 @@ def analyze(
             )
     else:
         for target_elem in target:
-            if target_elem.startswith("0x"):
-                LOGGER.debug("Identified target {} as bytecode".format(target_elem))
-                jobs.append(generate_bytecode_payload(target_elem))
-            elif Path(target_elem).is_file() and Path(target_elem).suffix == ".sol":
-                LOGGER.debug(
-                    "Trying to interpret {} as a solidity file".format(target_elem)
+            target_split = target_elem.split(":")
+            element, suffix = target_split[0], target_split[1:]
+            include += suffix
+            if element.startswith("0x"):
+                LOGGER.debug(f"Identified target {element} as bytecode")
+                jobs.append(generate_bytecode_payload(element))
+            elif Path(element).is_file() and Path(element).suffix == ".sol":
+                LOGGER.debug(f"Trying to interpret {element} as a solidity file")
+                jobs.extend(
+                    generate_solidity_payload(element, solc_version, contracts=suffix)
                 )
-                jobs.extend(generate_solidity_payload(target_elem, solc_version))
-            elif Path(target_elem).is_dir():
-                files = find_truffle_artifacts(Path(target_elem))
+            elif Path(element).is_dir():
+                files = find_truffle_artifacts(Path(element))
                 if files:
                     # extract truffle artifacts if config found in target
                     jobs.extend([generate_truffle_payload(file) for file in files])
                 else:
                     # recursively enumerate sol files if not a truffle project
                     jobs.extend(
-                        walk_solidity_files(ctx, solc_version, base_path=target_elem)
+                        walk_solidity_files(ctx, solc_version, base_path=element)
                     )
             else:
                 raise click.exceptions.UsageError(
-                    "Could not interpret argument {} as bytecode or Solidity file".format(
-                        target_elem
-                    )
+                    f"Could not interpret argument {element} as bytecode or Solidity file"
                 )
 
     # sanitize local paths
@@ -501,7 +503,9 @@ def analyze(
         found_contracts = {job["contract_name"] for job in jobs}
         overlap = set(include).difference(found_contracts)
         if overlap:
-            raise click.UsageError(f"The following contracts could not be found: {', '.join(overlap)}")
+            raise click.UsageError(
+                f"The following contracts could not be found: {', '.join(overlap)}"
+            )
         jobs = [job for job in jobs if job["contract_name"] in include]
 
     uuids = []
