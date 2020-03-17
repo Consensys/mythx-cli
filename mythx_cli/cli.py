@@ -306,7 +306,7 @@ def find_solidity_files(project_dir: str) -> Optional[List[str]]:
 
 
 def walk_solidity_files(
-    ctx, solc_version: str, base_path: Optional[str] = None
+    ctx, solc_version: str, base_path: Optional[str] = None, remappings: Tuple[str] = None
 ) -> List[Dict]:
     """Aggregate all Solidity files in the given base path.
 
@@ -317,10 +317,12 @@ def walk_solidity_files(
     :param ctx: :param ctx: Click context holding group-level parameters
     :param solc_version: The solc version to use for Solidity compilation
     :param base_path: The base path to walk through from
+    :param remappings: Import remappings to pass to solcx
     :return:
     """
 
     jobs = []
+    remappings = remappings or []
     walk_path = Path(base_path) if base_path else Path.cwd()
     files = find_solidity_files(walk_path)
     consent = ctx["yes"] or click.confirm(
@@ -330,7 +332,7 @@ def walk_solidity_files(
         sys.exit(0)
     LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
     for file in files:
-        jobs.extend(generate_solidity_payload(file, solc_version))
+        jobs.extend(generate_solidity_payload(file, solc_version, remappings))
     return jobs
 
 
@@ -396,6 +398,13 @@ def walk_solidity_files(
     help="The contract name(s) to submit to MythX",
     default=None,
 )
+@click.option(
+    "--remap-import",
+    type=click.STRING,
+    multiple=True,
+    help="Add a solc compilation import remapping",
+    default=None,
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -410,6 +419,7 @@ def analyze(
     swc_whitelist: str,
     solc_version: str,
     include: Tuple[str],
+    remap_import: Tuple[str]
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -427,6 +437,7 @@ def analyze(
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     :param solc_version: The solc version to use for Solidity compilation
     :param include: List of contract names to send - exclude everything else
+    :param remap_import: List of import remappings to pass on to solc
     :return:
     """
 
@@ -461,7 +472,7 @@ def analyze(
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
-            jobs = walk_solidity_files(ctx, solc_version)
+            jobs = walk_solidity_files(ctx=ctx, solc_version=solc_version, remappings=remap_import)
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -477,7 +488,7 @@ def analyze(
             elif Path(element).is_file() and Path(element).suffix == ".sol":
                 LOGGER.debug(f"Trying to interpret {element} as a solidity file")
                 jobs.extend(
-                    generate_solidity_payload(element, solc_version, contracts=suffix)
+                    generate_solidity_payload(file=element, version=solc_version, contracts=suffix, remappings=remap_import)
                 )
             elif Path(element).is_dir():
                 files = find_truffle_artifacts(Path(element))

@@ -3,7 +3,7 @@
 import logging
 import re
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import click
 import solcx
@@ -16,7 +16,7 @@ PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 
 def generate_solidity_payload(
-    file: str, version: Optional[str], contracts: List[str] = None
+    file: str, version: Optional[str], contracts: List[str] = None, remappings: Tuple[str] = None
 ) -> Dict:
     """Generate a MythX analysis request from a given Solidity file.
 
@@ -38,6 +38,7 @@ def generate_solidity_payload(
     :param file: The path pointing towards the Solidity file
     :param version: The solc version to use for compilation
     :param contracts: The contract name(s) to submit
+    :param remappings: Import remappings to pass to solcx
     :return: The payload dictionary to be sent to MythX
     """
 
@@ -76,7 +77,7 @@ def generate_solidity_payload(
                 "srcmap",
                 "srcmap-runtime",
             ),
-            import_remappings=[
+            import_remappings=remappings or [
                 f"openzeppelin-solidity/={cwd}/node_modules/openzeppelin-solidity/",
                 f"openzeppelin-zos/={cwd}/node_modules/openzeppelin-zos/",
                 f"zos-lib/={cwd}/node_modules/zos-lib/"
