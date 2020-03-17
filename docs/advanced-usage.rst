@@ -143,7 +143,7 @@ imported using
 in the solc call. These remappings are supported by the MythX CLI as well. Given some example Solidity
 imports that would make standard compilation fail:
 
-.. code-block::
+.. code-block:: text
 
     import "openzeppelin-zos/contracts/token/ERC721/ERC721Token.sol";
     import "openzeppelin-zos/contracts/token/ERC721/ERC721Receiver.sol";
@@ -160,7 +160,7 @@ This parameter can be defined multiple times to declare various import remapping
 of the same call. If no remappings are given, the MythX CLI tries to make the user's life as easy as
 possible by defining a set of remappings that should act as a sane default:
 
-.. code-block::
+.. code-block:: text
 
     openzeppelin-solidity/=<pwd>/node_modules/openzeppelin-solidity/
     openzeppelin-zos/=<pwd>/node_modules/openzeppelin-zos/
@@ -168,7 +168,7 @@ possible by defining a set of remappings that should act as a sane default:
 
 This does not affect relative imports such as
 
-.. code-block::
+.. code-block:: text
 
     import "../interfaces/MyInterface.sol";
 
