@@ -140,6 +140,18 @@ This will effectively whitelist the specified contract names and exclude every
 other contract from submission. Please note that this option is case sensitive.
 If a contract name cannot be found in the project, an error is thrown.
 
+Alternatively, if you are passing specific Solidity files as arguments to the
+:code:`analyze` subcommand, you can also specify the contract name to submit
+separated by a colon from the file path. E.g.
+
+.. code-block:: console
+
+    $ mythx analyze contracts/estate/EstateRegistry.sol:EstateRegistry
+
+If no contract name is given, all related contracts that produce bytecode (i.e.
+deployed for external calls or that is interherited from) will be submitted as
+separate analysis requests.
+
 
 Fetching the Analysis Status
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
