@@ -132,6 +132,50 @@ violations for testing purposes:
     $ mythx --ci analyze --swc-blacklist 110,123,103 my-project/
 
 
+Import Remapping and Relative Paths in solc
+-------------------------------------------
+
+When given one or more Solidity files as argument, the MythX CLI will try to compile them using solc to
+submit the resulting bytecode, AST, and source mappings. Especially in more complex smart contract systems,
+contract dependencies such as zOS and OpenZeppelin libraries are pulled in using NPM. These can then be
+imported using
+`import remappings <https://ethereum.stackexchange.com/questions/71222/importing-sol-files-from-an-node-modules-folder>`_
+in the solc call. These remappings are supported by the MythX CLI as well. Given some example Solidity
+imports that would make standard compilation fail:
+
+.. code-block::
+
+    import "openzeppelin-zos/contracts/token/ERC721/ERC721Token.sol";
+    import "openzeppelin-zos/contracts/token/ERC721/ERC721Receiver.sol";
+    import "openzeppelin-zos/contracts/ownership/Ownable.sol";
+
+These imports will have to be remapped. This can be done by passing the :code:`--remap-import` parameter
+to the :code:`analyze` call:
+
+    $ mythx analyze --remap-import "openzeppelin-zos/=$(pwd)/node_modules/openzeppelin-zos/" myContract.sol
+
+This parameter can be defined multiple times to declare various import remappings in the context
+of the same call. If no remappings are given, the MythX CLI tries to make the user's life as easy as
+possible by defining a set of remappings that should act as a sane default:
+
+.. code-block::
+
+    openzeppelin-solidity/=<pwd>/node_modules/openzeppelin-solidity/
+    openzeppelin-zos/=<pwd>/node_modules/openzeppelin-zos/
+    zos-lib/=<pwd>/node_modules/zos-lib
+
+This does not affect relative imports such as
+
+.. code-block::
+
+    import "../interfaces/MyInterface.sol";
+
+These are supported by default through the MythX CLI by adding the current working directory the
+call was made from to the allowed solc paths. Please note that if compilation fails on a relative
+import, the current working directory was not the project root that results in correct import
+resolution.
+
+
 Custom Report Rendering
 -----------------------
 

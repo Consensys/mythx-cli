@@ -353,7 +353,7 @@ def test_solidity_analyze_missing_version():
     with mock_context(), runner.isolated_filesystem():
         # initialize sample solidity file without pragma line
         with open("outdated.sol", "w+") as conf_f:
-            conf_f.write(SOLIDITY_CODE[1:])
+            conf_f.writelines(SOLIDITY_CODE.split("\n")[1:])
 
         result = runner.invoke(cli, ["analyze", "outdated.sol"])
 
@@ -366,7 +366,7 @@ def test_solidity_analyze_user_solc_version():
     with mock_context(), runner.isolated_filesystem():
         # initialize sample solidity file without pragma line
         with open("outdated.sol", "w+") as conf_f:
-            conf_f.write(SOLIDITY_CODE[1:])
+            conf_f.writelines(SOLIDITY_CODE.split("\n")[1:])
 
         result = runner.invoke(
             cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"]
