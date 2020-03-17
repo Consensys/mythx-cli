@@ -2,6 +2,15 @@
 History
 =======
 
+0.6.5 (2020-03-17)
+------------------
+
+- Add optional contract name specification for Solidity files
+- Revise usage and advanced usage docs for solc compilation
+- Add :code:`--remap-import` parameter for solc import remappings
+- Update :code:`coverage` to 5.0.4
+
+
 0.6.4 (2020-03-15)
 ------------------
 
