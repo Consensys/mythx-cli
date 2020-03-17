@@ -77,7 +77,9 @@ def generate_solidity_payload(
                 "srcmap-runtime",
             ),
             import_remappings=[
-                f"openzeppelin-solidity/={cwd}/node_modules/openzeppelin-solidity/"
+                f"openzeppelin-solidity/={cwd}/node_modules/openzeppelin-solidity/",
+                f"openzeppelin-zos/={cwd}/node_modules/openzeppelin-zos/",
+                f"zos-lib/={cwd}/node_modules/zos-lib/"
             ],
             allow_paths=cwd,
         )
