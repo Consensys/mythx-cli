@@ -5,7 +5,7 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union, Any
 
 import click
 import htmlmin
@@ -332,7 +332,7 @@ def walk_solidity_files(
         sys.exit(0)
     LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
     for file in files:
-        jobs.extend(generate_solidity_payload(file, solc_version, remappings))
+        jobs.append(generate_solidity_payload(file, solc_version, remappings))
     return jobs
 
 
@@ -452,7 +452,7 @@ def analyze(
         group_mw = GroupDataMiddleware(group_id=group_id, group_name=group_name)
         ctx["client"].handler.middlewares.append(group_mw)
 
-    jobs = []
+    jobs: List[Dict[str, Any]] = []
     include = list(include)
 
     if not target:
@@ -487,7 +487,7 @@ def analyze(
                 jobs.append(generate_bytecode_payload(element))
             elif Path(element).is_file() and Path(element).suffix == ".sol":
                 LOGGER.debug(f"Trying to interpret {element} as a solidity file")
-                jobs.extend(
+                jobs.append(
                     generate_solidity_payload(file=element, version=solc_version, contracts=suffix, remappings=remap_import)
                 )
             elif Path(element).is_dir():
@@ -498,7 +498,7 @@ def analyze(
                 else:
                     # recursively enumerate sol files if not a truffle project
                     jobs.extend(
-                        walk_solidity_files(ctx, solc_version, base_path=element)
+                        walk_solidity_files(ctx, solc_version, base_path=element, remappings=remap_import)
                     )
             else:
                 raise click.exceptions.UsageError(

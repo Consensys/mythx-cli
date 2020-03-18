@@ -96,27 +96,34 @@ def generate_solidity_payload(
         new_result[new_key] = value
     result = new_result
 
+    payload = {
+        "sources": {},
+        "solc_version": solc_version,
+    }
     for contract_name, contract_data in result.items():
-        if contracts and contract_name not in contracts:
-            continue
-
+        ast = contract_data["ast"]
+        source_path = str(Path(ast.get("attributes", {}).get("absolutePath")))
         creation_bytecode = contract_data["bin"]
         deployed_bytecode = contract_data["bin-runtime"]
         source_map = contract_data["srcmap"]
         deployed_source_map = contract_data["srcmap-runtime"]
-        ast = contract_data["ast"]
-        source_path = str(Path(ast.get("attributes", {}).get("absolutePath")))
         with open(source_path) as source_f:
             source = source_f.read()
 
-        yield {
+        # always add source and AST, even if dependency
+        payload["sources"][source_path] = {"source": source, "ast": ast}
+        if contracts and contract_name not in contracts:
+            continue
+
+        payload.update({
             "contract_name": contract_name,
             "main_source": source_path,
             "source_list": [source_path],
-            "sources": {source_path: {"source": source, "ast": ast}},
             "bytecode": patch_solc_bytecode(creation_bytecode),
             "source_map": zero_srcmap_indices(source_map),
             "deployed_source_map": zero_srcmap_indices(deployed_source_map),
             "deployed_bytecode": patch_solc_bytecode(deployed_bytecode),
             "solc_version": solc_version,
-        }
+        })
+
+    return payload
