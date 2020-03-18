@@ -9,7 +9,6 @@ import click
 
 from mythx_cli.payload import generate_solidity_payload
 
-
 RGLOB_BLACKLIST = ["node_modules"]
 LOGGER = logging.getLogger("mythx-cli")
 

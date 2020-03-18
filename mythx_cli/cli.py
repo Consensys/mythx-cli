@@ -2,16 +2,8 @@
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import click
-import htmlmin
-import jinja2
-from mythx_models.response import (
-    AnalysisInputResponse,
-    AnalysisStatusResponse,
-    DetectedIssuesResponse,
-)
 from pythx import Client, MythXAPIError
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -20,15 +12,13 @@ from mythx_cli.analysis.list import analysis_list
 from mythx_cli.analysis.report import analysis_report
 from mythx_cli.analysis.status import analysis_status
 from mythx_cli.analyze.command import analyze
-from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
+from mythx_cli.render.command import render
 from mythx_cli.util import write_or_print
-
-DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
-DEFAULT_MD_TEMPLATE = Path(__file__).parent / "templates/default.md"
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
@@ -163,6 +153,7 @@ def analysis() -> None:
 
 
 cli.add_command(analyze)
+cli.add_command(render)
 
 group.add_command(group_list)
 group.add_command(group_status)
@@ -172,174 +163,6 @@ group.add_command(group_close)
 analysis.add_command(analysis_status)
 analysis.add_command(analysis_list)
 analysis.add_command(analysis_report)
-
-
-def get_analysis_info(
-    client,
-    uuid: str,
-    min_severity: Optional[str],
-    swc_blacklist: Optional[List[str]],
-    swc_whitelist: Optional[List[str]],
-) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
-    """Fetch information related to the specified analysis job UUID.
-
-    Given a UUID, this function will query the MythX API for the
-    analysis status, the analysis' input data, and the issue report.
-    Furthermore, filtering parameters can be passed to remove certain
-    SWCs or severities from the returned report.
-    """
-
-    resp: DetectedIssuesResponse = client.report(uuid)
-    inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
-    status: AnalysisStatusResponse = client.status(uuid)
-    util.filter_report(
-        resp,
-        min_severity=min_severity,
-        swc_blacklist=swc_blacklist,
-        swc_whitelist=swc_whitelist,
-    )
-    # extend response with job UUID to keep formatter logic isolated
-    resp.uuid = uuid
-
-    return status, resp, inp
-
-
-@cli.command()
-@click.argument("target")
-@click.option(
-    "--template",
-    "-t",
-    "user_template",
-    type=click.Path(exists=True),
-    help="A custom report template",
-    default=None,
-)
-@click.option("--aesthetic", is_flag=True, default=False, hidden=True)
-@click.option(
-    "--markdown", is_flag=True, default=False, help="Render the report as Markdown"
-)
-@click.option(
-    "--min-severity",
-    type=click.STRING,
-    help="Ignore SWC IDs below the designated level",
-    default=None,
-)
-@click.option(
-    "--swc-blacklist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to ignore",
-    default=None,
-)
-@click.option(
-    "--swc-whitelist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to include",
-    default=None,
-)
-@click.pass_obj
-def render(
-    ctx,
-    target: str,
-    user_template: str,
-    aesthetic: bool,
-    markdown: bool,
-    min_severity: Optional[str],
-    swc_blacklist: Optional[List[str]],
-    swc_whitelist: Optional[List[str]],
-) -> None:
-    """Render an analysis job or group report as HTML.
-
-    \f
-    :param ctx: Click context holding group-level parameters
-    :param target: Group or analysis ID to fetch the data for
-    :param user_template: User-defined template string
-    :param aesthetic: DO NOT TOUCH IF YOU'RE BORING
-    :param markdown: Flag to render a markdown report
-    :param min_severity: Ignore SWC IDs below the designated level
-    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
-    :param swc_whitelist: A comma-separated list of SWC IDs to include
-    """
-
-    client: Client = ctx["client"]
-
-    default_template = DEFAULT_MD_TEMPLATE if markdown else DEFAULT_HTML_TEMPLATE
-    # enables user to include library templates in their own
-    template_dirs = [default_template.parent]
-
-    if user_template:
-        user_template = Path(user_template)
-        template_name = user_template.name
-        template_dirs.append(user_template.parent)
-    else:
-        template_name = default_template.name
-
-    env_kwargs = {
-        "trim_blocks": True,
-        "lstrip_blocks": True,
-        "keep_trailing_newline": True,
-    }
-    if not markdown:
-        env_kwargs = {
-            "trim_blocks": True,
-            "lstrip_blocks": True,
-            "keep_trailing_newline": True,
-        }
-        if aesthetic:
-            template_name = "aesthetic.html"
-
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs
-    )
-    template = env.get_template(template_name)
-
-    issues_list: List[
-        Tuple[
-            AnalysisStatusResponse,
-            DetectedIssuesResponse,
-            Optional[AnalysisInputResponse],
-        ]
-    ] = []
-    if len(target) == 24:
-        # identified group
-        list_resp = client.analysis_list(group_id=target)
-        offset = 0
-        while len(list_resp.analyses) < list_resp.total:
-            offset += len(list_resp.analyses)
-            list_resp.analyses.extend(
-                client.analysis_list(group_id=target, offset=offset)
-            )
-
-        for analysis_ in list_resp.analyses:
-            click.echo("Fetching report for analysis {}".format(analysis_.uuid))
-            status, resp, inp = get_analysis_info(
-                client=client,
-                uuid=analysis_.uuid,
-                min_severity=min_severity,
-                swc_blacklist=swc_blacklist,
-                swc_whitelist=swc_whitelist,
-            )
-            issues_list.append((status, resp, inp))
-    elif len(target) == 36:
-        # identified analysis UUID
-        click.echo("Fetching report for analysis {}".format(target))
-        status, resp, inp = get_analysis_info(
-            client=client,
-            uuid=target,
-            min_severity=min_severity,
-            swc_blacklist=swc_blacklist,
-            swc_whitelist=swc_whitelist,
-        )
-        issues_list.append((status, resp, inp))
-    else:
-        raise click.UsageError(
-            "Invalid target. Please provide a valid group or analysis job ID."
-        )
-
-    rendered = template.render(issues_list=issues_list, target=target)
-    if not markdown:
-        rendered = htmlmin.minify(rendered, remove_comments=True)
-
-    write_or_print(rendered, mode="w+")
 
 
 @cli.command()
