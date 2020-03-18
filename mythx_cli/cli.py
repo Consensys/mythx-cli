@@ -125,6 +125,11 @@ def cli(ctx, **kwargs) -> None:
             logging.getLogger(name).setLevel(logging.DEBUG)
 
 
+cli.add_command(analyze)
+cli.add_command(render)
+cli.add_command(version)
+
+
 @cli.group()
 def group() -> None:
     """Create, modify, and view analysis groups.
@@ -136,6 +141,12 @@ def group() -> None:
     or more group IDs.
     """
     pass
+
+
+group.add_command(group_list)
+group.add_command(group_status)
+group.add_command(group_open)
+group.add_command(group_close)
 
 
 @cli.group()
@@ -150,15 +161,6 @@ def analysis() -> None:
     """
     pass
 
-
-cli.add_command(analyze)
-cli.add_command(render)
-cli.add_command(version)
-
-group.add_command(group_list)
-group.add_command(group_status)
-group.add_command(group_open)
-group.add_command(group_close)
 
 analysis.add_command(analysis_status)
 analysis.add_command(analysis_list)
