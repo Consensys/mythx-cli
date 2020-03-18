@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mythx_cli.cli import sanitize_paths
+from mythx_cli.analyze.util import sanitize_paths
 
 CWD = "/home/user/work/project"
 FILE_1 = "test-1.sol"
