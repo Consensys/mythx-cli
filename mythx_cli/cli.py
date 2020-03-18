@@ -22,6 +22,9 @@ from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
 from mythx_cli import __version__
+from mythx_cli.analysis.list import analysis_list
+from mythx_cli.analysis.report import analysis_report
+from mythx_cli.analysis.status import analysis_status
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.group.close import group_close
@@ -559,127 +562,14 @@ def analyze(
     sys.exit(ctx["retval"])
 
 
-@analysis.command("status")
-@click.argument("uuids", default=None, nargs=-1)
-@click.pass_obj
-def analysis_status(ctx, uuids: List[str]) -> None:
-    """Get the status of an already submitted analysis.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param uuids: A list of job UUIDs to fetch the status for
-    """
-    for uuid in uuids:
-        resp = ctx["client"].status(uuid)
-        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
-
-
 group.add_command(group_list)
 group.add_command(group_status)
 group.add_command(group_open)
 group.add_command(group_close)
 
-
-@analysis.command("list")
-@click.option(
-    "--number",
-    default=5,
-    type=click.IntRange(min=1, max=100),  # ~ 5 requests à 20 entries
-    show_default=True,
-    help="The number of most recent analysis jobs to display",
-)
-@click.pass_obj
-def analysis_list(ctx, number: int) -> None:
-    """Get a list of submitted analyses.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param number: The number of analysis jobs to display
-    :return:
-    """
-
-    result = AnalysisListResponse(analyses=[], total=0)
-    offset = 0
-    while True:
-        resp = ctx["client"].analysis_list(offset=offset)
-        if not resp.analyses:
-            break
-        offset += len(resp.analyses)
-        result.analyses.extend(resp.analyses)
-        if len(result.analyses) >= number:
-            break
-
-    # trim result to desired result number
-    LOGGER.debug(resp.total)
-    result = AnalysisListResponse(analyses=result[:number], total=resp.total)
-    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))
-
-
-@analysis.command("report")
-@click.argument("uuids", default=None, nargs=-1)
-@click.option(
-    "--min-severity",
-    type=click.Choice(["low", "medium", "high"]),
-    help="Ignore SWC IDs below the designated level",
-    default=None,
-)
-@click.option(
-    "--swc-blacklist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to ignore",
-    default=None,
-)
-@click.option(
-    "--swc-whitelist",
-    type=click.STRING,
-    help="A comma-separated list of SWC IDs to include",
-    default=None,
-)
-@click.pass_obj
-def analysis_report(
-    ctx,
-    uuids: List[str],
-    min_severity: Optional[str],
-    swc_blacklist: Optional[List[str]],
-    swc_whitelist: Optional[List[str]],
-) -> None:
-    """Fetch the report for a single or multiple job UUIDs.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param uuids: List of UUIDs to display the report for
-    :param min_severity: Ignore SWC IDs below the designated level
-    :param swc_blacklist: A comma-separated list of SWC IDs to ignore
-    :param swc_whitelist: A comma-separated list of SWC IDs to include
-    :return:
-    """
-
-    issues_list: List[
-        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
-    ] = []
-    formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
-    for uuid in uuids:
-        resp = ctx["client"].report(uuid)
-        inp = (
-            ctx["client"].request_by_uuid(uuid)
-            if formatter.report_requires_input
-            else None
-        )
-
-        util.filter_report(
-            resp,
-            min_severity=min_severity,
-            swc_blacklist=swc_blacklist,
-            swc_whitelist=swc_whitelist,
-        )
-        resp.uuid = uuid
-        issues_list.append((resp, inp))
-
-    write_or_print(formatter.format_detected_issues(issues_list))
-    sys.exit(ctx["retval"])
+analysis.add_command(analysis_status)
+analysis.add_command(analysis_list)
+analysis.add_command(analysis_report)
 
 
 def get_analysis_info(
