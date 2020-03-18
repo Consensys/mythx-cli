@@ -16,7 +16,10 @@ PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 
 
 def generate_solidity_payload(
-    file: str, version: Optional[str], contracts: List[str] = None, remappings: Tuple[str] = None
+    file: str,
+    version: Optional[str],
+    contracts: List[str] = None,
+    remappings: Tuple[str] = None,
 ) -> Dict:
     """Generate a MythX analysis request from a given Solidity file.
 
@@ -77,10 +80,11 @@ def generate_solidity_payload(
                 "srcmap",
                 "srcmap-runtime",
             ),
-            import_remappings=remappings or [
+            import_remappings=remappings
+            or [
                 f"openzeppelin-solidity/={cwd}/node_modules/openzeppelin-solidity/",
                 f"openzeppelin-zos/={cwd}/node_modules/openzeppelin-zos/",
-                f"zos-lib/={cwd}/node_modules/zos-lib/"
+                f"zos-lib/={cwd}/node_modules/zos-lib/",
             ],
             allow_paths=cwd,
         )
@@ -96,10 +100,7 @@ def generate_solidity_payload(
         new_result[new_key] = value
     result = new_result
 
-    payload = {
-        "sources": {},
-        "solc_version": solc_version,
-    }
+    payload = {"sources": {}, "solc_version": solc_version}
 
     bytecode_max = 0
     for contract_name, contract_data in result.items():
@@ -114,20 +115,23 @@ def generate_solidity_payload(
 
         # always add source and AST, even if dependency
         payload["sources"][source_path] = {"source": source, "ast": ast}
-        if (contracts and contract_name not in contracts) or \
-           (not contracts and len(creation_bytecode) < bytecode_max):
+        if (contracts and contract_name not in contracts) or (
+            not contracts and len(creation_bytecode) < bytecode_max
+        ):
             continue
 
         bytecode_max = len(creation_bytecode)
-        payload.update({
-            "contract_name": contract_name,
-            "main_source": source_path,
-            "source_list": [source_path],
-            "bytecode": patch_solc_bytecode(creation_bytecode),
-            "source_map": zero_srcmap_indices(source_map),
-            "deployed_source_map": zero_srcmap_indices(deployed_source_map),
-            "deployed_bytecode": patch_solc_bytecode(deployed_bytecode),
-            "solc_version": solc_version,
-        })
+        payload.update(
+            {
+                "contract_name": contract_name,
+                "main_source": source_path,
+                "source_list": [source_path],
+                "bytecode": patch_solc_bytecode(creation_bytecode),
+                "source_map": zero_srcmap_indices(source_map),
+                "deployed_source_map": zero_srcmap_indices(deployed_source_map),
+                "deployed_bytecode": patch_solc_bytecode(deployed_bytecode),
+                "solc_version": solc_version,
+            }
+        )
 
     return payload

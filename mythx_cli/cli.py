@@ -5,7 +5,7 @@ import time
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import click
 import htmlmin
@@ -16,7 +16,6 @@ from mythx_models.response import (
     AnalysisStatusResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
-    GroupListResponse,
 )
 from pythx import Client, MythXAPIError
 from pythx.middleware.group_data import GroupDataMiddleware
@@ -25,35 +24,22 @@ from pythx.middleware.toolname import ClientToolNameMiddleware
 from mythx_cli import __version__
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.group.close import group_close
+from mythx_cli.group.list import group_list
+from mythx_cli.group.open import group_open
+from mythx_cli.group.status import group_status
 from mythx_cli.payload import (
     generate_bytecode_payload,
     generate_solidity_payload,
     generate_truffle_payload,
 )
+from mythx_cli.util import write_or_print
 
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
 DEFAULT_MD_TEMPLATE = Path(__file__).parent / "templates/default.md"
 RGLOB_BLACKLIST = ["node_modules"]
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
-
-
-@click.pass_obj
-def write_or_print(ctx, data: str, mode="a+") -> None:
-    """Depending on the context, write the given content to stdout or a given
-    file.
-
-    :param ctx: Click context holding group-level parameters
-    :param data: The data to print or write to a file
-    :param mode: The mode to open the file in (if file output enabled)
-    :return:
-    """
-
-    if not ctx["output"]:
-        click.echo(data)
-        return
-    with open(ctx["output"], mode) as outfile:
-        outfile.write(data + "\n")
 
 
 class APIErrorCatcherGroup(click.Group):
@@ -306,7 +292,10 @@ def find_solidity_files(project_dir: str) -> Optional[List[str]]:
 
 
 def walk_solidity_files(
-    ctx, solc_version: str, base_path: Optional[str] = None, remappings: Tuple[str] = None
+    ctx,
+    solc_version: str,
+    base_path: Optional[str] = None,
+    remappings: Tuple[str] = None,
 ) -> List[Dict]:
     """Aggregate all Solidity files in the given base path.
 
@@ -419,7 +408,7 @@ def analyze(
     swc_whitelist: str,
     solc_version: str,
     include: Tuple[str],
-    remap_import: Tuple[str]
+    remap_import: Tuple[str],
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -472,7 +461,9 @@ def analyze(
                 jobs.append(generate_truffle_payload(file))
 
         elif list(glob("*.sol")):
-            jobs = walk_solidity_files(ctx=ctx, solc_version=solc_version, remappings=remap_import)
+            jobs = walk_solidity_files(
+                ctx=ctx, solc_version=solc_version, remappings=remap_import
+            )
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -488,7 +479,12 @@ def analyze(
             elif Path(element).is_file() and Path(element).suffix == ".sol":
                 LOGGER.debug(f"Trying to interpret {element} as a solidity file")
                 jobs.append(
-                    generate_solidity_payload(file=element, version=solc_version, contracts=suffix, remappings=remap_import)
+                    generate_solidity_payload(
+                        file=element,
+                        version=solc_version,
+                        contracts=suffix,
+                        remappings=remap_import,
+                    )
                 )
             elif Path(element).is_dir():
                 files = find_truffle_artifacts(Path(element))
@@ -498,7 +494,12 @@ def analyze(
                 else:
                     # recursively enumerate sol files if not a truffle project
                     jobs.extend(
-                        walk_solidity_files(ctx, solc_version, base_path=element, remappings=remap_import)
+                        walk_solidity_files(
+                            ctx,
+                            solc_version,
+                            base_path=element,
+                            remappings=remap_import,
+                        )
                     )
             else:
                 raise click.exceptions.UsageError(
@@ -574,99 +575,10 @@ def analysis_status(ctx, uuids: List[str]) -> None:
         write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))
 
 
-@group.command("list")
-@click.option(
-    "--number",
-    default=5,
-    type=click.IntRange(min=1, max=100),  # ~ 5 requests à 20 entries
-    show_default=True,
-    help="The number of most recent groups to display",
-)
-@click.pass_obj
-def group_list(ctx, number: int) -> None:
-    """Get a list of analysis groups.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param number: The number of analysis groups to display
-    :return:
-    """
-
-    client: Client = ctx["client"]
-    result = GroupListResponse(groups=[], total=0)
-    offset = 0
-    while True:
-        resp = client.group_list(offset=offset)
-        if not resp.groups:
-            break
-        offset += len(resp.groups)
-        result.groups.extend(resp.groups)
-        if len(result.groups) >= number:
-            break
-
-    # trim result to desired result number
-    LOGGER.debug(resp.total)
-    result = GroupListResponse(groups=result[:number], total=resp.total)
-    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
-
-
-@group.command("status")
-@click.argument("gids", default=None, nargs=-1)
-@click.pass_obj
-def group_status(ctx, gids: List[str]) -> None:
-    """Get the status of an analysis group.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param gids: A list of group IDs to fetch the status for
-    """
-
-    for gid in gids:
-        resp = ctx["client"].group_status(group_id=gid)
-        write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_status(resp))
-
-
-@group.command("open")
-@click.argument("name", default="", nargs=1)
-@click.pass_obj
-def group_open(ctx, name: str) -> None:
-    """Create a new group to assign future analyses to.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param name: The name of the group to be created (autogenerated if empty)
-    """
-
-    resp: GroupCreationResponse = ctx["client"].create_group(group_name=name)
-    write_or_print(
-        "Opened group with ID {} and name '{}'".format(
-            resp.group.identifier, resp.group.name
-        )
-    )
-
-
-@group.command("close")
-@click.argument("identifiers", nargs=-1, required=True)
-@click.pass_obj
-def group_close(ctx, identifiers: List[str]) -> None:
-    """Close/seal an existing group.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :param identifiers: The group ID(s) to seal
-    """
-
-    for identifier in identifiers:
-        resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
-        write_or_print(
-            "Closed group with ID {} and name '{}'".format(
-                resp.group.identifier, resp.group.name
-            )
-        )
+group.add_command(group_list)
+group.add_command(group_status)
+group.add_command(group_open)
+group.add_command(group_close)
 
 
 @analysis.command("list")
