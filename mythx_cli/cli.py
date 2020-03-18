@@ -1,7 +1,6 @@
 """The main runtime of the MythX CLI."""
 import logging
 import sys
-from pathlib import Path
 
 import click
 from pythx import Client, MythXAPIError
@@ -18,7 +17,7 @@ from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
 from mythx_cli.render.command import render
-from mythx_cli.util import write_or_print
+from mythx_cli.version.command import version
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
@@ -154,6 +153,7 @@ def analysis() -> None:
 
 cli.add_command(analyze)
 cli.add_command(render)
+cli.add_command(version)
 
 group.add_command(group_list)
 group.add_command(group_status)
@@ -163,21 +163,6 @@ group.add_command(group_close)
 analysis.add_command(analysis_status)
 analysis.add_command(analysis_list)
 analysis.add_command(analysis_report)
-
-
-@cli.command()
-@click.pass_obj
-def version(ctx) -> None:
-    """Display API version information.
-
-    \f
-
-    :param ctx: Click context holding group-level parameters
-    :return:
-    """
-
-    resp = ctx["client"].version()
-    write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))
 
 
 if __name__ == "__main__":
