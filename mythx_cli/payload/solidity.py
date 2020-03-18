@@ -100,6 +100,8 @@ def generate_solidity_payload(
         "sources": {},
         "solc_version": solc_version,
     }
+
+    bytecode_max = 0
     for contract_name, contract_data in result.items():
         ast = contract_data["ast"]
         source_path = str(Path(ast.get("attributes", {}).get("absolutePath")))
@@ -112,9 +114,11 @@ def generate_solidity_payload(
 
         # always add source and AST, even if dependency
         payload["sources"][source_path] = {"source": source, "ast": ast}
-        if contracts and contract_name not in contracts:
+        if (contracts and contract_name not in contracts) or \
+           (not contracts and len(creation_bytecode) < bytecode_max):
             continue
 
+        bytecode_max = len(creation_bytecode)
         payload.update({
             "contract_name": contract_name,
             "main_source": source_path,
