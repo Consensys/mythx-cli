@@ -41,29 +41,48 @@ def sanitize_paths(job: Dict) -> Dict:
     if not source_list:
         # triggers on None and empty list
         # if no source list is given, we are analyzing bytecode only
+        LOGGER.debug("Job does not contain source list - skipping sanitization")
         return job
+
+    LOGGER.debug("Converting source list items to absolute paths for trimming")
     source_list = [abspath(s) for s in source_list]
     if len(source_list) > 1:
         # get common path prefix and remove it
+        LOGGER.debug("More than one source list item detected - trimming common prefix")
         prefix = commonpath(source_list) + "/"
     else:
         # fallback: replace with CWD and get common prefix
+        LOGGER.debug("One source list item detected - trimming by CWD prefix")
         prefix = commonpath(source_list + [str(Path.cwd())]) + "/"
 
-    job["source_list"] = [s.replace(prefix, "") for s in source_list]
+    LOGGER.debug(f"Trimming source list: {', '.join(source_list)}")
+    sanitized_source_list = [s.replace(prefix, "") for s in source_list]
+    job["source_list"] = sanitized_source_list
+    LOGGER.debug(f"Trimmed source list: {', '.join(sanitized_source_list)}")
     if job.get("main_source") is not None:
+        LOGGER.debug(f"Trimming main source path {job['main_source']}")
         job["main_source"] = job["main_source"].replace(prefix, "")
+        LOGGER.debug(f"Trimmed main source path {job['main_source']}")
     for name in list(job.get("sources", {})):
         data = job["sources"].pop(name)
         # sanitize AST data in compiler output
         for ast_key in ("ast", "legacyAST"):
+            LOGGER.debug(f"Sanitizing AST key '{ast_key}'")
             if not (data.get(ast_key) and data[ast_key].get("absolutePath")):
+                LOGGER.debug(
+                    f"Skipping sanitization: {ast_key} -> absolutePath not defined"
+                )
                 continue
             sanitized_absolute = data[ast_key]["absolutePath"].replace(prefix, "")
+            LOGGER.debug(
+                f"Setting sanitized {ast_key} -> absolutePath to {sanitized_absolute}"
+            )
             data[ast_key]["absolutePath"] = sanitized_absolute
 
         # replace source key names
-        job["sources"][name.replace(prefix, "")] = data
+        sanitized_source_name = name.replace(prefix, "")
+        LOGGER.debug(f"Setting sanitized source name {sanitized_source_name}")
+        job["sources"][sanitized_source_name] = data
 
     return job
 
@@ -81,21 +100,38 @@ def is_valid_job(job) -> bool:
     """
 
     filter_values = ("", "0x", None)
-    if all(
-        (
-            job.get("bytecode") in filter_values,
-            job.get("source_map") in filter_values,
-            job.get("deployed_source_map") in filter_values,
-            job.get("deployed_bytecode") in filter_values,
+    valid = True
+    if len(job.keys()) == 1 and job.get("bytecode") not in filter_values:
+        LOGGER.debug("Skipping validation for bytecode-only analysis")
+    elif job.get("bytecode") in filter_values:
+        LOGGER.debug(f"Invalid job because bytecode is {job.get('bytecode')}")
+        valid = False
+    elif job.get("source_map") in filter_values:
+        LOGGER.debug(f"Invalid job because source map is {job.get('source_map')}")
+        valid = False
+    elif job.get("deployed_source_map") in filter_values:
+        LOGGER.debug(
+            f"Invalid job because deployed source map is {job.get('deployed_source_map')}"
         )
-    ):
+        valid = False
+    elif job.get("deployed_bytecode") in filter_values:
+        LOGGER.debug(
+            f"Invalid job because deployed bytecode is {job.get('deployed_bytecode')}"
+        )
+        valid = False
+    elif not job.get("contract_name"):
+        LOGGER.debug(f"Invalid job because contract name is {job.get('contract_name')}")
+        valid = False
+
+    if not valid:
+        # notify user
         click.echo(
             "Skipping submission for contract {} because no bytecode was produced.".format(
-                job["contract_name"]
+                job.get("contract_name")
             )
         )
-        return True
-    return False
+
+    return valid
 
 
 def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
@@ -112,8 +148,10 @@ def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]
     output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
     artifact_files = list(glob(str(output_pattern.absolute())))
     if not artifact_files:
+        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
         return None
 
+    LOGGER.debug("Returning results without Migrations.json")
     return [f for f in artifact_files if not f.endswith("Migrations.json")]
 
 
@@ -129,8 +167,10 @@ def find_solidity_files(project_dir: str) -> Optional[List[str]]:
     output_pattern = Path(project_dir)
     artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
     if not artifact_files:
+        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
         return None
 
+    LOGGER.debug(f"Filtering results by rglob blacklist {RGLOB_BLACKLIST}")
     return [af for af in artifact_files if all((b not in af for b in RGLOB_BLACKLIST))]
 
 
@@ -155,14 +195,18 @@ def walk_solidity_files(
 
     jobs = []
     remappings = remappings or []
+    LOGGER.debug(f"Received {len(remappings)} import remappings")
     walk_path = Path(base_path) if base_path else Path.cwd()
+    LOGGER.debug(f"Walking for sol files under {walk_path}")
     files = find_solidity_files(walk_path)
     consent = ctx["yes"] or click.confirm(
-        "Do you really want to submit {} Solidity files?".format(len(files))
+        "Found {} Solidity file(s) before filtering. Continue?".format(len(files))
     )
     if not consent:
+        LOGGER.debug("User consent not given - exiting")
         sys.exit(0)
-    LOGGER.debug("Found Solidity files to submit:\n{}".format("\n".join(files)))
+    LOGGER.debug(f"Found Solidity files to submit: {', '.join(files)}")
     for file in files:
+        LOGGER.debug(f"Generating Solidity payload for {file}")
         jobs.append(generate_solidity_payload(file, solc_version, remappings))
     return jobs

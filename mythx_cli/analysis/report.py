@@ -1,3 +1,4 @@
+import logging
 import sys
 from typing import List, Optional, Tuple
 
@@ -7,6 +8,8 @@ from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 @click.command("report")
@@ -54,13 +57,16 @@ def analysis_report(
     ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
+        LOGGER.debug(f"{uuid}: Fetching report")
         resp = ctx["client"].report(uuid)
+        LOGGER.debug(f"{uuid}: Fetching input")
         inp = (
             ctx["client"].request_by_uuid(uuid)
             if formatter.report_requires_input
             else None
         )
 
+        LOGGER.debug(f"{uuid}: Applying SWC filters")
         util.filter_report(
             resp,
             min_severity=min_severity,
@@ -70,5 +76,6 @@ def analysis_report(
         resp.uuid = uuid
         issues_list.append((resp, inp))
 
+    LOGGER.debug(f"{uuid}: Printing report for {len(issues_list)} issue items")
     write_or_print(formatter.format_detected_issues(issues_list))
     sys.exit(ctx["retval"])

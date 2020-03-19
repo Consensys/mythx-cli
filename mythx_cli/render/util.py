@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional, Tuple
 
 from mythx_models.response import (
@@ -7,6 +8,8 @@ from mythx_models.response import (
 )
 
 from mythx_cli.formatter import util
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 def get_analysis_info(
@@ -24,9 +27,14 @@ def get_analysis_info(
     SWCs or severities from the returned report.
     """
 
+    LOGGER.debug(f"{uuid}: Fetching report")
     resp: DetectedIssuesResponse = client.report(uuid)
+    LOGGER.debug(f"{uuid}: Fetching input")
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
+    LOGGER.debug(f"{uuid}: Fetching status")
     status: AnalysisStatusResponse = client.status(uuid)
+
+    LOGGER.debug(f"{uuid}: Applying SWC filters")
     util.filter_report(
         resp,
         min_severity=min_severity,

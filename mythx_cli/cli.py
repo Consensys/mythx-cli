@@ -39,6 +39,7 @@ class APIErrorCatcherGroup(click.Group):
         try:
             return self.main(*args, **kwargs)
         except MythXAPIError as exc:
+            LOGGER.debug("Caught API error")
             click.echo("The API returned an error:\n{}".format(exc))
             sys.exit(1)
 
@@ -103,10 +104,13 @@ def cli(ctx, **kwargs) -> None:
 
     ctx.obj = dict(kwargs)
     ctx.obj["retval"] = 0
+    LOGGER.debug(f"Initializing tool name middleware with {__version__}")
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
     if kwargs["api_key"] is not None:
+        LOGGER.debug("Initializing client with API key")
         ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
     elif kwargs["username"] and kwargs["password"]:
+        LOGGER.debug("Initializing client with username and password")
         ctx.obj["client"] = Client(
             username=kwargs["username"],
             password=kwargs["password"],
@@ -125,6 +129,7 @@ def cli(ctx, **kwargs) -> None:
             logging.getLogger(name).setLevel(logging.DEBUG)
 
 
+LOGGER.debug("Registering main commands")
 cli.add_command(analyze)
 cli.add_command(render)
 cli.add_command(version)
@@ -143,6 +148,7 @@ def group() -> None:
     pass
 
 
+LOGGER.debug("Registering group commands")
 group.add_command(group_list)
 group.add_command(group_status)
 group.add_command(group_open)
@@ -162,6 +168,7 @@ def analysis() -> None:
     pass
 
 
+LOGGER.debug("Registering analysis commands")
 analysis.add_command(analysis_status)
 analysis.add_command(analysis_list)
 analysis.add_command(analysis_report)

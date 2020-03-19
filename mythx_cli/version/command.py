@@ -1,7 +1,11 @@
+import logging
+
 import click
 
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.util import write_or_print
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 @click.command()
@@ -15,5 +19,6 @@ def version(ctx) -> None:
     :return:
     """
 
+    LOGGER.debug("Fetching version information")
     resp = ctx["client"].version()
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_version(resp))

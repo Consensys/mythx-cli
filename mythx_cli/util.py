@@ -1,4 +1,8 @@
+import logging
+
 import click
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 @click.pass_obj
@@ -13,7 +17,9 @@ def write_or_print(ctx, data: str, mode="a+") -> None:
     """
 
     if not ctx["output"]:
+        LOGGER.debug("Writing data to stdout")
         click.echo(data)
         return
     with open(ctx["output"], mode) as outfile:
+        LOGGER.debug(f"Writing data to {ctx['output']}")
         outfile.write(data + "\n")
