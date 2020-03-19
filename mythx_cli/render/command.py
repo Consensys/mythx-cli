@@ -77,7 +77,8 @@ def render(
     """
 
     client: Client = ctx["client"]
-
+    # normalize target
+    target = target.lower()
     default_template = DEFAULT_MD_TEMPLATE if markdown else DEFAULT_HTML_TEMPLATE
     # enables user to include library templates in their own
     template_dirs = [default_template.parent]
