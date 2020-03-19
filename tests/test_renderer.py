@@ -6,8 +6,8 @@ from mythx_cli.cli import cli
 
 from .common import get_test_case, mock_context
 
-TEST_GROUP_ID = "5E36AE133FB6020011A6B13C"
-TEST_ANALYSIS_ID = "EBE5E298-B998-4B82-BA3E-E922CB0A43C4"
+TEST_GROUP_ID = "5e36ae133fb6020011a6b13c"
+TEST_ANALYSIS_ID = "ebe5e298-b998-4b82-ba3e-e922cb0a43c4"
 INPUT_RESPONSE: AnalysisInputResponse = get_test_case(
     "testdata/analysis-input-response.json", AnalysisInputResponse
 )
