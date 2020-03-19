@@ -2,6 +2,16 @@
 History
 =======
 
+0.6.6 (2020-03-19)
+------------------
+
+- Refactor commands into dedicated packages
+- Fix bug where click commands were not picked up by autodoc
+- Fix bug where :code:`render` command log cluttered report stdout
+- Add support for upper case targets in :code:`render` command
+- Add more verbose debug logging across package
+
+
 0.6.5 (2020-03-17)
 ------------------
 
