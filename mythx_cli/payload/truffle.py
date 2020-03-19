@@ -1,9 +1,12 @@
 """This module contains functions to generate payloads for Truffle projects."""
 
 import json
+import logging
 from typing import Any, Dict
 
 from mythx_cli.payload.util import patch_truffle_bytecode, zero_srcmap_indices
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 def generate_truffle_payload(file: str) -> Dict[str, Any]:
@@ -29,6 +32,7 @@ def generate_truffle_payload(file: str) -> Dict[str, Any]:
 
     with open(file) as af:
         artifact = json.load(af)
+        LOGGER.debug(f"Loaded Truffle artifact with {len(artifact)} keys")
 
     return {
         "contract_name": artifact.get("contractName"),

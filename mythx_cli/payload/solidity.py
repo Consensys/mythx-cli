@@ -97,6 +97,7 @@ def generate_solidity_payload(
     new_result = {}
     for key, value in result.items():
         new_key = key.split(":")[1]
+        LOGGER.debug(f"Sanitizing solc key {key} -> {new_key}")
         new_result[new_key] = value
     result = new_result
 
@@ -112,15 +113,18 @@ def generate_solidity_payload(
         deployed_source_map = contract_data["srcmap-runtime"]
         with open(source_path) as source_f:
             source = source_f.read()
+            LOGGER.debug(f"Loaded contract source with {len(source)} characters")
 
         # always add source and AST, even if dependency
         payload["sources"][source_path] = {"source": source, "ast": ast}
         if (contracts and contract_name not in contracts) or (
             not contracts and len(creation_bytecode) < bytecode_max
         ):
+            LOGGER.debug(f"Found dependency contract {contract_name} - continung")
             continue
 
         bytecode_max = len(creation_bytecode)
+        LOGGER.debug(f"Updaing main payload for {contract_name}")
         payload.update(
             {
                 "contract_name": contract_name,

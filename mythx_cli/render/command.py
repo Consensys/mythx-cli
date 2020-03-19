@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import List, Optional, Tuple
 
@@ -14,6 +15,7 @@ from pythx import Client
 from mythx_cli.render.util import get_analysis_info
 from mythx_cli.util import write_or_print
 
+LOGGER = logging.getLogger("mythx-cli")
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
 DEFAULT_MD_TEMPLATE = Path(__file__).parent / "templates/default.md"
 
@@ -81,10 +83,12 @@ def render(
     template_dirs = [default_template.parent]
 
     if user_template:
+        LOGGER.debug(f"Received user-defined template at {user_template}")
         user_template = Path(user_template)
         template_name = user_template.name
         template_dirs.append(user_template.parent)
     else:
+        LOGGER.debug(f"Using default template {default_template.name}")
         template_name = default_template.name
 
     env_kwargs = {
@@ -99,8 +103,10 @@ def render(
             "keep_trailing_newline": True,
         }
         if aesthetic:
+            LOGGER.debug(f"Overwriting template to go A E S T H E T I C")
             template_name = "aesthetic.html"
 
+    LOGGER.debug("Initializing Jinja environment")
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs
     )
@@ -114,27 +120,29 @@ def render(
         ]
     ] = []
     if len(target) == 24:
-        # identified group
+        LOGGER.debug(f"Identified group target {target}")
         list_resp = client.analysis_list(group_id=target)
         offset = 0
+
+        LOGGER.debug(f"Fetching analyses in group {target}")
         while len(list_resp.analyses) < list_resp.total:
             offset += len(list_resp.analyses)
             list_resp.analyses.extend(
                 client.analysis_list(group_id=target, offset=offset)
             )
 
-        for analysis_ in list_resp.analyses:
-            click.echo("Fetching report for analysis {}".format(analysis_.uuid))
+        for analysis in list_resp.analyses:
+            click.echo("Fetching report for analysis {}".format(analysis.uuid))
             status, resp, inp = get_analysis_info(
                 client=client,
-                uuid=analysis_.uuid,
+                uuid=analysis.uuid,
                 min_severity=min_severity,
                 swc_blacklist=swc_blacklist,
                 swc_whitelist=swc_whitelist,
             )
             issues_list.append((status, resp, inp))
     elif len(target) == 36:
-        # identified analysis UUID
+        LOGGER.debug(f"Identified analysis target {target}")
         click.echo("Fetching report for analysis {}".format(target))
         status, resp, inp = get_analysis_info(
             client=client,
@@ -145,12 +153,15 @@ def render(
         )
         issues_list.append((status, resp, inp))
     else:
+        LOGGER.debug(f"Could not identify target with length {len(target)}")
         raise click.UsageError(
             "Invalid target. Please provide a valid group or analysis job ID."
         )
 
+    LOGGER.debug(f"Rendering template for {len(issues_list)} issues")
     rendered = template.render(issues_list=issues_list, target=target)
     if not markdown:
+        LOGGER.debug(f"Minifying HTML report")
         rendered = htmlmin.minify(rendered, remove_comments=True)
 
     write_or_print(rendered, mode="w+")

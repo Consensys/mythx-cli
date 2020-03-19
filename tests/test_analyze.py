@@ -15,7 +15,7 @@ from mythx_cli.cli import cli
 
 from .common import get_test_case, mock_context
 
-FORMAT_ERROR = "Could not interpret argument lolwut as bytecode or Solidity file"
+FORMAT_ERROR = "Could not interpret argument lolwut as bytecode, Solidity file, or Truffle project"
 SUBMISSION_RESPONSE = get_test_case(
     "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
 )
@@ -263,7 +263,7 @@ def test_exit_on_missing_consent():
         result = runner.invoke(cli, ["analyze"], input="n\n")
 
         assert (
-            result.output == "Do you really want to submit 1 Solidity files? [y/N]: n\n"
+            result.output == "Found 1 Solidity file(s) before filtering. Continue? [y/N]: n\n"
         )
         assert result.exit_code == 0
 
@@ -394,7 +394,7 @@ def test_truffle_analyze_blocking_ci():
         with open("build/contracts/foo.json", "w+") as artifact_f:
             json.dump(TRUFFLE_ARTIFACT, artifact_f)
 
-        result = runner.invoke(cli, ["--ci", "analyze"])
+        result = runner.invoke(cli, ["--debug", "--ci", "analyze"])
 
         assert "Assert Violation" in result.output
         assert INPUT_RESPONSE.source_list[0] in result.output

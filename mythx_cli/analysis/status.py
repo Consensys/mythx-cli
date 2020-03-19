@@ -1,9 +1,12 @@
+import logging
 from typing import List
 
 import click
 
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.util import write_or_print
+
+LOGGER = logging.getLogger("mythx-cli")
 
 
 @click.command("status")
@@ -18,5 +21,7 @@ def analysis_status(ctx, uuids: List[str]) -> None:
     :param uuids: A list of job UUIDs to fetch the status for
     """
     for uuid in uuids:
+        LOGGER.debug(f"{uuid}: Fetching status")
         resp = ctx["client"].status(uuid)
+        LOGGER.debug(f"{uuid}: Printing status information")
         write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))

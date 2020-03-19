@@ -33,14 +33,18 @@ def group_list(ctx, number: int) -> None:
     result = GroupListResponse(groups=[], total=0)
     offset = 0
     while True:
+        LOGGER.debug(f"Fetching groups with offset {offset}")
         resp = client.group_list(offset=offset)
         if not resp.groups:
+            LOGGER.debug("Received empty group list response")
             break
         offset += len(resp.groups)
         result.groups.extend(resp.groups)
         if len(result.groups) >= number:
+            LOGGER.debug(f"Received {len(result.groups)} groups")
             break
 
     # trim result to desired result number
+    LOGGER.debug(f"Got {len(result.groups)} analyses, trimming to {number}")
     result = GroupListResponse(groups=result[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))
