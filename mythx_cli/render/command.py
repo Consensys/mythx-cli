@@ -132,7 +132,7 @@ def render(
             )
 
         for analysis in list_resp.analyses:
-            click.echo("Fetching report for analysis {}".format(analysis.uuid))
+            click.echo("Fetching report for analysis {}".format(analysis.uuid), err=True)
             status, resp, inp = get_analysis_info(
                 client=client,
                 uuid=analysis.uuid,
@@ -143,7 +143,7 @@ def render(
             issues_list.append((status, resp, inp))
     elif len(target) == 36:
         LOGGER.debug(f"Identified analysis target {target}")
-        click.echo("Fetching report for analysis {}".format(target))
+        click.echo("Fetching report for analysis {}".format(target), err=True)
         status, resp, inp = get_analysis_info(
             client=client,
             uuid=target,
