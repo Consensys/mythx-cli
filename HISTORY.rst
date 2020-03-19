@@ -2,6 +2,12 @@
 History
 =======
 
+0.6.7 (2020-03-19)
+------------------
+
+Fix issue where render templates were not correctly added to manifest.
+
+
 0.6.6 (2020-03-19)
 ------------------
 
