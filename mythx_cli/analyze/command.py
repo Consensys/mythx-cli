@@ -6,12 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
-from mythx_models.response import (
-    AnalysisInputResponse,
-    DetectedIssuesResponse,
-    GroupCreationResponse,
-)
-from pythx.middleware.group_data import GroupDataMiddleware
 
 from mythx_cli.analyze.util import (
     find_truffle_artifacts,
@@ -27,6 +21,12 @@ from mythx_cli.payload import (
     generate_truffle_payload,
 )
 from mythx_cli.util import write_or_print
+from mythx_models.response import (
+    AnalysisInputResponse,
+    DetectedIssuesResponse,
+    GroupCreationResponse,
+)
+from pythx.middleware.group_data import GroupDataMiddleware
 
 LOGGER = logging.getLogger("mythx-cli")
 

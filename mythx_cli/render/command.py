@@ -3,17 +3,17 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import click
-import htmlmin
 import jinja2
+
+import htmlmin
+from mythx_cli.render.util import get_analysis_info
+from mythx_cli.util import write_or_print
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
 )
 from pythx import Client
-
-from mythx_cli.render.util import get_analysis_info
-from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
@@ -133,7 +133,9 @@ def render(
             )
 
         for analysis in list_resp.analyses:
-            click.echo("Fetching report for analysis {}".format(analysis.uuid), err=True)
+            click.echo(
+                "Fetching report for analysis {}".format(analysis.uuid), err=True
+            )
             status, resp, inp = get_analysis_info(
                 client=client,
                 uuid=analysis.uuid,

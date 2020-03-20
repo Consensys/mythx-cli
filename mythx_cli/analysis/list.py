@@ -1,10 +1,10 @@
 import logging
 
 import click
-from mythx_models.response import AnalysisListResponse
 
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.util import write_or_print
+from mythx_models.response import AnalysisListResponse
 
 LOGGER = logging.getLogger("mythx-cli")
 
