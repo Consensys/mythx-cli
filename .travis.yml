@@ -6,8 +6,10 @@ dist: xenial
 jobs:
   include:
     - name: "Check Formatting"
+      python: 3.6
       script: tox -e lint
     - name: "Check Documentation"
+      python: 3.6
       script: tox -e doctest
 
 python:
