@@ -3,8 +3,6 @@ import logging
 import sys
 
 import click
-from pythx import Client, MythXAPIError
-from pythx.middleware.toolname import ClientToolNameMiddleware
 
 from mythx_cli import __version__
 from mythx_cli.analysis.list import analysis_list
@@ -18,6 +16,8 @@ from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
 from mythx_cli.render.command import render
 from mythx_cli.version.command import version
+from pythx import Client, MythXAPIError
+from pythx.middleware.toolname import ClientToolNameMiddleware
 
 LOGGER = logging.getLogger("mythx-cli")
 logging.basicConfig(level=logging.WARNING)
