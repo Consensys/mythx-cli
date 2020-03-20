@@ -11,9 +11,9 @@ jobs:
       script: tox -e doctest
 
 python:
-- 3.8
-- 3.7
 - 3.6
+- 3.7
+- 3.8
 - pypy3
 
 install:
