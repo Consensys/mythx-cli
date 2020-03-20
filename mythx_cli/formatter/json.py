@@ -3,7 +3,6 @@
 import json
 from typing import List, Optional, Tuple
 
-from mythx_cli.formatter.base import BaseFormatter
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -13,6 +12,8 @@ from mythx_models.response import (
     GroupStatusResponse,
     VersionResponse,
 )
+
+from mythx_cli.formatter.base import BaseFormatter
 
 
 class JSONFormatter(BaseFormatter):
