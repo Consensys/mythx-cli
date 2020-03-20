@@ -15,7 +15,9 @@ from mythx_cli.cli import cli
 
 from .common import get_test_case, mock_context
 
-FORMAT_ERROR = "Could not interpret argument lolwut as bytecode, Solidity file, or Truffle project"
+FORMAT_ERROR = (
+    "Could not interpret argument lolwut as bytecode, Solidity file, or Truffle project"
+)
 SUBMISSION_RESPONSE = get_test_case(
     "testdata/analysis-submission-response.json", AnalysisSubmissionResponse
 )
@@ -263,7 +265,8 @@ def test_exit_on_missing_consent():
         result = runner.invoke(cli, ["analyze"], input="n\n")
 
         assert (
-            result.output == "Found 1 Solidity file(s) before filtering. Continue? [y/N]: n\n"
+            result.output
+            == "Found 1 Solidity file(s) before filtering. Continue? [y/N]: n\n"
         )
         assert result.exit_code == 0
 

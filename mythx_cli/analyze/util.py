@@ -208,5 +208,7 @@ def walk_solidity_files(
     LOGGER.debug(f"Found Solidity files to submit: {', '.join(files)}")
     for file in files:
         LOGGER.debug(f"Generating Solidity payload for {file}")
-        jobs.append(generate_solidity_payload(file, solc_version, remappings=remappings))
+        jobs.append(
+            generate_solidity_payload(file, solc_version, remappings=remappings)
+        )
     return jobs

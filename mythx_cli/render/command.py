@@ -133,7 +133,9 @@ def render(
             )
 
         for analysis in list_resp.analyses:
-            click.echo("Fetching report for analysis {}".format(analysis.uuid), err=True)
+            click.echo(
+                "Fetching report for analysis {}".format(analysis.uuid), err=True
+            )
             status, resp, inp = get_analysis_info(
                 client=client,
                 uuid=analysis.uuid,
