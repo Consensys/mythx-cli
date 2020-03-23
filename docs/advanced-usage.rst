@@ -178,6 +178,72 @@ import, the current working directory was not the project root that results in c
 resolution.
 
 
+Configuration using .mythx.yml
+------------------------------
+
+Using import remappings, contract filters, SWC black-/whitelists, and various other configuration
+options can result in large CLI commands. The :code:`.mythx.yml` file can remediate this by
+providing the user with an easy-to-read and -update YAML configuration file.
+
+Top-level parameters (included after the :code:`mythx` command) are defined on the top level
+of the configuration file, while analysis-specific parameters (included after the :code:`analyze`
+subcommand) are included under the :code:`analyze` key. For example:
+
+.. code-block:: yaml
+
+    output: mythx.json
+    format: json
+
+    analyze:
+        mode: quick
+        create-group: true
+        group-name: My fancy analysis
+        solc: 0.5.16
+        remappings:
+            - "@openzeppelin/=/my/path/node_modules/@openzeppelin/"
+            - "@nomiclabs=/my/path/node_modules/@nomiclabs/"
+        contracts:
+            - Contract1
+            - Contract2
+            - Contract3
+            - Contract4
+            - Contract5
+
+This will execute a quick analysis on the five specified contracts. Compilation is done using
+solc version 0.5.16 and the specified import remappings are passed to the compiler. Additionally,
+a new group will be opened for this submission under the name `My fancy analysis`. After submission,
+the CLI will wait until all contracts have been analyzed and output the resulting report in JSON
+format. This report will be written into the :code:`mythx.json` file. In a CI scenario, this report
+could for example be stored as an artifact for later retrieval and further processing.
+
+The currently supported top-level configuration keys are:
+
+- :code:`ci`: Boolean indicating whether to return 1 if any severe issue is found
+  (equivalent to :code:`--ci`)
+- :code:`output`: Name of the file to write output data into (equivalent to :code:`--output`)
+- :code:`format`: The output format to return (equivalent to :code:`--format`)
+- :code:`confirm`: Boolean indicating the automatic confirmation of multiple file submissions
+  (equivalent to :code:`--yes`)
+
+The :code:`analyze` configuration keys currently supported are:
+
+- :code:`mode`: The analysis mode to run MythX on (equivalent to :code:`--mode`)
+- :code:`create-group`: Boolean indication whether to create a new group for the submission
+  (equivalent to :code:`--create-group`)
+- :code:`group-id`: The group ID to add the submitted analyses to (equivalent to :code:`--group-id`)
+- :code:`group-name`: The name to attach to the newly created group (equivalent to :code:`--group-name`)
+- :code:`min-severity`: Ignore SWC IDs below the designated level (equivalent to :code:`--min-severity`)
+- :code:`blacklist`: A comma-separated list of SWC IDs to ignore (equivalent to :code:`--swc-blacklist`)
+- :code:`whitelist`: A comma-separated list of SWC IDs to include (equivalent to :code:`--swc-whitelist`)
+- :code:`async`: A boolean indicating whether to submit the analyses asynchronously
+  (equivalent to :code:`--async`)
+- :code:`solc`: The solc version to use for Solidity file compilation (equivalent to :code:`--solc-version`)
+- :code:`remappings`: A list of import remappings to pass to the solc compiler (equivalent to one or
+  multiple :code:`--remap-import` parameter(s))
+- :code:`contracts`: A list of contracts to include in the submission (equivalent to one or
+  multiple :code:`--include` parameter(s))
+
+
 Custom Report Rendering
 -----------------------
 
