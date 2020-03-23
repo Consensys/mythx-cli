@@ -136,6 +136,26 @@ def analyze(
     :return:
     """
 
+    analyze_config = ctx.get("analyze")
+    if analyze_config is not None:
+        LOGGER.debug("Detected additional yaml config keys - applying")
+        config_async = analyze_config.get("async")
+        async_flag = config_async if config_async is not None else async_flag
+        mode = analyze_config.get("mode") or mode
+        config_create_group = analyze_config.get("create-group")
+        create_group = (
+            config_create_group if config_create_group is not None else create_group
+        )
+        group_id = analyze_config.get("group-id") or group_id
+        group_name = analyze_config.get("group-name") or group_name
+        min_severity = analyze_config.get("min-severity") or min_severity
+        swc_blacklist = analyze_config.get("blacklist") or swc_blacklist
+        swc_whitelist = analyze_config.get("whitelist") or swc_whitelist
+        solc_version = analyze_config.get("solc") or solc_version
+        include = analyze_config.get("contracts") or include
+        remap_import = analyze_config.get("remappings") or remap_import
+        target = analyze_config.get("targets") or target
+
     group_name = group_name or ""
     if create_group:
         resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)

@@ -1,8 +1,10 @@
 """The main runtime of the MythX CLI."""
 import logging
 import sys
+from pathlib import Path
 
 import click
+import yaml
 from pythx import Client, MythXAPIError
 from pythx.middleware.toolname import ClientToolNameMiddleware
 
@@ -17,6 +19,7 @@ from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
 from mythx_cli.render.command import render
+from mythx_cli.util import update_context
 from mythx_cli.version.command import version
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -86,8 +89,25 @@ class APIErrorCatcherGroup(click.Group):
 @click.option(
     "-o", "--output", default=None, help="Output file to write the results into"
 )
+@click.option(
+    "-c",
+    "--config",
+    type=click.Path(exists=True),
+    help="YAML config file for default parameters",
+)
 @click.pass_context
-def cli(ctx, **kwargs) -> None:
+def cli(
+    ctx,
+    debug: bool,
+    api_key: str,
+    username: str,
+    password: str,
+    fmt: str,
+    ci: bool,
+    output: str,
+    yes: bool,
+    config: str,
+) -> None:
     """Your CLI for interacting with https://mythx.io/
 
     \f
@@ -100,21 +120,53 @@ def cli(ctx, **kwargs) -> None:
     :param fmt: The formatter to use for the subcommand output
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
     :param output: Output file to write the results into
+    :param config: YAML config file to read default parameters from
     """
 
-    ctx.obj = dict(kwargs)
+    # set loggers to debug mode
+    if debug:
+        for name in logging.root.manager.loggerDict:
+            logging.getLogger(name).setLevel(logging.DEBUG)
+
+    ctx.obj = {
+        "debug": debug,
+        "api_key": api_key,
+        "username": username,
+        "password": password,
+        "fmt": fmt,
+        "ci": ci,
+        "output": output,
+        "yes": yes,
+        "config": config,
+    }
+
+    LOGGER.debug("Initializing configuration context")
+    config_file = config or ".mythx.yml"
+    if Path(config_file).is_file():
+        LOGGER.debug(f"Parsing config at {config_file}")
+        with open(config_file) as config_f:
+            parsed_config = yaml.safe_load(config_f.read())
+        ctx.obj["analyze"] = parsed_config.get("analyze")
+
+        # overwrite context with top-level YAML config keys
+        update_context(ctx.obj, "ci", parsed_config, "ci")
+        update_context(ctx.obj, "output", parsed_config, "output")
+        update_context(ctx.obj, "fmt", parsed_config, "format")
+        update_context(ctx.obj, "yes", parsed_config, "confirm")
+
+    # set return value - used for CI failures
     ctx.obj["retval"] = 0
+
     LOGGER.debug(f"Initializing tool name middleware with {__version__}")
     toolname_mw = ClientToolNameMiddleware(name="mythx-cli-{}".format(__version__))
-    if kwargs["api_key"] is not None:
+
+    if api_key is not None:
         LOGGER.debug("Initializing client with API key")
-        ctx.obj["client"] = Client(api_key=kwargs["api_key"], middlewares=[toolname_mw])
-    elif kwargs["username"] and kwargs["password"]:
+        ctx.obj["client"] = Client(api_key=api_key, middlewares=[toolname_mw])
+    elif username and password:
         LOGGER.debug("Initializing client with username and password")
         ctx.obj["client"] = Client(
-            username=kwargs["username"],
-            password=kwargs["password"],
-            middlewares=[toolname_mw],
+            username=username, password=password, middlewares=[toolname_mw]
         )
     else:
         raise click.UsageError(
@@ -124,9 +176,6 @@ def cli(ctx, **kwargs) -> None:
                 "credentials."
             )
         )
-    if kwargs["debug"]:
-        for name in logging.root.manager.loggerDict:
-            logging.getLogger(name).setLevel(logging.DEBUG)
 
 
 LOGGER.debug("Registering main commands")
