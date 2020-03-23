@@ -346,8 +346,7 @@ def test_solidity_analyze_multiple_with_config_group():
             conf_f.write("analyze:\n  create-group: true\n")
 
         result = runner.invoke(
-            cli,
-            ["--debug", "analyze", "outdated.sol", "outdated2.sol"],
+            cli, ["--debug", "analyze", "outdated.sol", "outdated2.sol"]
         )
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
         assert result.exit_code == 0
@@ -410,9 +409,7 @@ def test_solidity_analyze_config_solc_version():
         with open(".mythx.yml", "w+") as conf_f:
             conf_f.write("analyze:\n  solc: 0.4.13\n")
 
-        result = runner.invoke(
-            cli, ["analyze", "outdated.sol"], catch_exceptions=False
-        )
+        result = runner.invoke(cli, ["analyze", "outdated.sol"])
 
         assert result.output == ISSUES_TABLE
         assert result.exit_code == 0

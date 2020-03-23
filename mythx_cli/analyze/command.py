@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
-import yaml
 from mythx_models.response import (
     AnalysisInputResponse,
     DetectedIssuesResponse,
