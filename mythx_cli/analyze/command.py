@@ -139,9 +139,11 @@ def analyze(
     analyze_config = ctx.get("analyze")
     if analyze_config is not None:
         LOGGER.debug("Detected additional yaml config keys - applying")
-        async_flag = analyze_config.get("async") or async_flag
+        config_async = analyze_config.get("async")
+        async_flag = config_async if config_async is not None else async_flag
         mode = analyze_config.get("mode") or mode
-        create_group = analyze_config.get("create-group") or create_group
+        config_create_group = analyze_config.get("create-group")
+        create_group = config_create_group if config_create_group is not None else create_group
         group_id = analyze_config.get("group-id") or group_id
         group_name = analyze_config.get("group-name") or group_name
         min_severity = analyze_config.get("min-severity") or min_severity
