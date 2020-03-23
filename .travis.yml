@@ -35,4 +35,4 @@ deploy:
   on:
     tags: true
     repo: dmuhs/mythx-cli
-    python: 3.6
+    python: 3.7
