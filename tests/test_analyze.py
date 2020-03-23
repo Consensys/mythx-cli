@@ -332,6 +332,27 @@ def test_solidity_analyze_multiple_with_group():
         assert result.exit_code == 0
 
 
+def test_solidity_analyze_multiple_with_config_group():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        # initialize sample solidity file
+        with open("outdated.sol", "w+") as conf_f:
+            conf_f.write(SOLIDITY_CODE)
+
+        with open("outdated2.sol", "w+") as conf_f:
+            conf_f.write(SOLIDITY_CODE)
+
+        with open(".mythx.yml", "w+") as conf_f:
+            conf_f.write("analyze:\n  create-group: true\n")
+
+        result = runner.invoke(
+            cli,
+            ["--debug", "analyze", "outdated.sol", "outdated2.sol"],
+        )
+        assert result.output == ISSUES_TABLE + ISSUES_TABLE
+        assert result.exit_code == 0
+
+
 def test_solidity_analyze_recursive_blacklist():
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
@@ -379,6 +400,24 @@ def test_solidity_analyze_user_solc_version():
         assert result.exit_code == 0
 
 
+def test_solidity_analyze_config_solc_version():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        # initialize sample solidity file without pragma line
+        with open("outdated.sol", "w+") as conf_f:
+            conf_f.writelines(SOLIDITY_CODE.split("\n")[1:])
+
+        with open(".mythx.yml", "w+") as conf_f:
+            conf_f.write("analyze:\n  solc: 0.4.13\n")
+
+        result = runner.invoke(
+            cli, ["analyze", "outdated.sol"], catch_exceptions=False
+        )
+
+        assert result.output == ISSUES_TABLE
+        assert result.exit_code == 0
+
+
 def test_truffle_analyze_blocking_ci():
     runner = CliRunner()
     with mock_context() as patches, runner.isolated_filesystem():
@@ -417,3 +456,31 @@ def test_truffle_analyze_no_files():
 
             assert EMPTY_PROJECT_ERROR in result.output
             assert result.exit_code == 2
+
+
+def test_truffle_analyze_blocking_config_ci():
+    runner = CliRunner()
+    with mock_context() as patches, runner.isolated_filesystem():
+        # set up high-severity issue
+        issues_resp = deepcopy(ISSUES_RESPONSE)
+        issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+        patches[2].return_value = issues_resp
+
+        # create truffle-config.js
+        with open("truffle-config.js", "w+") as conf_f:
+            # we just need the file to be present
+            conf_f.write("Truffle config stuff")
+
+        with open(".mythx.yml", "w+") as conf_f:
+            conf_f.write("ci: true\n")
+
+        # create build/contracts/ JSON files
+        os.makedirs("build/contracts")
+        with open("build/contracts/foo.json", "w+") as artifact_f:
+            json.dump(TRUFFLE_ARTIFACT, artifact_f)
+
+        result = runner.invoke(cli, ["--debug", "analyze"])
+
+        assert "Assert Violation" in result.output
+        assert INPUT_RESPONSE.source_list[0] in result.output
+        assert result.exit_code == 1
