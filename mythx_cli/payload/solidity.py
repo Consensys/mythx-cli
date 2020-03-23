@@ -80,7 +80,7 @@ def generate_solidity_payload(
                 "srcmap",
                 "srcmap-runtime",
             ),
-            import_remappings=remappings
+            import_remappings=[r.format(pwd=cwd) for r in remappings]
             or [
                 f"openzeppelin-solidity/={cwd}/node_modules/openzeppelin-solidity/",
                 f"openzeppelin-zos/={cwd}/node_modules/openzeppelin-zos/",
