@@ -150,6 +150,7 @@ def analyze(
         solc_version = analyze_config.get("solc") or solc_version
         include = analyze_config.get("contracts") or include
         remap_import = analyze_config.get("remappings") or remap_import
+        target = analyze_config.get("targets") or target
 
     group_name = group_name or ""
     if create_group:

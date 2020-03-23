@@ -242,6 +242,9 @@ The :code:`analyze` configuration keys currently supported are:
   multiple :code:`--remap-import` parameter(s))
 - :code:`contracts`: A list of contracts to include in the submission (equivalent to one or
   multiple :code:`--include` parameter(s))
+- :code:`targets`: A list of targets to analyze. This is equivalent to passing an argument directly to
+  the :code:`analyze` command - whether it's a Solidity file, a directory, a Truffle project, or a mix
+  of all.
 
 
 Custom Report Rendering
