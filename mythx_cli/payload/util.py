@@ -2,7 +2,7 @@ import re
 from copy import copy
 
 
-def zero_srcmap_indices(src_map: str) -> str:
+def set_srcmap_indices(src_map: str, index: int = 0) -> str:
     """Zero the source map file index entries.
 
     :param src_map: The source map string to process
@@ -14,7 +14,7 @@ def zero_srcmap_indices(src_map: str) -> str:
         fields = entry.split(":")
         if len(fields) > 2 and fields[2] not in ("-1", ""):
             # file index is in entry, needs fixing
-            fields[2] = "0"
+            fields[2] = str(index)
             new_entries[i] = ":".join(fields)
     return ";".join(new_entries)
 
