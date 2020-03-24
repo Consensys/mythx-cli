@@ -9,7 +9,7 @@ import click
 import solcx
 import solcx.exceptions
 
-from mythx_cli.payload.util import patch_solc_bytecode, zero_srcmap_indices
+from mythx_cli.payload.util import patch_solc_bytecode, set_srcmap_indices
 
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
@@ -101,10 +101,10 @@ def generate_solidity_payload(
         new_result[new_key] = value
     result = new_result
 
-    payload = {"sources": {}, "solc_version": solc_version}
+    payload = {"sources": {}, "solc_version": solc_version, "source_list": []}
 
     bytecode_max = 0
-    for contract_name, contract_data in result.items():
+    for index, (contract_name, contract_data) in enumerate(result.items()):
         ast = contract_data["ast"]
         source_path = str(Path(ast.get("attributes", {}).get("absolutePath")))
         creation_bytecode = contract_data["bin"]
@@ -117,6 +117,7 @@ def generate_solidity_payload(
 
         # always add source and AST, even if dependency
         payload["sources"][source_path] = {"source": source, "ast": ast}
+        payload["source_list"].append(source_path)
         if (contracts and contract_name not in contracts) or (
             not contracts and len(creation_bytecode) < bytecode_max
         ):
@@ -129,12 +130,10 @@ def generate_solidity_payload(
             {
                 "contract_name": contract_name,
                 "main_source": source_path,
-                "source_list": [source_path],
                 "bytecode": patch_solc_bytecode(creation_bytecode),
-                "source_map": zero_srcmap_indices(source_map),
-                "deployed_source_map": zero_srcmap_indices(deployed_source_map),
+                "source_map": set_srcmap_indices(source_map, index),
+                "deployed_source_map": set_srcmap_indices(deployed_source_map, index),
                 "deployed_bytecode": patch_solc_bytecode(deployed_bytecode),
-                "solc_version": solc_version,
             }
         )
 
