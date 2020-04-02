@@ -68,22 +68,21 @@ class APIErrorCatcherGroup(click.Group):
 @click.option(
     "--format",
     "fmt",
-    default="table",
+    default=None,
     type=click.Choice(FORMAT_RESOLVER.keys()),
-    show_default=True,
     help="The format to display the results in",
 )
 @click.option(
     "--ci",
     is_flag=True,
-    default=False,
+    default=None,
     help="Return exit code 1 if high-severity issue is found",
 )
 @click.option(
     "-y",
     "--yes",
     is_flag=True,
-    default=False,
+    default=None,
     help="Do not prompt for any confirmations",
 )
 @click.option(
@@ -146,13 +145,18 @@ def cli(
         LOGGER.debug(f"Parsing config at {config_file}")
         with open(config_file) as config_f:
             parsed_config = yaml.safe_load(config_f.read())
-        ctx.obj["analyze"] = parsed_config.get("analyze")
+    else:
+        parsed_config = {"analyze": {}}
 
-        # overwrite context with top-level YAML config keys
-        update_context(ctx.obj, "ci", parsed_config, "ci")
-        update_context(ctx.obj, "output", parsed_config, "output")
-        update_context(ctx.obj, "fmt", parsed_config, "format")
-        update_context(ctx.obj, "yes", parsed_config, "confirm")
+    # The analyze context is updated separately in the command
+    # implementation
+    ctx.obj["analyze"] = parsed_config.get("analyze", {})
+
+    # overwrite context with top-level YAML config keys if necessary
+    update_context(ctx.obj, "ci", parsed_config, "ci", False)
+    update_context(ctx.obj, "output", parsed_config, "output", None)
+    update_context(ctx.obj, "fmt", parsed_config, "format", "table")
+    update_context(ctx.obj, "yes", parsed_config, "confirm", False)
 
     # set return value - used for CI failures
     ctx.obj["retval"] = 0

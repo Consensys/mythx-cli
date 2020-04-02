@@ -1,11 +1,11 @@
 import logging
-
+from typing import Any
 import click
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
-def update_context(context: dict, context_key: str, config: dict, config_key: str):
+def update_context(context: dict, context_key: str, config: dict, config_key: str, default: Any = None):
     """Update the click context based on a configuration dict.
 
     If the specified key is set in the configuration dict, it will
@@ -17,8 +17,7 @@ def update_context(context: dict, context_key: str, config: dict, config_key: st
     :param config_key: The config key to overwrite with
     """
 
-    if config.get(config_key):
-        context[context_key] = config.get(config_key)
+    context[context_key] = context.get(context_key) or config.get(config_key) or default
 
 
 @click.pass_obj
