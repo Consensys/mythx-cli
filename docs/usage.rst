@@ -500,8 +500,11 @@ API Version Information
     $ mythx version --help
     Usage: mythx version [OPTIONS]
 
+      Display API version information.
+
     Options:
-    --help  Show this message and exit.
+      --api / --self  Switch between local CLI and remote API version
+      --help          Show this message and exit.
 
 This subcommand hits the MythX API's :code:`/version` endpoint and obtains
 version information on the API. This can be especially useful for continuous
@@ -516,15 +519,30 @@ returned by the API.
 
 .. code-block:: console
 
-    $ mythx version
-    API: v1.4.34.4
-    Harvey: 0.0.33
-    Maru: 0.5.3
-    Mythril: 0.21.14
-    Hashed: 00c17c8b0ae13bebc9a7f678d8ee55db
+    $ mythx version --api
+    ╒═════════╤══════════════════════════════════╕
+    │ Api     │ v1.6.0                           │
+    ├─────────┼──────────────────────────────────┤
+    │ Maru    │ 0.7.4                            │
+    ├─────────┼──────────────────────────────────┤
+    │ Mythril │ 0.22.1                           │
+    ├─────────┼──────────────────────────────────┤
+    │ Harvey  │ 0.0.41                           │
+    ├─────────┼──────────────────────────────────┤
+    │ Hash    │ df2ac71c075a98d70dddb7d0a30b9f79 │
+    ╘═════════╧══════════════════════════════════╛
 
 This output can be adapted using the :code:`--format` parameter as well to
 fetch e.g. JSON output for easier parsing.
+
+If the :code:`--api` flag is omitted, the version of the MythX CLI itself
+will be printed, together with the official Github repository. In this case
+the :code:`--format` flag will be ignored as the output is limited to a
+single line:
+
+.. code-block:: console
+
+    MythX CLI v0.6.9: https://github.com/dmuhs/mythx-cli
 
 
 Rendering Reports
