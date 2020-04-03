@@ -1,11 +1,14 @@
 import logging
 from typing import Any
+
 import click
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
-def update_context(context: dict, context_key: str, config: dict, config_key: str, default: Any = None):
+def update_context(
+    context: dict, context_key: str, config: dict, config_key: str, default: Any = None
+):
     """Update the click context based on a configuration dict.
 
     If the specified key is set in the configuration dict, it will

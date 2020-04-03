@@ -26,7 +26,7 @@ from mythx_cli.payload import (
     generate_solidity_payload,
     generate_truffle_payload,
 )
-from mythx_cli.util import write_or_print, update_context
+from mythx_cli.util import update_context, write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -39,11 +39,7 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option(
-    "--mode",
-    type=click.Choice(["quick", "standard", "deep"]),
-    default=None,
-)
+@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default=None)
 @click.option(
     "--create-group",
     is_flag=True,
