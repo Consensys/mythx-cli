@@ -26,7 +26,7 @@ from mythx_cli.payload import (
     generate_solidity_payload,
     generate_truffle_payload,
 )
-from mythx_cli.util import write_or_print
+from mythx_cli.util import update_context, write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -36,14 +36,10 @@ LOGGER = logging.getLogger("mythx-cli")
 @click.option(
     "--async/--wait",  # TODO: make default on full
     "async_flag",
+    default=None,
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option(
-    "--mode",
-    type=click.Choice(["quick", "standard", "deep"]),
-    default="quick",
-    show_default=True,
-)
+@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default=None)
 @click.option(
     "--create-group",
     is_flag=True,
@@ -137,26 +133,22 @@ def analyze(
     """
 
     analyze_config = ctx.get("analyze")
-    if analyze_config is not None:
-        LOGGER.debug("Detected additional yaml config keys - applying")
-        config_async = analyze_config.get("async")
-        async_flag = config_async if config_async is not None else async_flag
-        mode = analyze_config.get("mode") or mode
-        config_create_group = analyze_config.get("create-group")
-        create_group = (
-            config_create_group if config_create_group is not None else create_group
-        )
-        group_id = analyze_config.get("group-id") or group_id
-        group_name = analyze_config.get("group-name") or group_name
-        min_severity = analyze_config.get("min-severity") or min_severity
-        swc_blacklist = analyze_config.get("blacklist") or swc_blacklist
-        swc_whitelist = analyze_config.get("whitelist") or swc_whitelist
-        solc_version = analyze_config.get("solc") or solc_version
-        include = analyze_config.get("contracts") or include
-        remap_import = analyze_config.get("remappings") or remap_import
-        target = analyze_config.get("targets") or target
+    if async_flag is None:
+        async_flag = analyze_config.get("async", False)
+    if create_group is None:
+        create_group = analyze_config.get("create-group", False)
 
-    group_name = group_name or ""
+    mode = mode or analyze_config.get("mode") or "quick"
+    group_id = analyze_config.get("group-id") or group_id
+    group_name = group_name or analyze_config.get("group-name") or ""
+    min_severity = min_severity or analyze_config.get("min-severity") or None
+    swc_blacklist = swc_blacklist or analyze_config.get("blacklist") or None
+    swc_whitelist = swc_whitelist or analyze_config.get("whitelist") or None
+    solc_version = solc_version or analyze_config.get("solc") or None
+    include = include or analyze_config.get("contracts") or []
+    remap_import = remap_import or analyze_config.get("remappings") or []
+    target = target or analyze_config.get("targets") or None
+
     if create_group:
         resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)
         group_id = resp.group.identifier

@@ -476,8 +476,35 @@ def test_truffle_analyze_blocking_config_ci():
         with open("build/contracts/foo.json", "w+") as artifact_f:
             json.dump(TRUFFLE_ARTIFACT, artifact_f)
 
-        result = runner.invoke(cli, ["--debug", "analyze"])
+        result = runner.invoke(cli, ["--debug", "analyze"], catch_exceptions=False)
 
         assert "Assert Violation" in result.output
         assert INPUT_RESPONSE.source_list[0] in result.output
         assert result.exit_code == 1
+
+
+def test_analyze_param_overwrites_config():
+    runner = CliRunner()
+    with mock_context() as patches, runner.isolated_filesystem():
+        # set up high-severity issue
+        issues_resp = deepcopy(ISSUES_RESPONSE)
+        issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+        patches[2].return_value = issues_resp
+
+        # create truffle-config.js
+        with open("truffle-config.js", "w+") as conf_f:
+            # we just need the file to be present
+            conf_f.write("Truffle config stuff")
+
+        # create build/contracts/ JSON files
+        os.makedirs("build/contracts")
+        with open("build/contracts/foo.json", "w+") as artifact_f:
+            json.dump(TRUFFLE_ARTIFACT, artifact_f)
+
+        with open(".mythx.yml", "w+") as conf_f:
+            conf_f.write("analyze:\n  async: true\n")
+
+        result = runner.invoke(cli, ["analyze", "--wait"], catch_exceptions=False)
+
+        assert INPUT_RESPONSE.source_list[0] in result.output
+        assert result.exit_code == 0
