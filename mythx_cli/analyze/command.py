@@ -26,7 +26,7 @@ from mythx_cli.payload import (
     generate_solidity_payload,
     generate_truffle_payload,
 )
-from mythx_cli.util import update_context, write_or_print
+from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -189,7 +189,9 @@ def analyze(
         for target_elem in target:
             target_split = target_elem.split(":")
             element, suffix = target_split[0], target_split[1:]
-            include += suffix
+            if suffix:
+                include += suffix
+                suffix = suffix[0]
             if element.startswith("0x"):
                 LOGGER.debug(f"Identified target {element} as bytecode")
                 jobs.append(generate_bytecode_payload(element))
@@ -199,7 +201,7 @@ def analyze(
                     generate_solidity_payload(
                         file=element,
                         version=solc_version,
-                        contracts=suffix,
+                        contract=suffix,
                         remappings=remap_import,
                     )
                 )
