@@ -2,6 +2,39 @@
 History
 =======
 
+0.6.11 (2020-04-08)
+-------------------
+
+- Use solc JSON stdin for compilation
+- Update :code:`sphinx` to 3.0.0
+- Update :code:`coveralls` to 2.0.0
+
+
+0.6.10 (2020-04-03)
+-------------------
+
+- Add :code:`--api/--self` version command switch
+- Add explicit yaml config override feature
+- Documentation updates
+- Update :code:`tox` to 3.14.6
+- Update :code:`py-solc-x` to 0.8.1
+
+
+0.6.9 (2020-03-24)
+------------------
+
+Fix issue where request source list was malformed
+
+
+0.6.8 (2020-03-23)
+------------------
+
+- Add support for :code:`.mythx.yml` config files
+- Allow pwd definitions in solc import remappings
+- Fix bug in Solidity file walking routine
+- Add additional tox checks for documentation and formatting
+
+
 0.6.7 (2020-03-19)
 ------------------
 
