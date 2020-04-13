@@ -43,7 +43,7 @@ LOGGER = logging.getLogger("mythx-cli")
 @click.option(
     "--create-group",
     is_flag=True,
-    default=False,
+    default=None,
     help="Create a new group for the analysis",
 )
 @click.option(
