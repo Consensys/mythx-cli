@@ -5,15 +5,15 @@ from typing import List, Optional, Tuple
 import click
 import htmlmin
 import jinja2
+from pythx import Client
+
+from mythx_cli.render.util import get_analysis_info
+from mythx_cli.util import write_or_print
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
 )
-from pythx import Client
-
-from mythx_cli.render.util import get_analysis_info
-from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"

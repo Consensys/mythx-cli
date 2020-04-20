@@ -3,11 +3,11 @@ import sys
 from typing import List, Optional, Tuple
 
 import click
-from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print
+from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 LOGGER = logging.getLogger("mythx-cli")
 

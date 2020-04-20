@@ -4,14 +4,14 @@ from copy import deepcopy
 
 import pytest
 from click.testing import CliRunner
+
+from mythx_cli.cli import cli
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
     Severity,
 )
-
-from mythx_cli.cli import cli
 
 from .common import get_test_case, mock_context
 

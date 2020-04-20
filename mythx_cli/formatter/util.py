@@ -3,6 +3,7 @@
 from typing import List, Union
 
 import click
+
 from mythx_models.response import DetectedIssuesResponse, Severity
 
 SEVERITY_ORDER = (
