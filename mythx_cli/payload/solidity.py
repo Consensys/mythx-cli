@@ -125,7 +125,7 @@ def generate_solidity_payload(
             payload_dict["ast"] = ast
 
         # add source from file path
-        with open(file_path, newline='') as source_f:
+        with open(file_path, newline="") as source_f:
             payload_dict["source"] = source_f.read()
 
     if contract:
