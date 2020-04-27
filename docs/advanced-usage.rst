@@ -85,6 +85,14 @@ a valid way to exclude IDs 101-103 from the report, even though it is definitely
 a consistent notation for readability purposes.
 
 
+Property Verification Mode
+--------------------------
+
+To leverage MythX for property verification, simply pass the :code:`--check-properties` flag to the
+:code:`analyze` subcommand. This will instruct the MythX analysis backend to only look for assertion
+violations and optimize execution.
+
+
 Asynchronous Analysis
 ---------------------
 
@@ -242,6 +250,8 @@ The :code:`analyze` configuration keys currently supported are:
   multiple :code:`--remap-import` parameter(s))
 - :code:`contracts`: A list of contracts to include in the submission (equivalent to one or
   multiple :code:`--include` parameter(s))
+- :code:`check-properties` Enable property verification mode (filter out everything other than assertion
+  violations in the backend and optimize for property verification)
 - :code:`targets`: A list of targets to analyze. This is equivalent to passing an argument directly to
   the :code:`analyze` command - whether it's a Solidity file, a directory, a Truffle project, or a mix
   of all.
