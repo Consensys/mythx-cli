@@ -101,7 +101,7 @@ LOGGER = logging.getLogger("mythx-cli")
     "--check-properties",
     is_flag=True,
     default=None,
-    help="Enable property verification mode"
+    help="Enable property verification mode",
 )
 @click.pass_obj
 def analyze(
@@ -156,10 +156,14 @@ def analyze(
     solc_version = solc_version or analyze_config.get("solc") or None
     include = include or analyze_config.get("contracts") or []
     remap_import = remap_import or analyze_config.get("remappings") or []
-    check_properties = check_properties or analyze_config.get("check-properties") or False
+    check_properties = (
+        check_properties or analyze_config.get("check-properties") or False
+    )
     target = target or analyze_config.get("targets") or None
 
-    ctx["client"].handler.middlewares.append(PropertyCheckingMiddleware(check_properties))
+    ctx["client"].handler.middlewares.append(
+        PropertyCheckingMiddleware(check_properties)
+    )
 
     if create_group:
         resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)

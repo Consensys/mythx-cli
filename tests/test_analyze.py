@@ -339,10 +339,7 @@ def test_solidity_analyze_property_checking():
         with open("outdated.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE)
 
-        result = runner.invoke(
-            cli,
-            ["analyze", "--check-properties", "outdated.sol"],
-        )
+        result = runner.invoke(cli, ["analyze", "--check-properties", "outdated.sol"])
         assert result.output == ISSUES_TABLE
         assert result.exit_code == 0
 
