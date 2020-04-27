@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import click
 from pythx.middleware.group_data import GroupDataMiddleware
+from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
 from mythx_cli.analyze.util import (
     find_truffle_artifacts,
@@ -96,6 +97,12 @@ LOGGER = logging.getLogger("mythx-cli")
     help="Add a solc compilation import remapping",
     default=None,
 )
+@click.option(
+    "--check-properties",
+    is_flag=True,
+    default=None,
+    help="Enable property verification mode"
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -111,6 +118,7 @@ def analyze(
     solc_version: str,
     include: Tuple[str],
     remap_import: Tuple[str],
+    check_properties: bool,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -129,6 +137,7 @@ def analyze(
     :param solc_version: The solc version to use for Solidity compilation
     :param include: List of contract names to send - exclude everything else
     :param remap_import: List of import remappings to pass on to solc
+    :param check_properties: Enable property verification mode
     :return:
     """
 
@@ -147,7 +156,10 @@ def analyze(
     solc_version = solc_version or analyze_config.get("solc") or None
     include = include or analyze_config.get("contracts") or []
     remap_import = remap_import or analyze_config.get("remappings") or []
+    check_properties = check_properties or analyze_config.get("check-properties") or False
     target = target or analyze_config.get("targets") or None
+
+    ctx["client"].handler.middlewares.append(PropertyCheckingMiddleware(check_properties))
 
     if create_group:
         resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)
