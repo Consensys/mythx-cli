@@ -332,6 +332,21 @@ def test_solidity_analyze_multiple_with_group():
         assert result.exit_code == 0
 
 
+def test_solidity_analyze_property_checking():
+    runner = CliRunner()
+    with mock_context(), runner.isolated_filesystem():
+        # initialize sample solidity file
+        with open("outdated.sol", "w+") as conf_f:
+            conf_f.write(SOLIDITY_CODE)
+
+        result = runner.invoke(
+            cli,
+            ["analyze", "--check-properties", "outdated.sol"],
+        )
+        assert result.output == ISSUES_TABLE
+        assert result.exit_code == 0
+
+
 def test_solidity_analyze_multiple_with_config_group():
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
