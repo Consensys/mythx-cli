@@ -2,6 +2,24 @@
 History
 =======
 
+0.6.13 (2020-04-27)
+-------------------
+
+- Add property verification flag docs
+- Add property checking flag to analyze command
+- Update :code:`sphinx` to 3.0.3
+
+
+0.6.12 (2020-04-20)
+-------------------
+
+- Fix bug where new line characters were incorrectly sent on Windows OS
+- Fix bug where group creation from config was not triggered
+- Update :code:`sphinx` to 3.0.2
+- Update :code:`coverage` to 5.1
+- Update :code:`Jinja` to 2.11.2
+
+
 0.6.11 (2020-04-08)
 -------------------
 
