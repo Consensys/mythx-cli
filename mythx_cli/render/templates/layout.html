@@ -353,20 +353,18 @@
                                 {% set line_dict = {} %}
                                 {% for issue in report %}
                                     {% for location in issue.decoded_locations %}
+                                    {% set loc=issue.locations[loop.index0] %}
+                                    {% if loc.source_format == "text" %}
                                         <tr>
                                             <td>{{ issue.swc_id }}</td>
                                             <td>{{ issue.severity|title }}</td>
                                             <td>{{ issue.swc_title }}</td>
                                             <td>
-                                                {% for loc in issue.locations %}
-                                                    {% if loc.source_format == "text" %}
-                                                        {{ loc.source_list[0] }}
-                                                    {% endif %}
-                                                {% endfor %}
+                                                {{ loc.source_list[loc.source_map.components[0].file_id] }}
                                             </td>
-                                            {% set x=line_dict.__setitem__(location.start_line, (issue.severity|lower, issue.extra_data["testCases"])) %}
                                             <td>L: {{ location.start_line }} C: {{ location.start_column }}</td>
                                         </tr>
+                                    {% endif %}
                                     {% endfor %}
                                 {% endfor %}
                             </table>
@@ -380,22 +378,28 @@
                             {% set line_dict = {} %}
                             {% for issue in report %}
                                 {% for location in issue.decoded_locations %}
-                                    {% set x=line_dict.__setitem__(location.start_line, (issue.severity|lower, issue.extra_data["testCases"])) %}
+                                    {% set filename="undefined" %}
+                                    {% set loc=issue.locations[loop.index0] %}
+                                        {% if loc.source_format == "text" %}
+                                            {% set x=line_dict.__setitem__(location.start_line, (loc.source_list[loc.source_map.components[0].file_id], issue, issue.severity|lower, issue.extra_data["testCases"])) %}
+                                        {% endif %}
                                 {% endfor %}
                             {% endfor %}
                             <details class="source-details">
                                 <summary class="source-summary">{% block section_code_name scoped %}Source Code{% endblock %}</summary>
                                 {% for filename, data in input.sources.items() %}
-                                    <p class="source-filename">{{ filename }}</p>
+                                    <details class="source-details" open>
+                                    <summary class="source-filename">{{ filename }}</summary>
                                     <pre>
                                         {% for line in data["source"].split("\n") %}
-                                            {% if loop.index in line_dict %}
+                                            {% if loop.index in line_dict and line_dict[loop.index][0] == filename %}
                                                 <details class="code-details">
                                                 <summary class="code-summary">
-                                                    <code class="sev-{{ line_dict[loop.index][0] }}">{{ line }}</code>
+                                                    <code class="sev-{{ line_dict[loop.index][1].severity|lower }}">{{ line }}</code>
                                                 </summary>
-                                                    {% if line_dict[loop.index][1] %}
-                                                        {% for case in line_dict[loop.index][1] %}
+                                                    <p>{{ line_dict[loop.index][1].swc_id }} - {{ line_dict[loop.index][1].swc_title }}</p>
+                                                    {% if line_dict[loop.index][1].extra_data["testCases"] %}
+                                                        {% for case in line_dict[loop.index][1].extra_data["testCases"] %}
                                                             <details>
                                                                 {% set case_idx=loop.index %}
                                                                 <summary class="testcase-summary">{% block section_case_name scoped %}Test Case {{ case_idx }}{% endblock %}</summary>
@@ -424,6 +428,7 @@
                                             {% endif %}
                                         {% endfor %}
                                     </pre>
+                                    </details>
                                 {% endfor %}
                             </details>
                         {% endblock %}
