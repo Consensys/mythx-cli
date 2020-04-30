@@ -1,11 +1,11 @@
 {% extends "layout.md" %}
 
 {% block heading %}
-# MythX Report for {{ target }}
+# MythX Report for {{ target }} and Dependencies
 {% endblock %}
 
 {% block header %}
-##  Report for {{ input.sources.keys()|join(", ") }}
+##  Report for {{ input.main_source }}
 [View on MythX Dashboard](https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }})
 
 {% endblock %}
