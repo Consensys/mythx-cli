@@ -1,11 +1,11 @@
 {% extends "layout.md" %}
 
 {% block heading %}
-# MythX Report for {{ target }}
+# MythX Report for {{ target }} and Dependencies
 {% endblock %}
 
 {% block header %}
-##  Report for {{ input.sources.keys()|join(", ") }}
+##  Report for {{ input.main_source }}
 [View on MythX Dashboard](https://dashboard.mythx.io/#/console/analyses/{{ report.uuid }})
 
 {% endblock %}
@@ -21,7 +21,7 @@
 {% for issue in report %}
 {% for loc in issue.locations %}
 {% if loc.source_format == "text" %}
-{% set source_file=loc.source_list[0] %}
+{% set source_file=loc.source_list[loc.source_map.components[0].file_id] %}
 - **Issue:** {{ issue.swc_id }} - {{ issue.swc_title }}
 - **Severity:** {{ issue.severity|title }}
 - **Description:** {{ issue.description_long }}
@@ -37,11 +37,6 @@
 {{ source_data[location.start_line-1]}}
 {{ source_data[location.start_line]}}
 ```
-
-
-{% else %}
-- **Line:** *undefined*
-- **Column:** *undefined*
 
 
 {% endif %}
