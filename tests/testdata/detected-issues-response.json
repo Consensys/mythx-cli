@@ -10,16 +10,28 @@
                 },
                 "severity": "Low",
                 "decodedLocations": [
-                  [
-                    {
-                      "column": 0,
-                      "line": 1
-                    },
-                    {
-                      "column": 23,
-                      "line": 1
-                    }
-                  ]
+                    [
+                        {
+                            "line": 1,
+                            "column": 10
+                        },
+                        {
+                            "line": 1,
+                            "column": 11
+                        },
+                        false
+                    ],
+                    [
+                        {
+                            "line": 1,
+                            "column": 10
+                        },
+                        {
+                            "line": 1,
+                            "column": 11
+                        },
+                        false
+                    ]
                 ],
                 "locations": [
                     {
