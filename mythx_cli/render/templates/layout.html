@@ -380,7 +380,7 @@
                                     {% set filename="undefined" %}
                                     {% set loc=issue.locations[loop.index0] %}
                                         {% if loc.source_format == "text" %}
-                                            {% set x=line_dict.__setitem__(location.start_line, (loc.source_list[loc.source_map.components[0].file_id], issue, issue.severity|lower, issue.extra_data["testCases"])) %}
+                                            {% set x=line_dict.__setitem__(location.start_line, (loc.source_list[loc.source_map.components[0].file_id], issue)) %}
                                         {% endif %}
                                 {% endfor %}
                             {% endfor %}
