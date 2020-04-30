@@ -128,7 +128,7 @@
                 }
 
                 .source-details > :last-child, .code-details > :last-child {
-                    /* margin-bottom: 1rem; */
+                    padding-bottom: 1rem;
                 }
 
                 .source-summary:focus,.code-summary:focus, .testcase-summary:focus {
@@ -224,7 +224,6 @@
                 .source-filename {
                     font-family: monospace;
                     font-size: 1.5rem;
-                    text-align: center;
                     border-radius: 6px;
                     margin: auto;
                 }
@@ -388,7 +387,7 @@
                             <details class="source-details">
                                 <summary class="source-summary">{% block section_code_name scoped %}Source Code{% endblock %}</summary>
                                 {% for filename, data in input.sources.items() %}
-                                    <details class="source-details" open>
+                                    <details class="source-details">
                                     <summary class="source-filename">{{ filename }}</summary>
                                     <pre>
                                         {% for line in data["source"].split("\n") %}
