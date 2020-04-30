@@ -276,7 +276,7 @@
         <h2>{% block navigation_header scoped %}Overview{% endblock %}</h2>
         <ul>
             {% for status, report, input in issues_list %}
-            <li><a href="#{{ report.uuid }}">{{ input.sources.keys()|join(", ") }}</a></li>
+            <li><a href="#{{ report.uuid }}">{{ input.main_source }}</a></li>
             {% endfor %}
         </ul>
         {% endblock %}
@@ -299,7 +299,7 @@
             {% block report_header scoped %}
                 <h1 id="{{ report.uuid }}">
                     {% block report_header_name scoped %}
-                        Report for {{ input.sources.keys()|join(", ") }}
+                        Report for {{ input.main_source }} and Dependencies
                     {% endblock %}
                     {% block report_header_link scoped %}
                         <small>
