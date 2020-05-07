@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Any, Dict
 
-from mythx_cli.payload.util import patch_truffle_bytecode, set_srcmap_indices
+from mythx_cli.analyze.payload.util import patch_truffle_bytecode, set_srcmap_indices
 
 LOGGER = logging.getLogger("mythx-cli")
 

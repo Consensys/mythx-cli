@@ -9,7 +9,7 @@ import click
 import solcx
 import solcx.exceptions
 
-from mythx_cli.payload.util import patch_solc_bytecode
+from mythx_cli.analyze.payload.util import patch_solc_bytecode
 
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"

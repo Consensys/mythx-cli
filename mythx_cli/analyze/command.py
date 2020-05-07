@@ -17,7 +17,7 @@ from mythx_cli.analyze.util import (
 )
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.payload import (
+from mythx_cli.analyze.payload import (
     generate_bytecode_payload,
     generate_solidity_payload,
     generate_truffle_payload,

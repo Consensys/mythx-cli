@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import click
 
-from mythx_cli.payload import generate_solidity_payload
+from mythx_cli.analyze.payload import generate_solidity_payload
 
 RGLOB_BLACKLIST = ["node_modules"]
 LOGGER = logging.getLogger("mythx-cli")
