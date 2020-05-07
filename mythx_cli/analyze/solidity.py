@@ -28,25 +28,6 @@ def patch_solc_bytecode(code: str) -> str:
     return re.sub(re.compile(r"__\$.{34}\$__"), "0" * 40, code)
 
 
-def find_solidity_files(project_dir: str) -> Optional[List[str]]:
-    """Return all Solidity files in the given directory.
-
-    This will match all files with the `.sol` extension.
-
-    :param project_dir: The directory to search in
-    :return: Solidity files in `project_dir` or `None`
-    """
-
-    output_pattern = Path(project_dir)
-    artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
-    if not artifact_files:
-        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
-        return None
-
-    LOGGER.debug(f"Filtering results by rglob blacklist {RGLOB_BLACKLIST}")
-    return [af for af in artifact_files if all((b not in af for b in RGLOB_BLACKLIST))]
-
-
 def walk_solidity_files(
     ctx,
     solc_version: str,
@@ -71,13 +52,20 @@ def walk_solidity_files(
     LOGGER.debug(f"Received {len(remappings)} import remappings")
     walk_path = Path(base_path) if base_path else Path.cwd()
     LOGGER.debug(f"Walking for sol files under {walk_path}")
-    files = find_solidity_files(walk_path)
+
+    files = [str(x) for x in walk_path.rglob("*.sol")]
+    if not files:
+        LOGGER.debug(f"No Solidity files found in pattern {walk_path}")
+        return jobs
+    files = [af for af in files if all((b not in af for b in RGLOB_BLACKLIST))]
+
     consent = ctx["yes"] or click.confirm(
-        "Found {} Solidity file(s) before filtering. Continue?".format(len(files))
+        f"Found {len(files)} Solidity file(s) before filtering. Continue?"
     )
     if not consent:
         LOGGER.debug("User consent not given - exiting")
         sys.exit(0)
+
     LOGGER.debug(f"Found Solidity files to submit: {', '.join(files)}")
     for file in files:
         LOGGER.debug(f"Generating Solidity payload for {file}")
