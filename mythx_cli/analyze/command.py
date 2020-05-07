@@ -16,8 +16,8 @@ from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
 from mythx_cli.analyze.bytecode import generate_bytecode_payload
 from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
-from mythx_cli.analyze.truffle import generate_truffle_payload
-from mythx_cli.analyze.util import find_truffle_artifacts, is_valid_job, sanitize_paths
+from mythx_cli.analyze.truffle import find_truffle_artifacts, generate_truffle_payload
+from mythx_cli.analyze.util import is_valid_job, sanitize_paths
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print

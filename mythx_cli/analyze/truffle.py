@@ -4,7 +4,9 @@ import json
 import logging
 import re
 from copy import copy
-from typing import Any, Dict
+from glob import glob
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -24,6 +26,27 @@ def set_srcmap_indices(src_map: str, index: int = 0) -> str:
             fields[2] = str(index)
             new_entries[i] = ":".join(fields)
     return ";".join(new_entries)
+
+
+def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
+    """Look for a Truffle build folder and return all relevant JSON artifacts.
+
+    This function will skip the Migrations.json file and return all other files
+    under :code:`<project-dir>/build/contracts/`. If no files were found,
+    :code:`None` is returned.
+
+    :param project_dir: The base directory of the Truffle project
+    :return: Files under :code:`<project-dir>/build/contracts/` or :code:`None`
+    """
+
+    output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
+    artifact_files = list(glob(str(output_pattern.absolute())))
+    if not artifact_files:
+        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
+        return None
+
+    LOGGER.debug("Returning results without Migrations.json")
+    return [f for f in artifact_files if not f.endswith("Migrations.json")]
 
 
 def patch_truffle_bytecode(code: str) -> str:

@@ -1,10 +1,9 @@
 """This module contains helpers for generating MythX analysis payloads."""
 
 import logging
-from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict
 
 import click
 
@@ -130,24 +129,3 @@ def is_valid_job(job) -> bool:
         )
 
     return valid
-
-
-def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
-    """Look for a Truffle build folder and return all relevant JSON artifacts.
-
-    This function will skip the Migrations.json file and return all other files
-    under :code:`<project-dir>/build/contracts/`. If no files were found,
-    :code:`None` is returned.
-
-    :param project_dir: The base directory of the Truffle project
-    :return: Files under :code:`<project-dir>/build/contracts/` or :code:`None`
-    """
-
-    output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
-    artifact_files = list(glob(str(output_pattern.absolute())))
-    if not artifact_files:
-        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
-        return None
-
-    LOGGER.debug("Returning results without Migrations.json")
-    return [f for f in artifact_files if not f.endswith("Migrations.json")]
