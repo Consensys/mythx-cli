@@ -1,12 +1,13 @@
 import logging
 from typing import List, Optional, Tuple
 
-from mythx_cli.formatter import util
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisStatusResponse,
     DetectedIssuesResponse,
 )
+
+from mythx_cli.formatter import util
 
 LOGGER = logging.getLogger("mythx-cli")
 

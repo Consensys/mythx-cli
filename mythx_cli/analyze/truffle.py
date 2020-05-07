@@ -2,9 +2,9 @@
 
 import json
 import logging
-from typing import Any, Dict
-from copy import copy
 import re
+from copy import copy
+from typing import Any, Dict
 
 LOGGER = logging.getLogger("mythx-cli")
 

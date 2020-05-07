@@ -5,8 +5,8 @@ from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-import click
 
+import click
 
 LOGGER = logging.getLogger("mythx-cli")
 

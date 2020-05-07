@@ -6,8 +6,6 @@ from itertools import zip_longest
 from os.path import basename
 from typing import List, Optional, Tuple
 
-from tabulate import tabulate
-
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisListResponse,
@@ -17,6 +15,7 @@ from mythx_models.response import (
     GroupStatusResponse,
     VersionResponse,
 )
+from tabulate import tabulate
 
 from .base import BaseFormatter
 from .util import generate_dashboard_link, get_source_location_by_offset

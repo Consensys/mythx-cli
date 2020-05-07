@@ -2,14 +2,13 @@
 
 import logging
 import re
-from pathlib import Path
-from typing import Dict, Optional, Tuple
 import sys
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
+
 import click
 import solcx
 import solcx.exceptions
-from typing import List
-
 
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
