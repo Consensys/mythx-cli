@@ -13,15 +13,14 @@ from mythx_cli.analyze.util import (
     find_truffle_artifacts,
     is_valid_job,
     sanitize_paths,
-    walk_solidity_files,
 )
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.analyze.payload import (
+from mythx_cli.analyze.bytecode import (
     generate_bytecode_payload,
-    generate_solidity_payload,
-    generate_truffle_payload,
 )
+from mythx_cli.analyze.truffle import generate_truffle_payload
+from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
 from mythx_cli.util import write_or_print
 from mythx_models.response import (
     AnalysisInputResponse,

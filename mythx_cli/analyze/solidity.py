@@ -4,15 +4,88 @@ import logging
 import re
 from pathlib import Path
 from typing import Dict, Optional, Tuple
-
+import sys
 import click
 import solcx
 import solcx.exceptions
+from typing import List
 
-from mythx_cli.analyze.payload.util import patch_solc_bytecode
 
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
+RGLOB_BLACKLIST = ["node_modules"]
+
+
+def patch_solc_bytecode(code: str) -> str:
+    """Patch solc bytecode placeholders.
+
+    This function patches placeholders in solc output. These placeholders are meant
+    to be replaced with deployed library/dependency addresses on deployment, but do not form
+    valid EVM bytecode. To produce a valid payload, placeholders are replaced with the zero-address.
+
+    :param code: The bytecode to patch
+    :return: The patched bytecode with the zero-address filled in
+    """
+    return re.sub(re.compile(r"__\$.{34}\$__"), "0" * 40, code)
+
+
+def find_solidity_files(project_dir: str) -> Optional[List[str]]:
+    """Return all Solidity files in the given directory.
+
+    This will match all files with the `.sol` extension.
+
+    :param project_dir: The directory to search in
+    :return: Solidity files in `project_dir` or `None`
+    """
+
+    output_pattern = Path(project_dir)
+    artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
+    if not artifact_files:
+        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
+        return None
+
+    LOGGER.debug(f"Filtering results by rglob blacklist {RGLOB_BLACKLIST}")
+    return [af for af in artifact_files if all((b not in af for b in RGLOB_BLACKLIST))]
+
+
+def walk_solidity_files(
+    ctx,
+    solc_version: str,
+    base_path: Optional[str] = None,
+    remappings: Tuple[str] = None,
+) -> List[Dict]:
+    """Aggregate all Solidity files in the given base path.
+
+    Given a base path, this function will recursively walk through the filesystem
+    and aggregate all Solidity files it comes across. The resulting job list will
+    contain all the Solidity payloads (optionally compiled), ready for submission.
+
+    :param ctx: :param ctx: Click context holding group-level parameters
+    :param solc_version: The solc version to use for Solidity compilation
+    :param base_path: The base path to walk through from
+    :param remappings: Import remappings to pass to solcx
+    :return:
+    """
+
+    jobs = []
+    remappings = remappings or []
+    LOGGER.debug(f"Received {len(remappings)} import remappings")
+    walk_path = Path(base_path) if base_path else Path.cwd()
+    LOGGER.debug(f"Walking for sol files under {walk_path}")
+    files = find_solidity_files(walk_path)
+    consent = ctx["yes"] or click.confirm(
+        "Found {} Solidity file(s) before filtering. Continue?".format(len(files))
+    )
+    if not consent:
+        LOGGER.debug("User consent not given - exiting")
+        sys.exit(0)
+    LOGGER.debug(f"Found Solidity files to submit: {', '.join(files)}")
+    for file in files:
+        LOGGER.debug(f"Generating Solidity payload for {file}")
+        jobs.append(
+            generate_solidity_payload(file, solc_version, remappings=remappings)
+        )
+    return jobs
 
 
 def generate_solidity_payload(
