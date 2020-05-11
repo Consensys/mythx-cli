@@ -3,32 +3,17 @@
 import json
 import logging
 import re
-from copy import copy
+import sys
 from glob import glob
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Set, Tuple, Union
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
-def set_srcmap_indices(src_map: str, index: int = 0) -> str:
-    """Zero the source map file index entries.
-
-    :param src_map: The source map string to process
-    :return: The processed source map string
-    """
-    entries = src_map.split(";")
-    new_entries = copy(entries)
-    for i, entry in enumerate(entries):
-        fields = entry.split(":")
-        if len(fields) > 2 and fields[2] not in ("-1", ""):
-            # file index is in entry, needs fixing
-            fields[2] = str(index)
-            new_entries[i] = ":".join(fields)
-    return ";".join(new_entries)
-
-
-def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
+def find_truffle_artifacts(
+    project_dir: Union[str, Path]
+) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
     """Look for a Truffle build folder and return all relevant JSON artifacts.
 
     This function will skip the Migrations.json file and return all other files
@@ -43,10 +28,22 @@ def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]
     artifact_files = list(glob(str(output_pattern.absolute())))
     if not artifact_files:
         LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
-        return None
+        return None, None
 
-    LOGGER.debug("Returning results without Migrations.json")
-    return [f for f in artifact_files if not f.endswith("Migrations.json")]
+    sources: Set[Tuple[int, str]] = set()
+    for file in artifact_files:
+        with open(file) as af:
+            artifact = json.load(af)
+            try:
+                ast = artifact.get("ast") or artifact.get("legacyAST")
+                idx = ast.get("src", "").split(":")[2]
+                sources.add((int(idx), artifact.get("sourcePath")))
+            except (KeyError, IndexError) as e:
+                LOGGER.warning(f"Could not reconstruct artifact source list: {e}")
+                sys.exit(1)
+
+    source_list = [x[1] for x in sorted(list(sources), key=lambda x: x[0])]
+    return artifact_files, source_list
 
 
 def patch_truffle_bytecode(code: str) -> str:
@@ -62,7 +59,7 @@ def patch_truffle_bytecode(code: str) -> str:
     return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
 
 
-def generate_truffle_payload(file: str) -> Dict[str, Any]:
+def generate_truffle_payload(file: str, source_list: List[str]) -> Dict[str, Any]:
     """Generate a MythX analysis request payload based on a truffle build
     artifact.
 
@@ -95,10 +92,8 @@ def generate_truffle_payload(file: str) -> Dict[str, Any]:
         "deployed_bytecode": patch_truffle_bytecode(artifact.get("deployedBytecode"))
         if artifact.get("deployedBytecode") != "0x"
         else None,
-        "source_map": set_srcmap_indices(artifact.get("sourceMap"))
-        if artifact.get("sourceMap")
-        else None,
-        "deployed_source_map": set_srcmap_indices(artifact.get("deployedSourceMap"))
+        "source_map": artifact.get("sourceMap") if artifact.get("sourceMap") else None,
+        "deployed_source_map": artifact.get("deployedSourceMap")
         if artifact.get("deployedSourceMap")
         else None,
         "sources": {
@@ -108,7 +103,7 @@ def generate_truffle_payload(file: str) -> Dict[str, Any]:
                 "legacyAST": artifact.get("legacyAST"),
             }
         },
-        "source_list": [artifact.get("sourcePath")],
+        "source_list": source_list,
         "main_source": artifact.get("sourcePath"),
         "solc_version": artifact["compiler"]["version"],
     }

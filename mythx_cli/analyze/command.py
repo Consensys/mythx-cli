@@ -173,7 +173,7 @@ def analyze(
 
     if not target:
         if Path("truffle-config.js").exists() or Path("truffle.js").exists():
-            files = find_truffle_artifacts(Path.cwd())
+            files, source_list = find_truffle_artifacts(Path.cwd())
             if not files:
                 raise click.exceptions.UsageError(
                     (
@@ -183,7 +183,7 @@ def analyze(
                 )
             LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
             for file in files:
-                jobs.append(generate_truffle_payload(file))
+                jobs.append(generate_truffle_payload(file, source_list))
 
         elif list(glob("*.sol")):
             LOGGER.debug(f"Detected Solidity files in directory")
@@ -216,11 +216,13 @@ def analyze(
                 )
             elif Path(element).is_dir():
                 LOGGER.debug(f"Identified target {element} as directory")
-                files = find_truffle_artifacts(Path(element))
+                files, source_list = find_truffle_artifacts(Path(element))
                 if files:
                     # extract truffle artifacts if config found in target
                     LOGGER.debug(f"Identified {element} directory as truffle project")
-                    jobs.extend([generate_truffle_payload(file) for file in files])
+                    jobs.extend(
+                        [generate_truffle_payload(file, source_list) for file in files]
+                    )
                 else:
                     # recursively enumerate sol files if not a truffle project
                     LOGGER.debug(
