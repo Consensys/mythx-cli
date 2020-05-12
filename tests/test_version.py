@@ -2,9 +2,9 @@ import json
 import re
 
 from click.testing import CliRunner
+from mythx_models.response import VersionResponse
 
 from mythx_cli.cli import cli
-from mythx_models.response import VersionResponse
 
 from .common import get_test_case, mock_context
 

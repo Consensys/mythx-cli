@@ -1,9 +1,9 @@
 import json
 
 from click.testing import CliRunner
+from mythx_models.response import AnalysisListResponse, GroupListResponse
 
 from mythx_cli.cli import cli
-from mythx_models.response import AnalysisListResponse, GroupListResponse
 
 from .common import get_test_case, mock_context
 

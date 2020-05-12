@@ -1,15 +1,12 @@
+"""This module contains helpers for generating MythX analysis payloads."""
+
 import logging
-import sys
-from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict
 
 import click
 
-from mythx_cli.payload import generate_solidity_payload
-
-RGLOB_BLACKLIST = ["node_modules"]
 LOGGER = logging.getLogger("mythx-cli")
 
 
@@ -132,83 +129,3 @@ def is_valid_job(job) -> bool:
         )
 
     return valid
-
-
-def find_truffle_artifacts(project_dir: Union[str, Path]) -> Optional[List[str]]:
-    """Look for a Truffle build folder and return all relevant JSON artifacts.
-
-    This function will skip the Migrations.json file and return all other files
-    under :code:`<project-dir>/build/contracts/`. If no files were found,
-    :code:`None` is returned.
-
-    :param project_dir: The base directory of the Truffle project
-    :return: Files under :code:`<project-dir>/build/contracts/` or :code:`None`
-    """
-
-    output_pattern = Path(project_dir) / "build" / "contracts" / "*.json"
-    artifact_files = list(glob(str(output_pattern.absolute())))
-    if not artifact_files:
-        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
-        return None
-
-    LOGGER.debug("Returning results without Migrations.json")
-    return [f for f in artifact_files if not f.endswith("Migrations.json")]
-
-
-def find_solidity_files(project_dir: str) -> Optional[List[str]]:
-    """Return all Solidity files in the given directory.
-
-    This will match all files with the `.sol` extension.
-
-    :param project_dir: The directory to search in
-    :return: Solidity files in `project_dir` or `None`
-    """
-
-    output_pattern = Path(project_dir)
-    artifact_files = [str(x) for x in output_pattern.rglob("*.sol")]
-    if not artifact_files:
-        LOGGER.debug(f"No truffle artifacts found in pattern {output_pattern}")
-        return None
-
-    LOGGER.debug(f"Filtering results by rglob blacklist {RGLOB_BLACKLIST}")
-    return [af for af in artifact_files if all((b not in af for b in RGLOB_BLACKLIST))]
-
-
-def walk_solidity_files(
-    ctx,
-    solc_version: str,
-    base_path: Optional[str] = None,
-    remappings: Tuple[str] = None,
-) -> List[Dict]:
-    """Aggregate all Solidity files in the given base path.
-
-    Given a base path, this function will recursively walk through the filesystem
-    and aggregate all Solidity files it comes across. The resulting job list will
-    contain all the Solidity payloads (optionally compiled), ready for submission.
-
-    :param ctx: :param ctx: Click context holding group-level parameters
-    :param solc_version: The solc version to use for Solidity compilation
-    :param base_path: The base path to walk through from
-    :param remappings: Import remappings to pass to solcx
-    :return:
-    """
-
-    jobs = []
-    remappings = remappings or []
-    LOGGER.debug(f"Received {len(remappings)} import remappings")
-    walk_path = Path(base_path) if base_path else Path.cwd()
-    LOGGER.debug(f"Walking for sol files under {walk_path}")
-    files = find_solidity_files(walk_path)
-    consent = ctx["yes"] or click.confirm(
-        "Found {} Solidity file(s) before filtering. Continue?".format(len(files))
-    )
-    if not consent:
-        LOGGER.debug("User consent not given - exiting")
-        sys.exit(0)
-    LOGGER.debug(f"Found Solidity files to submit: {', '.join(files)}")
-    for file in files:
-        LOGGER.debug(f"Generating Solidity payload for {file}")
-        jobs.append(
-            generate_solidity_payload(file, solc_version, remappings=remappings)
-        )
-    return jobs

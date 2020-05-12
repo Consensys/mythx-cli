@@ -6,28 +6,21 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import click
-from pythx.middleware.group_data import GroupDataMiddleware
-from pythx.middleware.property_checking import PropertyCheckingMiddleware
-
-from mythx_cli.analyze.util import (
-    find_truffle_artifacts,
-    is_valid_job,
-    sanitize_paths,
-    walk_solidity_files,
-)
-from mythx_cli.formatter import FORMAT_RESOLVER, util
-from mythx_cli.formatter.base import BaseFormatter
-from mythx_cli.payload import (
-    generate_bytecode_payload,
-    generate_solidity_payload,
-    generate_truffle_payload,
-)
-from mythx_cli.util import write_or_print
 from mythx_models.response import (
     AnalysisInputResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
 )
+from pythx.middleware.group_data import GroupDataMiddleware
+from pythx.middleware.property_checking import PropertyCheckingMiddleware
+
+from mythx_cli.analyze.bytecode import generate_bytecode_payload
+from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
+from mythx_cli.analyze.truffle import find_truffle_artifacts, generate_truffle_payload
+from mythx_cli.analyze.util import is_valid_job, sanitize_paths
+from mythx_cli.formatter import FORMAT_RESOLVER, util
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -180,7 +173,7 @@ def analyze(
 
     if not target:
         if Path("truffle-config.js").exists() or Path("truffle.js").exists():
-            files = find_truffle_artifacts(Path.cwd())
+            files, source_list = find_truffle_artifacts(Path.cwd())
             if not files:
                 raise click.exceptions.UsageError(
                     (
@@ -190,7 +183,7 @@ def analyze(
                 )
             LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
             for file in files:
-                jobs.append(generate_truffle_payload(file))
+                jobs.append(generate_truffle_payload(file, source_list))
 
         elif list(glob("*.sol")):
             LOGGER.debug(f"Detected Solidity files in directory")
@@ -223,11 +216,13 @@ def analyze(
                 )
             elif Path(element).is_dir():
                 LOGGER.debug(f"Identified target {element} as directory")
-                files = find_truffle_artifacts(Path(element))
+                files, source_list = find_truffle_artifacts(Path(element))
                 if files:
                     # extract truffle artifacts if config found in target
                     LOGGER.debug(f"Identified {element} directory as truffle project")
-                    jobs.extend([generate_truffle_payload(file) for file in files])
+                    jobs.extend(
+                        [generate_truffle_payload(file, source_list) for file in files]
+                    )
                 else:
                     # recursively enumerate sol files if not a truffle project
                     LOGGER.debug(

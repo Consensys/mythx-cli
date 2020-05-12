@@ -1,9 +1,9 @@
 import logging
 
 import click
+from mythx_models.response import GroupCreationResponse
 
 from mythx_cli.util import write_or_print
-from mythx_models.response import GroupCreationResponse
 
 LOGGER = logging.getLogger("mythx-cli")
 
