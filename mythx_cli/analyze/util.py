@@ -10,6 +10,11 @@ import click
 LOGGER = logging.getLogger("mythx-cli")
 
 
+def delete_absolute_prefix(path: str, prefix: str):
+    absolute = Path(path).absolute()
+    return str(absolute).replace(prefix, "")
+
+
 def sanitize_paths(job: Dict) -> Dict:
     """Remove the common prefix from paths.
 
@@ -52,13 +57,13 @@ def sanitize_paths(job: Dict) -> Dict:
         LOGGER.debug("One source list item detected - trimming by CWD prefix")
         prefix = commonpath(source_list + [str(Path.cwd())]) + "/"
 
-    LOGGER.debug(f"Trimming source list: {', '.join(source_list)}")
-    sanitized_source_list = [s.replace(prefix, "") for s in source_list]
+    LOGGER.debug(f"Trimming {prefix} from source list: {', '.join(source_list)}")
+    sanitized_source_list = [delete_absolute_prefix(s, prefix) for s in source_list]
     job["source_list"] = sanitized_source_list
     LOGGER.debug(f"Trimmed source list: {', '.join(sanitized_source_list)}")
     if job.get("main_source") is not None:
         LOGGER.debug(f"Trimming main source path {job['main_source']}")
-        job["main_source"] = job["main_source"].replace(prefix, "")
+        job["main_source"] = delete_absolute_prefix(job["main_source"], prefix)
         LOGGER.debug(f"Trimmed main source path {job['main_source']}")
     for name in list(job.get("sources", {})):
         data = job["sources"].pop(name)
@@ -70,14 +75,14 @@ def sanitize_paths(job: Dict) -> Dict:
                     f"Skipping sanitization: {ast_key} -> absolutePath not defined"
                 )
                 continue
-            sanitized_absolute = data[ast_key]["absolutePath"].replace(prefix, "")
+            sanitized_absolute = delete_absolute_prefix(data[ast_key]["absolutePath"], prefix)
             LOGGER.debug(
                 f"Setting sanitized {ast_key} -> absolutePath to {sanitized_absolute}"
             )
             data[ast_key]["absolutePath"] = sanitized_absolute
 
         # replace source key names
-        sanitized_source_name = name.replace(prefix, "")
+        sanitized_source_name = delete_absolute_prefix(name, prefix)
         LOGGER.debug(f"Setting sanitized source name {sanitized_source_name}")
         job["sources"][sanitized_source_name] = data
 
