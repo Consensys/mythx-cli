@@ -75,7 +75,9 @@ def sanitize_paths(job: Dict) -> Dict:
                     f"Skipping sanitization: {ast_key} -> absolutePath not defined"
                 )
                 continue
-            sanitized_absolute = delete_absolute_prefix(data[ast_key]["absolutePath"], prefix)
+            sanitized_absolute = delete_absolute_prefix(
+                data[ast_key]["absolutePath"], prefix
+            )
             LOGGER.debug(
                 f"Setting sanitized {ast_key} -> absolutePath to {sanitized_absolute}"
             )
