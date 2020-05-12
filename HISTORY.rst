@@ -2,6 +2,27 @@
 History
 =======
 
+0.6.15 (2020-05-12)
+-------------------
+
+- Fix bug where payload path prefix trimming was incorrect
+- Generate source list from Truffle artifact files
+- Improve Solidity file walk performance
+- Refactor payloads submodule
+- Update :code:`tox` to 3.15.0
+- Update :code:`pytest` to 5.4.2
+- Update :code:`py-solc-x` to 0.8.2
+
+
+0.6.14 (2020-04-30)
+-------------------
+
+- Fix bug where location offsets were incorrectly displayed in reports
+- Fix bug where whitespace was incorrectly rendered in HTML reports
+- Clean up HTML report layout template code
+- Update :code:`click` to 7.1.2
+
+
 0.6.13 (2020-04-27)
 -------------------
 
