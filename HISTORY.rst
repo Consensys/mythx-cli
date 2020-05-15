@@ -2,6 +2,13 @@
 History
 =======
 
+0.6.16 (2020-05-15)
+-------------------
+
+- Whitelist OSX solc installations in :code:`py-solc-x`
+- Update :code:`bumpversion` to 0.6.0
+
+
 0.6.15 (2020-05-12)
 -------------------
 
