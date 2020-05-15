@@ -122,7 +122,7 @@ def generate_solidity_payload(
     if solc_version not in solcx.get_installed_solc_versions():
         try:
             LOGGER.debug(f"Installing solc {solc_version}")
-            solcx.install_solc(solc_version)
+            solcx.install_solc(solc_version, allow_osx=True)
         except Exception as e:
             raise click.exceptions.UsageError(
                 f"Error installing solc version {solc_version}: {e}"
