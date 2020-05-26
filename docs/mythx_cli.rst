@@ -11,7 +11,6 @@ Subpackages
     mythx_cli.analyze
     mythx_cli.formatter
     mythx_cli.group
-    mythx_cli.payload
     mythx_cli.render
     mythx_cli.version
 
