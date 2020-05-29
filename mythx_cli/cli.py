@@ -13,6 +13,7 @@ from mythx_cli.analysis.list import analysis_list
 from mythx_cli.analysis.report import analysis_report
 from mythx_cli.analysis.status import analysis_status
 from mythx_cli.analyze.command import analyze
+from mythx_cli.check.command import check
 from mythx_cli.formatter import FORMAT_RESOLVER
 from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
@@ -186,6 +187,7 @@ LOGGER.debug("Registering main commands")
 cli.add_command(analyze)
 cli.add_command(render)
 cli.add_command(version)
+cli.add_command(check)
 
 
 @cli.group()
