@@ -181,7 +181,7 @@ def generate_solidity_payload(
         result = solcx.compile_standard(
             input_data={
                 "language": "Solidity",
-                "sources": {file: {"urls": [scribble_file or file]}},
+                "sources": {scribble_file or file: {"urls": [scribble_file or file]}},
                 "settings": {
                     "remappings": [r.format(pwd=cwd) for r in remappings]
                     or [
@@ -216,7 +216,7 @@ def generate_solidity_payload(
     payload = {
         "sources": {},
         "solc_version": solc_version,
-        "main_source": file,
+        "main_source": scribble_file or file,
         "source_list": [None] * len(compiled_sources),
     }
 
@@ -239,15 +239,15 @@ def generate_solidity_payload(
             # if contract specified, set its bytecode and source mapping
             payload["contract_name"] = contract
             payload["bytecode"] = patch_solc_bytecode(
-                result["contracts"][file][contract]["evm"]["bytecode"]["object"]
+                result["contracts"][scribble_file or file][contract]["evm"]["bytecode"]["object"]
             )
-            payload["source_map"] = result["contracts"][file][contract]["evm"][
+            payload["source_map"] = result["contracts"][scribble_file or file][contract]["evm"][
                 "bytecode"
             ]["sourceMap"]
             payload["deployed_bytecode"] = patch_solc_bytecode(
-                result["contracts"][file][contract]["evm"]["deployedBytecode"]["object"]
+                result["contracts"][scribble_file or file][contract]["evm"]["deployedBytecode"]["object"]
             )
-            payload["deployed_source_map"] = result["contracts"][file][contract]["evm"][
+            payload["deployed_source_map"] = result["contracts"][scribble_file or file][contract]["evm"][
                 "deployedBytecode"
             ]["sourceMap"]
             return payload
@@ -282,13 +282,13 @@ def generate_solidity_payload(
 
     if enable_scribble:
         # replace scribble tempfile name with prefixed one
-        scribble_payload = payload["sources"].pop(file)
+        scribble_payload = payload["sources"].pop(scribble_file)
         payload["sources"]["scribble-" + file] = scribble_payload
         payload["source_list"] = [
-            "scribble-" + file if item == file else item
+            "scribble-" + file if item == scribble_file else item
             for item in payload["source_list"]
         ]
-        payload["main_source"] = "scribble-" + payload["main_source"]
+        payload["main_source"] = "scribble-" + file
 
         # delete scribble temp file
         os.unlink(scribble_file)
