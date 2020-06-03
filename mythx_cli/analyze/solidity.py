@@ -1,8 +1,11 @@
 """This module contains functions to generate Solidity-related payloads."""
 
 import logging
+import os
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -33,6 +36,8 @@ def walk_solidity_files(
     solc_version: str,
     base_path: Optional[str] = None,
     remappings: Tuple[str] = None,
+    enable_scribble: bool = False,
+    scribble_path: str = "scribble",
 ) -> List[Dict]:
     """Aggregate all Solidity files in the given base path.
 
@@ -44,6 +49,8 @@ def walk_solidity_files(
     :param solc_version: The solc version to use for Solidity compilation
     :param base_path: The base path to walk through from
     :param remappings: Import remappings to pass to solcx
+    :param enable_scribble: Enable instrumentation with scribble
+    :param scribble_path: Optional path to the scribble executable
     :return:
     """
 
@@ -70,7 +77,13 @@ def walk_solidity_files(
     for file in files:
         LOGGER.debug(f"Generating Solidity payload for {file}")
         jobs.append(
-            generate_solidity_payload(file, solc_version, remappings=remappings)
+            generate_solidity_payload(
+                file,
+                solc_version,
+                remappings=remappings,
+                enable_scribble=enable_scribble,
+                scribble_path=scribble_path,
+            )
         )
     return jobs
 
@@ -80,6 +93,8 @@ def generate_solidity_payload(
     version: Optional[str],
     contract: str = None,
     remappings: Tuple[str] = None,
+    enable_scribble: bool = False,
+    scribble_path: str = "scribble",
 ) -> Dict:
     """Generate a MythX analysis request from a given Solidity file.
 
@@ -102,6 +117,8 @@ def generate_solidity_payload(
     :param version: The solc version to use for compilation
     :param contract: The contract name(s) to submit
     :param remappings: Import remappings to pass to solcx
+    :param enable_scribble: Enable instrumentation with scribble
+    :param scribble_path: Optional path to the scribble executable
     :return: The payload dictionary to be sent to MythX
     """
 
@@ -127,15 +144,44 @@ def generate_solidity_payload(
             raise click.exceptions.UsageError(
                 f"Error installing solc version {solc_version}: {e}"
             )
-
     solcx.set_solc_version(solc_version, silent=True)
+
+    # instrument with scribble if requested
+    scribble_file = None
+    if enable_scribble:
+        process = subprocess.run(
+            [scribble_path, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        if process.returncode != 0:
+            click.echo(
+                f"Scribble has encountered an error (code: {process.returncode})"
+            )
+            click.echo("=====STDERR=====")
+            click.echo(process.stderr.decode())
+            click.echo("=====STDOUT=====")
+            process.stdout.decode()
+            sys.exit(1)
+
+        # don't delete temp file on close but manually unlink
+        # after payload has been generated
+        scribble_output_f = tempfile.NamedTemporaryFile(
+            mode="w+", delete=False, suffix=".sol"
+        )
+        scribble_stdout = process.stdout.decode()
+        scribble_output_f.write(scribble_stdout)
+        scribble_file = scribble_output_f.name
+        scribble_output_f.close()
+
+        click.echo(scribble_file)
+        click.echo(scribble_stdout)
+
     try:
         cwd = str(Path.cwd().absolute())
-        LOGGER.debug(f"Compiling {file} under allowed path {cwd}")
+        LOGGER.debug(f"Compiling {scribble_file or file} under allowed path {cwd}")
         result = solcx.compile_standard(
             input_data={
                 "language": "Solidity",
-                "sources": {file: {"urls": [file]}},
+                "sources": {file: {"urls": [scribble_file or file]}},
                 "settings": {
                     "remappings": [r.format(pwd=cwd) for r in remappings]
                     or [
@@ -157,7 +203,8 @@ def generate_solidity_payload(
                     "optimizer": {"enabled": True, "runs": 200},
                 },
             },
-            allow_paths=cwd,
+            # if scribble enabled, allow access to temporary file
+            allow_paths=cwd if not enable_scribble else scribble_file,
         )
     except solcx.exceptions.SolcError as e:
         raise click.exceptions.UsageError(
@@ -176,7 +223,6 @@ def generate_solidity_payload(
     for file_path, file_data in compiled_sources.items():
         # fill source list entry
         payload["source_list"][file_data.get("id")] = file_path
-
         payload_dict = payload["sources"][file_path] = {}
 
         # add AST for file if it's present
@@ -233,5 +279,18 @@ def generate_solidity_payload(
                     contract_deployed_bytecode
                 )
                 payload["deployed_source_map"] = contract_deployed_source_map
+
+    if enable_scribble:
+        # replace scribble tempfile name with prefixed one
+        scribble_payload = payload["sources"].pop(file)
+        payload["sources"]["scribble-" + file] = scribble_payload
+        payload["source_list"] = [
+            "scribble-" + file if item == file else item
+            for item in payload["source_list"]
+        ]
+        payload["main_source"] = "scribble-" + payload["main_source"]
+
+        # delete scribble temp file
+        os.unlink(scribble_file)
 
     return payload

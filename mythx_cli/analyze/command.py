@@ -96,6 +96,19 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Enable property verification mode",
 )
+@click.option(
+    "--scribble",
+    "enable_scribble",
+    is_flag=True,
+    default=None,
+    help="Enable scribble instrumentation",
+)
+@click.option(
+    "--scribble-path",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a custom scribble executable",
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -112,6 +125,8 @@ def analyze(
     include: Tuple[str],
     remap_import: Tuple[str],
     check_properties: bool,
+    enable_scribble: bool,
+    scribble_path: str,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -131,6 +146,8 @@ def analyze(
     :param include: List of contract names to send - exclude everything else
     :param remap_import: List of import remappings to pass on to solc
     :param check_properties: Enable property verification mode
+    :param enable_scribble: Enable instrumentation with scribble
+    :param scribble_path: Optional path to the scribble executable
     :return:
     """
 
@@ -152,10 +169,14 @@ def analyze(
     check_properties = (
         check_properties or analyze_config.get("check-properties") or False
     )
+    enable_scribble = enable_scribble or analyze_config.get("enable-scribble") or False
+    scribble_path = scribble_path or analyze_config.get("scribble-path") or "scribble"
     target = target or analyze_config.get("targets") or None
 
+    # enable property checking if explicitly requested or implicitly when
+    # scribble instrumentation is requested
     ctx["client"].handler.middlewares.append(
-        PropertyCheckingMiddleware(check_properties)
+        PropertyCheckingMiddleware(check_properties or enable_scribble)
     )
 
     if create_group:
@@ -188,7 +209,11 @@ def analyze(
         elif list(glob("*.sol")):
             LOGGER.debug(f"Detected Solidity files in directory")
             jobs = walk_solidity_files(
-                ctx=ctx, solc_version=solc_version, remappings=remap_import
+                ctx=ctx,
+                solc_version=solc_version,
+                remappings=remap_import,
+                enable_scribble=enable_scribble,
+                scribble_path=scribble_path,
             )
         else:
             raise click.exceptions.UsageError(
@@ -212,6 +237,8 @@ def analyze(
                         version=solc_version,
                         contract=suffix,
                         remappings=remap_import,
+                        enable_scribble=enable_scribble,
+                        scribble_path=scribble_path,
                     )
                 )
             elif Path(element).is_dir():
@@ -234,6 +261,8 @@ def analyze(
                             solc_version,
                             base_path=element,
                             remappings=remap_import,
+                            enable_scribble=enable_scribble,
+                            scribble_path=scribble_path,
                         )
                     )
             else:
