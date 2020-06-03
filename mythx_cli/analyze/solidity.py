@@ -239,17 +239,21 @@ def generate_solidity_payload(
             # if contract specified, set its bytecode and source mapping
             payload["contract_name"] = contract
             payload["bytecode"] = patch_solc_bytecode(
-                result["contracts"][scribble_file or file][contract]["evm"]["bytecode"]["object"]
+                result["contracts"][scribble_file or file][contract]["evm"]["bytecode"][
+                    "object"
+                ]
             )
-            payload["source_map"] = result["contracts"][scribble_file or file][contract]["evm"][
-                "bytecode"
-            ]["sourceMap"]
+            payload["source_map"] = result["contracts"][scribble_file or file][
+                contract
+            ]["evm"]["bytecode"]["sourceMap"]
             payload["deployed_bytecode"] = patch_solc_bytecode(
-                result["contracts"][scribble_file or file][contract]["evm"]["deployedBytecode"]["object"]
+                result["contracts"][scribble_file or file][contract]["evm"][
+                    "deployedBytecode"
+                ]["object"]
             )
-            payload["deployed_source_map"] = result["contracts"][scribble_file or file][contract]["evm"][
-                "deployedBytecode"
-            ]["sourceMap"]
+            payload["deployed_source_map"] = result["contracts"][scribble_file or file][
+                contract
+            ]["evm"]["deployedBytecode"]["sourceMap"]
             return payload
         except KeyError:
             LOGGER.warning(
