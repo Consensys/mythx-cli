@@ -38,7 +38,9 @@ VERSION_ERROR = (
     "Error: Error installing solc version v9001: Invalid version string: '9001'"
 )
 PRAGMA_ERROR = "No pragma found - please specify a solc version with --solc-version"
-EMPTY_PROJECT_ERROR = "Could not find any truffle artifacts. Are you in the project root? Did you run truffle compile?"
+EMPTY_PROJECT_ERROR = (
+    "Could not find any truffle artifacts. Did you run truffle compile?"
+)
 TRUFFLE_ARTIFACT = get_test_case("testdata/truffle-artifact.json")
 
 
