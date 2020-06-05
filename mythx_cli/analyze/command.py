@@ -1,6 +1,7 @@
 import logging
 import sys
 import time
+from enum import Enum
 from glob import glob
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -23,6 +24,13 @@ from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
+
+
+class AnalyzeMode(Enum):
+    SOLIDITY_FILE = 1
+    SOLIDITY_DIR = 2
+    TRUFFLE = 3
+    BYTECODE = 4
 
 
 @click.command()
@@ -191,84 +199,92 @@ def analyze(
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
+    mode_list = []
 
     if not target:
         if Path("truffle-config.js").exists() or Path("truffle.js").exists():
-            files, source_list = find_truffle_artifacts(Path.cwd())
-            if not files:
-                raise click.exceptions.UsageError(
-                    (
-                        "Could not find any truffle artifacts. Are you in the project root? "
-                        "Did you run truffle compile?"
-                    )
-                )
-            LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
-            for file in files:
-                jobs.append(generate_truffle_payload(file, source_list))
-
+            LOGGER.debug(f"Identified directory as truffle project")
+            mode_list.append((AnalyzeMode.TRUFFLE, Path.cwd()))  # TRUFFLE DIR
         elif list(glob("*.sol")):
-            LOGGER.debug(f"Detected Solidity files in directory")
-            jobs = walk_solidity_files(
-                ctx=ctx,
-                solc_version=solc_version,
-                remappings=remap_import,
-                enable_scribble=enable_scribble,
-                scribble_path=scribble_path,
-            )
+            LOGGER.debug(f"Identified directory with Solidity files")
+            mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path.cwd()))  # SOLIDITY DIR
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
             )
     else:
         for target_elem in target:
-            target_split = target_elem.split(":")
-            element, suffix = target_split[0], target_split[1:]
-            if suffix:
-                include += suffix
-                suffix = suffix[0]
-            if element.startswith("0x"):
-                LOGGER.debug(f"Identified target {element} as bytecode")
-                jobs.append(generate_bytecode_payload(element))
+            element = target_elem.split(":")[0]
+            if target_elem.startswith("0x"):
+                LOGGER.debug(f"Identified target {target_elem} as bytecode")
+                mode_list.append((AnalyzeMode.BYTECODE, target_elem))
             elif Path(element).is_file() and Path(element).suffix == ".sol":
-                LOGGER.debug(f"Trying to interpret {element} as a solidity file")
-                jobs.append(
-                    generate_solidity_payload(
-                        file=element,
-                        version=solc_version,
-                        contract=suffix,
-                        remappings=remap_import,
-                        enable_scribble=enable_scribble,
-                        scribble_path=scribble_path,
-                    )
-                )
-            elif Path(element).is_dir():
-                LOGGER.debug(f"Identified target {element} as directory")
-                files, source_list = find_truffle_artifacts(Path(element))
+                LOGGER.debug(f"Identified target {element} as solidity file")
+                mode_list.append(
+                    (AnalyzeMode.SOLIDITY_FILE, target_elem)
+                )  # SOLIDITY FILE
+            elif Path(target_elem).is_dir():
+                LOGGER.debug(f"Identified target {target_elem} as directory")
+                files, source_list = find_truffle_artifacts(Path(target_elem))
                 if files:
-                    # extract truffle artifacts if config found in target
-                    LOGGER.debug(f"Identified {element} directory as truffle project")
-                    jobs.extend(
-                        [generate_truffle_payload(file, source_list) for file in files]
-                    )
-                else:
-                    # recursively enumerate sol files if not a truffle project
                     LOGGER.debug(
-                        f"Identified {element} as directory containing Solidity files"
+                        f"Identified {target_elem} directory as truffle project"
                     )
-                    jobs.extend(
-                        walk_solidity_files(
-                            ctx,
-                            solc_version,
-                            base_path=element,
-                            remappings=remap_import,
-                            enable_scribble=enable_scribble,
-                            scribble_path=scribble_path,
-                        )
-                    )
+                    mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
+                else:
+                    LOGGER.debug(f"Identified {target_elem} as Solidity directory")
+                    mode_list.append(
+                        (AnalyzeMode.SOLIDITY_DIR, Path(target_elem))
+                    )  # SOLIDITY DIR
             else:
                 raise click.exceptions.UsageError(
-                    f"Could not interpret argument {element} as bytecode, Solidity file, or Truffle project"
+                    f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
                 )
+
+    for analyze_mode, element in mode_list:
+        if analyze_mode == AnalyzeMode.TRUFFLE:
+            files, source_list = find_truffle_artifacts(element)
+            if not files:
+                raise click.exceptions.UsageError(
+                    "Could not find any truffle artifacts. Did you run truffle compile?"
+                )
+            LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
+            for file in files:
+                jobs.append(generate_truffle_payload(file, source_list))
+        elif analyze_mode == AnalyzeMode.SOLIDITY_DIR:
+            # recursively enumerate sol files if not a truffle project
+            LOGGER.debug(f"Identified {element} as directory containing Solidity files")
+            jobs.extend(
+                walk_solidity_files(
+                    ctx,
+                    solc_version,
+                    base_path=element,
+                    remappings=remap_import,
+                    enable_scribble=enable_scribble,
+                    scribble_path=scribble_path,
+                )
+            )
+        elif analyze_mode == AnalyzeMode.SOLIDITY_FILE:
+            # TODO: There has to be a prettier way for this
+            LOGGER.debug(f"Trying to interpret {element} as a solidity file")
+            target_split = element.split(":")
+            file_path, contract = target_split[0], target_split[1:]
+            if contract:
+                include += contract  # e.g. ["MyContract"]
+                contract = contract[0]
+            jobs.append(
+                generate_solidity_payload(
+                    file=file_path,
+                    version=solc_version,
+                    contract=contract,
+                    remappings=remap_import,
+                    enable_scribble=enable_scribble,
+                    scribble_path=scribble_path,
+                )
+            )
+        elif analyze_mode == AnalyzeMode.BYTECODE:
+            LOGGER.debug(f"Identified target {element} as bytecode")
+            jobs.append(generate_bytecode_payload(element))
 
     # sanitize local paths
     LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
