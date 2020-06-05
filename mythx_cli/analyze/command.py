@@ -30,7 +30,6 @@ class AnalyzeMode(Enum):
     SOLIDITY_FILE = 1
     SOLIDITY_DIR = 2
     TRUFFLE = 3
-    BYTECODE = 4
 
 
 @click.command()
@@ -215,14 +214,11 @@ def analyze(
     else:
         for target_elem in target:
             element = target_elem.split(":")[0]
-            if target_elem.startswith("0x"):
-                LOGGER.debug(f"Identified target {target_elem} as bytecode")
-                mode_list.append((AnalyzeMode.BYTECODE, target_elem))
-            elif Path(element).is_file() and Path(element).suffix == ".sol":
+            if Path(element).is_file() and Path(element).suffix == ".sol":
                 LOGGER.debug(f"Identified target {element} as solidity file")
                 mode_list.append(
                     (AnalyzeMode.SOLIDITY_FILE, target_elem)
-                )  # SOLIDITY FILE
+                )
             elif Path(target_elem).is_dir():
                 LOGGER.debug(f"Identified target {target_elem} as directory")
                 files, source_list = find_truffle_artifacts(Path(target_elem))
@@ -235,7 +231,7 @@ def analyze(
                     LOGGER.debug(f"Identified {target_elem} as Solidity directory")
                     mode_list.append(
                         (AnalyzeMode.SOLIDITY_DIR, Path(target_elem))
-                    )  # SOLIDITY DIR
+                    )
             else:
                 raise click.exceptions.UsageError(
                     f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
@@ -282,9 +278,6 @@ def analyze(
                     scribble_path=scribble_path,
                 )
             )
-        elif analyze_mode == AnalyzeMode.BYTECODE:
-            LOGGER.debug(f"Identified target {element} as bytecode")
-            jobs.append(generate_bytecode_payload(element))
 
     # sanitize local paths
     LOGGER.debug(f"Sanitizing {len(jobs)} jobs")

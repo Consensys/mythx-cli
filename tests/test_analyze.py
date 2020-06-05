@@ -62,54 +62,6 @@ def setup_truffle_test():
     "mode,params,value,contained,retval",
     (
         pytest.param(
-            "bytecode",
-            ["--output", "test.log", "analyze", "0xfe"],
-            INPUT_RESPONSE.source_list[0],
-            True,
-            0,
-            id="bytecode output file",
-        ),
-        pytest.param(
-            "bytecode",
-            ["analyze", "0xfe"],
-            INPUT_RESPONSE.source_list[0],
-            True,
-            0,
-            id="bytecode analyze param",
-        ),
-        pytest.param(
-            "bytecode",
-            ["analyze", "--create-group", "0xfe"],
-            INPUT_RESPONSE.source_list[0],
-            True,
-            0,
-            id="bytecode create group",
-        ),
-        pytest.param(
-            "bytecode",
-            ["analyze", "--swc-blacklist", "SWC-110", "0xfe"],
-            INPUT_RESPONSE.source_list[0],
-            False,
-            0,
-            id="bytecode blacklist 110",
-        ),
-        pytest.param(
-            "bytecode",
-            ["analyze", "--min-severity", "high", "0xfe"],
-            INPUT_RESPONSE.source_list[0],
-            False,
-            0,
-            id="bytecode high sev filter",
-        ),
-        pytest.param(
-            "bytecode",
-            ["analyze", "lolwut"],
-            FORMAT_ERROR,
-            True,
-            2,
-            id="bytecode invalid analyze",
-        ),
-        pytest.param(
             "solidity",
             ["analyze", "--async"],
             SUBMISSION_RESPONSE.analysis.uuid,
@@ -237,7 +189,7 @@ def setup_truffle_test():
         ),
     ),
 )
-def test_bytecode_analyze(mode, params, value, contained, retval):
+def test_analyze(mode, params, value, contained, retval):
     runner = CliRunner()
     with mock_context(), runner.isolated_filesystem():
         if mode == "solidity":
@@ -273,21 +225,7 @@ def test_exit_on_missing_consent():
         assert result.exit_code == 0
 
 
-def test_bytecode_analyze_ci():
-    runner = CliRunner()
-    with mock_context() as patches:
-        # set up high-severity issue
-        issues_resp = deepcopy(ISSUES_RESPONSE)
-        issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
-        patches[2].return_value = issues_resp
-
-        result = runner.invoke(cli, ["--ci", "analyze", "0xfe"])
-
-        assert INPUT_RESPONSE.source_list[0] in result.output
-        assert result.exit_code == 1
-
-
-def test_bytecode_analyze_invalid():
+def test_analyze_invalid():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["analyze", "lolwut"])
