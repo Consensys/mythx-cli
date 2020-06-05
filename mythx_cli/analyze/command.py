@@ -216,9 +216,7 @@ def analyze(
             element = target_elem.split(":")[0]
             if Path(element).is_file() and Path(element).suffix == ".sol":
                 LOGGER.debug(f"Identified target {element} as solidity file")
-                mode_list.append(
-                    (AnalyzeMode.SOLIDITY_FILE, target_elem)
-                )
+                mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
             elif Path(target_elem).is_dir():
                 LOGGER.debug(f"Identified target {target_elem} as directory")
                 files, source_list = find_truffle_artifacts(Path(target_elem))
@@ -229,9 +227,7 @@ def analyze(
                     mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
                 else:
                     LOGGER.debug(f"Identified {target_elem} as Solidity directory")
-                    mode_list.append(
-                        (AnalyzeMode.SOLIDITY_DIR, Path(target_elem))
-                    )
+                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path(target_elem)))
             else:
                 raise click.exceptions.UsageError(
                     f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
