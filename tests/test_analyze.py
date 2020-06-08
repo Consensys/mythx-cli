@@ -218,10 +218,7 @@ def test_exit_on_missing_consent():
         setup_solidity_test()
         result = runner.invoke(cli, ["analyze"], input="n\n")
 
-        assert (
-            result.output
-            == "Found 1 Solidity file(s) before filtering. Continue? [y/N]: n\n"
-        )
+        assert result.output == "Found 1 job(s). Submit? [y/N]: n\n"
         assert result.exit_code == 0
 
 
@@ -266,7 +263,14 @@ def test_solidity_analyze_multiple_with_group():
 
         result = runner.invoke(
             cli,
-            ["--debug", "analyze", "--create-group", "outdated.sol", "outdated2.sol"],
+            [
+                "--debug",
+                "--yes",
+                "analyze",
+                "--create-group",
+                "outdated.sol",
+                "outdated2.sol",
+            ],
         )
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
         assert result.exit_code == 0
@@ -279,7 +283,9 @@ def test_solidity_analyze_property_checking():
         with open("outdated.sol", "w+") as conf_f:
             conf_f.write(SOLIDITY_CODE)
 
-        result = runner.invoke(cli, ["analyze", "--check-properties", "outdated.sol"])
+        result = runner.invoke(
+            cli, ["--yes", "analyze", "--check-properties", "outdated.sol"]
+        )
         assert result.output == ISSUES_TABLE
         assert result.exit_code == 0
 
@@ -298,7 +304,7 @@ def test_solidity_analyze_multiple_with_config_group():
             conf_f.write("analyze:\n  create-group: true\n")
 
         result = runner.invoke(
-            cli, ["--debug", "analyze", "outdated.sol", "outdated2.sol"]
+            cli, ["--yes", "--debug", "analyze", "outdated.sol", "outdated2.sol"]
         )
         assert result.output == ISSUES_TABLE + ISSUES_TABLE
         assert result.exit_code == 0
@@ -344,7 +350,7 @@ def test_solidity_analyze_user_solc_version():
             conf_f.writelines(SOLIDITY_CODE.split("\n")[1:])
 
         result = runner.invoke(
-            cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"]
+            cli, ["--yes", "analyze", "--solc-version", "0.4.13", "outdated.sol"]
         )
 
         assert result.output == ISSUES_TABLE
@@ -361,7 +367,7 @@ def test_solidity_analyze_config_solc_version():
         with open(".mythx.yml", "w+") as conf_f:
             conf_f.write("analyze:\n  solc: 0.4.13\n")
 
-        result = runner.invoke(cli, ["analyze", "outdated.sol"])
+        result = runner.invoke(cli, ["--yes", "analyze", "outdated.sol"])
 
         assert result.output == ISSUES_TABLE
         assert result.exit_code == 0
@@ -385,7 +391,7 @@ def test_truffle_analyze_blocking_ci():
         with open("build/contracts/foo.json", "w+") as artifact_f:
             json.dump(TRUFFLE_ARTIFACT, artifact_f)
 
-        result = runner.invoke(cli, ["--debug", "--ci", "analyze"])
+        result = runner.invoke(cli, ["--yes", "--debug", "--ci", "analyze"])
 
         assert "Assert Violation" in result.output
         assert INPUT_RESPONSE.source_list[0] in result.output
@@ -428,7 +434,9 @@ def test_truffle_analyze_blocking_config_ci():
         with open("build/contracts/foo.json", "w+") as artifact_f:
             json.dump(TRUFFLE_ARTIFACT, artifact_f)
 
-        result = runner.invoke(cli, ["--debug", "analyze"], catch_exceptions=False)
+        result = runner.invoke(
+            cli, ["--yes", "--debug", "analyze"], catch_exceptions=False
+        )
 
         assert "Assert Violation" in result.output
         assert INPUT_RESPONSE.source_list[0] in result.output
@@ -456,7 +464,9 @@ def test_analyze_param_overwrites_config():
         with open(".mythx.yml", "w+") as conf_f:
             conf_f.write("analyze:\n  async: true\n")
 
-        result = runner.invoke(cli, ["analyze", "--wait"], catch_exceptions=False)
+        result = runner.invoke(
+            cli, ["--yes", "analyze", "--wait"], catch_exceptions=False
+        )
 
         assert INPUT_RESPONSE.source_list[0] in result.output
         assert result.exit_code == 0

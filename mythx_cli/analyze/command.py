@@ -253,7 +253,7 @@ def analyze(
 
     LOGGER.debug(f"Submitting {len(jobs)} analysis jobs to the MythX API")
 
-    consent = ctx["yes"] or click.confirm(f"Found {len(jobs)} jobs. Submit?")
+    consent = ctx["yes"] or click.confirm(f"Found {len(jobs)} job(s). Submit?")
     if not consent:
         LOGGER.debug("User consent not given - exiting")
         sys.exit(0)
