@@ -5,7 +5,7 @@ from enum import Enum
 from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 import click
 
@@ -18,13 +18,19 @@ class AnalyzeMode(Enum):
     TRUFFLE = 3
 
 
-def detect_truffle_files(path: Path) -> bool:
-    output_pattern = Path(path) / "build" / "contracts" / "*.json"
+def detect_truffle_files(
+    path: Path, project_base: str = "build/contracts/*.json"
+) -> bool:
+    # TODO: docs
+    output_pattern = Path(path) / project_base
     artifact_files = list(glob(str(output_pattern.absolute())))
     return bool(artifact_files)
 
 
-def determine_analysis_scenario(target: str) -> List[Tuple[AnalyzeMode, str]]:
+def determine_analysis_targets(
+    target: str
+) -> List[Tuple[AnalyzeMode, Union[Path, str]]]:
+    # TODO: docs
     mode_list = []
 
     if not target:

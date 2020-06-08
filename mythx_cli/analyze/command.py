@@ -14,11 +14,11 @@ from mythx_models.response import (
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
-from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
-from mythx_cli.analyze.truffle import find_truffle_artifacts, generate_truffle_payload
+from mythx_cli.analyze.solidity import SolidityJob, walk_solidity_files
+from mythx_cli.analyze.truffle import TruffleJob
 from mythx_cli.analyze.util import (
     AnalyzeMode,
-    determine_analysis_scenario,
+    determine_analysis_targets,
     is_valid_job,
     sanitize_paths,
 )
@@ -195,24 +195,18 @@ def analyze(
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
-    mode_list = determine_analysis_scenario(target)
+    mode_list = determine_analysis_targets(target)
 
     for analyze_mode, element in mode_list:
         if analyze_mode == AnalyzeMode.TRUFFLE:
-            files, source_list = find_truffle_artifacts(element)
-            if not files:
-                raise click.exceptions.UsageError(
-                    "Could not find any truffle artifacts. Did you run truffle compile?"
-                )
-            LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
-            for file in files:
-                jobs.append(generate_truffle_payload(file, source_list))
+            job = TruffleJob(element)
+            job.generate_payloads()
+            jobs.extend(job.payloads)
         elif analyze_mode == AnalyzeMode.SOLIDITY_DIR:
             # recursively enumerate sol files if not a truffle project
             LOGGER.debug(f"Identified {element} as directory containing Solidity files")
             jobs.extend(
                 walk_solidity_files(
-                    ctx,
                     solc_version,
                     base_path=element,
                     remappings=remap_import,
@@ -221,27 +215,23 @@ def analyze(
                 )
             )
         elif analyze_mode == AnalyzeMode.SOLIDITY_FILE:
-            # TODO: There has to be a prettier way for this
             LOGGER.debug(f"Trying to interpret {element} as a solidity file")
             target_split = element.split(":")
             file_path, contract = target_split[0], target_split[1:]
             if contract:
-                include += contract  # e.g. ["MyContract"]
+                include += contract  # e.g. ["MyContract"] or []
                 contract = contract[0]
-            jobs.append(
-                generate_solidity_payload(
-                    file=file_path,
-                    version=solc_version,
-                    contract=contract,
-                    remappings=remap_import,
-                    enable_scribble=enable_scribble,
-                    scribble_path=scribble_path,
-                )
+            job = SolidityJob(Path(file_path))
+            job.generate_payloads(
+                file=file_path,
+                version=solc_version,
+                contract=contract,
+                remappings=remap_import,
+                enable_scribble=enable_scribble,
+                scribble_path=scribble_path,
             )
+            jobs.extend(job.payloads)
 
-    # sanitize local paths
-    LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
-    jobs = [sanitize_paths(job) for job in jobs]
     # filter jobs where no bytecode was produced
     LOGGER.debug(f"Filtering {len(jobs)} jobs for empty bytecode")
     jobs = [job for job in jobs if is_valid_job(job)]
@@ -257,7 +247,17 @@ def analyze(
             )
         jobs = [job for job in jobs if job["contract_name"] in include]
 
+    # sanitize local paths
+    LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
+    jobs = [sanitize_paths(job) for job in jobs]
+
     LOGGER.debug(f"Submitting {len(jobs)} analysis jobs to the MythX API")
+
+    consent = ctx["yes"] or click.confirm(f"Found {len(jobs)} jobs. Submit?")
+    if not consent:
+        LOGGER.debug("User consent not given - exiting")
+        sys.exit(0)
+
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:
