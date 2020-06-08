@@ -292,7 +292,6 @@ def walk_solidity_files(
     for file in files:
         job = SolidityJob(Path(file))
         job.generate_payloads(
-            file,
             solc_version,
             remappings=remappings,
             enable_scribble=enable_scribble,
