@@ -264,7 +264,6 @@ def walk_solidity_files(
     and aggregate all Solidity files it comes across. The resulting job list will
     contain all the Solidity payloads (optionally compiled), ready for submission.
 
-    :param ctx: Click context holding group-level parameters
     :param solc_version: The solc version to use for Solidity compilation
     :param base_path: The base path to walk through from
     :param remappings: Import remappings to pass to solcx
