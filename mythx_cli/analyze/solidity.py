@@ -20,12 +20,11 @@ RGLOB_BLACKLIST = ["node_modules"]
 
 class SolidityJob:
     def __init__(self, target: Path):
-        self.target = target
+        self.target = str(target)
         self.payloads = []
 
     def generate_payloads(
         self,
-        file: str,
         version: Optional[str],
         contract: str = None,
         remappings: Tuple[str] = None,
@@ -49,20 +48,18 @@ class SolidityJob:
         * :code:`srcmap`
         * :code:`srcmap-runtime`
 
-        :param file: The path pointing towards the Solidity file
         :param version: The solc version to use for compilation
         :param contract: The contract name(s) to submit
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
         :param scribble_path: Optional path to the scribble executable
-        :return: The payload dictionary to be sent to MythX
         """
 
-        with open(file) as f:
+        with open(self.target) as f:
             source = f.read()
 
         solc_version = re.findall(PRAGMA_PATTERN, source)
-        LOGGER.debug(f"solc version matches in {file}: {solc_version}")
+        LOGGER.debug(f"solc version matches in {self.target}: {solc_version}")
 
         if not (solc_version or version):
             # no pragma found, user needs to specify the version
@@ -86,7 +83,9 @@ class SolidityJob:
         scribble_file = None
         if enable_scribble:
             process = subprocess.run(
-                [scribble_path, file], stdout=subprocess.PIPE, stderr=subprocess.PIPE
+                [scribble_path, self.target],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             if process.returncode != 0:
                 click.echo(
@@ -113,12 +112,15 @@ class SolidityJob:
 
         try:
             cwd = str(Path.cwd().absolute())
-            LOGGER.debug(f"Compiling {scribble_file or file} under allowed path {cwd}")
+            LOGGER.debug(
+                f"Compiling {scribble_file or self.target} under allowed path {cwd}"
+            )
             result = solcx.compile_standard(
                 input_data={
                     "language": "Solidity",
                     "sources": {
-                        scribble_file or file: {"urls": [scribble_file or file]}
+                        scribble_file
+                        or self.target: {"urls": [scribble_file or self.target]}
                     },
                     "settings": {
                         "remappings": [r.format(pwd=cwd) for r in remappings]
@@ -154,7 +156,7 @@ class SolidityJob:
         payload = {
             "sources": {},
             "solc_version": solc_version,
-            "main_source": scribble_file or file,
+            "main_source": scribble_file or self.target,
             "source_list": [None] * len(compiled_sources),
         }
 
@@ -173,26 +175,28 @@ class SolidityJob:
                 payload_dict["source"] = source_f.read()
 
         if contract:
+            LOGGER.debug("Contract specified - targeted payload selection")
             try:
                 # if contract specified, set its bytecode and source mapping
                 payload["contract_name"] = contract
                 payload["bytecode"] = patch_solc_bytecode(
-                    result["contracts"][scribble_file or file][contract]["evm"][
+                    result["contracts"][scribble_file or self.target][contract]["evm"][
                         "bytecode"
                     ]["object"]
                 )
-                payload["source_map"] = result["contracts"][scribble_file or file][
-                    contract
-                ]["evm"]["bytecode"]["sourceMap"]
+                payload["source_map"] = result["contracts"][
+                    scribble_file or self.target
+                ][contract]["evm"]["bytecode"]["sourceMap"]
                 payload["deployed_bytecode"] = patch_solc_bytecode(
-                    result["contracts"][scribble_file or file][contract]["evm"][
+                    result["contracts"][scribble_file or self.target][contract]["evm"][
                         "deployedBytecode"
                     ]["object"]
                 )
                 payload["deployed_source_map"] = result["contracts"][
-                    scribble_file or file
+                    scribble_file or self.target
                 ][contract]["evm"]["deployedBytecode"]["sourceMap"]
-                return payload
+                self.payloads.append(payload)
+                return
             except KeyError:
                 LOGGER.warning(
                     f"Could not find contract {contract} in compilation artifacts. The CLI will find the "
@@ -225,12 +229,12 @@ class SolidityJob:
         if enable_scribble:
             # replace scribble tempfile name with prefixed one
             scribble_payload = payload["sources"].pop(scribble_file)
-            payload["sources"]["scribble-" + file] = scribble_payload
+            payload["sources"]["scribble-" + str(self.target)] = scribble_payload
             payload["source_list"] = [
-                "scribble-" + file if item == scribble_file else item
+                "scribble-" + str(self.target) if item == scribble_file else item
                 for item in payload["source_list"]
             ]
-            payload["main_source"] = "scribble-" + file
+            payload["main_source"] = "scribble-" + str(self.target)
 
             # delete scribble temp file
             os.unlink(scribble_file)

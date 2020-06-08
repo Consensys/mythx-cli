@@ -223,22 +223,17 @@ def analyze(
                 contract = contract[0]
             job = SolidityJob(Path(file_path))
             job.generate_payloads(
-                file=file_path,
                 version=solc_version,
-                contract=contract,
+                contract=contract or None,
                 remappings=remap_import,
                 enable_scribble=enable_scribble,
                 scribble_path=scribble_path,
             )
             jobs.extend(job.payloads)
 
-    # filter jobs where no bytecode was produced
-    LOGGER.debug(f"Filtering {len(jobs)} jobs for empty bytecode")
-    jobs = [job for job in jobs if is_valid_job(job)]
-
     # reduce to whitelisted contract names
     if include:
-        LOGGER.debug(f"Filtering {len(jobs)} for contracts to be included")
+        LOGGER.debug(f"Filtering {len(jobs)} job(s) for contracts to be included")
         found_contracts = {job["contract_name"] for job in jobs}
         overlap = set(include).difference(found_contracts)
         if overlap:
@@ -246,6 +241,10 @@ def analyze(
                 f"The following contracts could not be found: {', '.join(overlap)}"
             )
         jobs = [job for job in jobs if job["contract_name"] in include]
+
+    # filter jobs where no bytecode was produced
+    LOGGER.debug(f"Filtering {len(jobs)} job(s) for empty bytecode")
+    jobs = [job for job in jobs if is_valid_job(job)]
 
     # sanitize local paths
     LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
