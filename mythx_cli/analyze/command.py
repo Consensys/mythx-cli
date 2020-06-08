@@ -1,7 +1,6 @@
 import logging
 import sys
 import time
-from enum import Enum
 from glob import glob
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -17,18 +16,17 @@ from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
 from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
 from mythx_cli.analyze.truffle import find_truffle_artifacts, generate_truffle_payload
-from mythx_cli.analyze.util import is_valid_job, sanitize_paths
+from mythx_cli.analyze.util import (
+    AnalyzeMode,
+    determine_analysis_scenario,
+    is_valid_job,
+    sanitize_paths,
+)
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
-
-
-class AnalyzeMode(Enum):
-    SOLIDITY_FILE = 1
-    SOLIDITY_DIR = 2
-    TRUFFLE = 3
 
 
 @click.command()
@@ -164,7 +162,7 @@ def analyze(
         create_group = analyze_config.get("create-group", False)
 
     mode = mode or analyze_config.get("mode") or "quick"
-    group_id = analyze_config.get("group-id") or group_id
+    group_id = analyze_config.get("group-id") or group_id or None
     group_name = group_name or analyze_config.get("group-name") or ""
     min_severity = min_severity or analyze_config.get("min-severity") or None
     swc_blacklist = swc_blacklist or analyze_config.get("blacklist") or None
@@ -197,40 +195,7 @@ def analyze(
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
-    mode_list = []
-
-    if not target:
-        if Path("truffle-config.js").exists() or Path("truffle.js").exists():
-            LOGGER.debug(f"Identified directory as truffle project")
-            mode_list.append((AnalyzeMode.TRUFFLE, Path.cwd()))  # TRUFFLE DIR
-        elif list(glob("*.sol")):
-            LOGGER.debug(f"Identified directory with Solidity files")
-            mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path.cwd()))  # SOLIDITY DIR
-        else:
-            raise click.exceptions.UsageError(
-                "No argument given and unable to detect Truffle project or Solidity files"
-            )
-    else:
-        for target_elem in target:
-            element = target_elem.split(":")[0]
-            if Path(element).is_file() and Path(element).suffix == ".sol":
-                LOGGER.debug(f"Identified target {element} as solidity file")
-                mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
-            elif Path(target_elem).is_dir():
-                LOGGER.debug(f"Identified target {target_elem} as directory")
-                files, source_list = find_truffle_artifacts(Path(target_elem))
-                if files:
-                    LOGGER.debug(
-                        f"Identified {target_elem} directory as truffle project"
-                    )
-                    mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
-                else:
-                    LOGGER.debug(f"Identified {target_elem} as Solidity directory")
-                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path(target_elem)))
-            else:
-                raise click.exceptions.UsageError(
-                    f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
-                )
+    mode_list = determine_analysis_scenario(target)
 
     for analyze_mode, element in mode_list:
         if analyze_mode == AnalyzeMode.TRUFFLE:

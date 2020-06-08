@@ -1,13 +1,64 @@
 """This module contains helpers for generating MythX analysis payloads."""
 
 import logging
+from enum import Enum
+from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import click
 
 LOGGER = logging.getLogger("mythx-cli")
+
+
+class AnalyzeMode(Enum):
+    SOLIDITY_FILE = 1
+    SOLIDITY_DIR = 2
+    TRUFFLE = 3
+
+
+def detect_truffle_files(path: Path) -> bool:
+    output_pattern = Path(path) / "build" / "contracts" / "*.json"
+    artifact_files = list(glob(str(output_pattern.absolute())))
+    return bool(artifact_files)
+
+
+def determine_analysis_scenario(target: str) -> List[Tuple[AnalyzeMode, str]]:
+    mode_list = []
+
+    if not target:
+        if Path("truffle-config.js").exists() or Path("truffle.js").exists():
+            LOGGER.debug(f"Identified directory as truffle project")
+            mode_list.append((AnalyzeMode.TRUFFLE, Path.cwd()))  # TRUFFLE DIR
+        elif list(glob("*.sol")):
+            LOGGER.debug(f"Identified directory with Solidity files")
+            mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path.cwd()))  # SOLIDITY DIR
+        else:
+            raise click.exceptions.UsageError(
+                "No argument given and unable to detect Truffle project or Solidity files"
+            )
+    else:
+        for target_elem in target:
+            element = target_elem.split(":")[0]
+            if Path(element).is_file() and Path(element).suffix == ".sol":
+                LOGGER.debug(f"Identified target {element} as solidity file")
+                mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
+            elif Path(target_elem).is_dir():
+                LOGGER.debug(f"Identified target {target_elem} as directory")
+                if detect_truffle_files(Path(target_elem)):
+                    LOGGER.debug(
+                        f"Identified {target_elem} directory as truffle project"
+                    )
+                    mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
+                else:
+                    LOGGER.debug(f"Identified {target_elem} as Solidity directory")
+                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path(target_elem)))
+            else:
+                raise click.exceptions.UsageError(
+                    f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
+                )
+    return mode_list
 
 
 def delete_absolute_prefix(path: str, prefix: str):
