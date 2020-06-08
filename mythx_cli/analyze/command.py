@@ -105,13 +105,13 @@ LOGGER = logging.getLogger("mythx-cli")
     "enable_scribble",
     is_flag=True,
     default=None,
-    help="Enable scribble instrumentation",
+    help="Enable scribble instrumentation (experimental)",
 )
 @click.option(
     "--scribble-path",
     type=click.Path(exists=True),
     default=None,
-    help="Path to a custom scribble executable",
+    help="Path to a custom scribble executable (experimental)",
 )
 @click.pass_obj
 def analyze(
