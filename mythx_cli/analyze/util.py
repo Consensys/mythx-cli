@@ -21,7 +21,14 @@ class AnalyzeMode(Enum):
 def detect_truffle_files(
     path: Path, project_base: str = "build/contracts/*.json"
 ) -> bool:
-    # TODO: docs
+    """Detect Truffle projects in paths.
+
+    This function detects whether a Truffle project can be found
+    in the given project base path.
+
+    :param path: The path prefix to look in (e.g. the CLI target)
+    :param project_base: The truffle-specific path suffix
+    """
     output_pattern = Path(path) / project_base
     artifact_files = list(glob(str(output_pattern.absolute())))
     return bool(artifact_files)
@@ -30,7 +37,21 @@ def detect_truffle_files(
 def determine_analysis_targets(
     target: str, forced_scenario: str
 ) -> List[Tuple[AnalyzeMode, Union[Path, str]]]:
-    # TODO: docs
+    """Determine the scenario for an analysis target.
+
+    This function will, based on a list of targets or lack thereof, return a list
+    of two-tuples, each containing the determined analysis scenario and the target.
+    In case no initial target is given, the current working directory is used as a
+    replacement.
+
+    It is also possible to force evaluation of a given target (or the cwd) by
+    passing the scenario name ("solidity" or "truffle") to the :code:`forced_scenario`
+    parameter.
+
+    :param target: The initial target to determine the scenario for
+    :param forced_scenario: A string to manually override scenario detection
+    :return: A list of tuples containing detected scenario and target
+    """
     # TODO: Add scenario forcing
     mode_list = []
 
@@ -79,6 +100,14 @@ def determine_analysis_targets(
 
 
 def delete_absolute_prefix(path: str, prefix: str):
+    """Delete a prefix of an absolute path.
+
+    If the path is not absolute yet, it will be expanded.
+
+    :param path: Path string to delete the prefix from
+    :param prefix: Prefix to remove
+    :return: The trimmed path
+    """
     absolute = Path(path).absolute()
     return str(absolute).replace(prefix, "")
 
