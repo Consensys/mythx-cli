@@ -28,16 +28,21 @@ def detect_truffle_files(
 
 
 def determine_analysis_targets(
-    target: str
+    target: str, forced_scenario: str
 ) -> List[Tuple[AnalyzeMode, Union[Path, str]]]:
     # TODO: docs
+    # TODO: Add scenario forcing
     mode_list = []
 
     if not target:
-        if Path("truffle-config.js").exists() or Path("truffle.js").exists():
+        if (
+            Path("truffle-config.js").exists()
+            or Path("truffle.js").exists()
+            or forced_scenario == "truffle"
+        ):
             LOGGER.debug(f"Identified directory as truffle project")
             mode_list.append((AnalyzeMode.TRUFFLE, Path.cwd()))  # TRUFFLE DIR
-        elif list(glob("*.sol")):
+        elif list(glob("*.sol")) or forced_scenario == "solidity":
             LOGGER.debug(f"Identified directory with Solidity files")
             mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path.cwd()))  # SOLIDITY DIR
         else:
@@ -47,17 +52,23 @@ def determine_analysis_targets(
     else:
         for target_elem in target:
             element = target_elem.split(":")[0]
-            if Path(element).is_file() and Path(element).suffix == ".sol":
+            if (
+                Path(element).is_file() and Path(element).suffix == ".sol"
+            ) or forced_scenario == "solidity":
                 LOGGER.debug(f"Identified target {element} as solidity file")
                 mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
             elif Path(target_elem).is_dir():
                 LOGGER.debug(f"Identified target {target_elem} as directory")
-                if detect_truffle_files(Path(target_elem)):
+                if (
+                    detect_truffle_files(Path(target_elem))
+                    or forced_scenario == "truffle"
+                ):
                     LOGGER.debug(
                         f"Identified {target_elem} directory as truffle project"
                     )
                     mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
                 else:
+                    # implicit: forced_scenario == "solidity"
                     LOGGER.debug(f"Identified {target_elem} as Solidity directory")
                     mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path(target_elem)))
             else:

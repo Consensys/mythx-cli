@@ -105,13 +105,19 @@ LOGGER = logging.getLogger("mythx-cli")
     "enable_scribble",
     is_flag=True,
     default=None,
-    help="Enable scribble instrumentation (experimental)",
+    help="Enable scribble instrumentation (beta)",
 )
 @click.option(
     "--scribble-path",
     type=click.Path(exists=True),
     default=None,
-    help="Path to a custom scribble executable (experimental)",
+    help="Path to a custom scribble executable (beta)",
+)
+@click.option(
+    "--scenario",
+    type=click.Choice(["truffle", "solidity"]),
+    default=None,
+    help="Force an analysis scenario",
 )
 @click.pass_obj
 def analyze(
@@ -131,6 +137,7 @@ def analyze(
     check_properties: bool,
     enable_scribble: bool,
     scribble_path: str,
+    scenario: str,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -152,6 +159,7 @@ def analyze(
     :param check_properties: Enable property verification mode
     :param enable_scribble: Enable instrumentation with scribble
     :param scribble_path: Optional path to the scribble executable
+    :param scenario: Force an analysis scenario
     :return:
     """
 
@@ -176,6 +184,7 @@ def analyze(
     enable_scribble = enable_scribble or analyze_config.get("enable-scribble") or False
     scribble_path = scribble_path or analyze_config.get("scribble-path") or "scribble"
     target = target or analyze_config.get("targets") or None
+    scenario = scenario or analyze_config.get("scenario") or None
 
     # enable property checking if explicitly requested or implicitly when
     # scribble instrumentation is requested
@@ -195,7 +204,7 @@ def analyze(
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
-    mode_list = determine_analysis_targets(target)
+    mode_list = determine_analysis_targets(target, forced_scenario=scenario)
 
     for analyze_mode, element in mode_list:
         if analyze_mode == AnalyzeMode.TRUFFLE:
