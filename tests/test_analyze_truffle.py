@@ -153,7 +153,20 @@ def test_param_yaml_override(tmp_path):
         ),
         pytest.param(["analyze"], ISSUES_TABLE, True, 0, id="issue table"),
         pytest.param(
+            ["analyze", "."], ISSUES_TABLE, True, 0, id="issue table with path"
+        ),
+        pytest.param(
+            ["analyze", "."], ISSUES_TABLE, True, 0, id="valid include with path syntax"
+        ),
+        pytest.param(
             ["analyze", "--create-group"], ISSUES_TABLE, True, 0, id="create group"
+        ),
+        pytest.param(
+            ["analyze", "--create-group", "."],
+            ISSUES_TABLE,
+            True,
+            0,
+            id="create group with path",
         ),
         pytest.param(
             ["analyze", "--include", "invalid"],
@@ -161,6 +174,13 @@ def test_param_yaml_override(tmp_path):
             False,
             2,
             id="invalid include",
+        ),
+        pytest.param(
+            ["analyze", "--include", "invalid", "."],
+            INPUT_RESPONSE.source_list[0],
+            False,
+            2,
+            id="invalid include with path",
         ),
         pytest.param(
             ["analyze", "--swc-blacklist", "SWC-110"],
