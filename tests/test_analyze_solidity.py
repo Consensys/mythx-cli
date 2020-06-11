@@ -47,7 +47,7 @@ def setup_solidity_file(
 ):
     # switch to temp dir if requested
     if switch_dir:
-        os.chdir(base_path)
+        os.chdir(str(base_path))
 
     with open(str(base_path / name), "w+") as conf_f:
         if hide_pragma:

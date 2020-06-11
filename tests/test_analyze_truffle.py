@@ -34,7 +34,7 @@ SUBMISSION_RESPONSE = get_test_case(
 def setup_truffle_project(base_path, compiled=True, switch_dir=False):
     # switch to temp dir if requested
     if switch_dir:
-        os.chdir(base_path)
+        os.chdir(str(base_path))
 
     # add truffle config file and project structure
     os.makedirs(str(base_path / "build/contracts/"))
