@@ -72,26 +72,29 @@ def determine_analysis_targets(
             )
     else:
         for target_elem in target:
-            element = target_elem.split(":")[0]
+            element = Path(target_elem.split(":")[0])
             if (
-                Path(element).is_file() and Path(element).suffix == ".sol"
+                element.is_file() and element.suffix == ".sol"
             ) or forced_scenario == "solidity":
-                LOGGER.debug(f"Identified target {element} as solidity file")
+                LOGGER.debug(f"Identified target {str(element)} as solidity file")
+                # pass target_elem here to catch the optional path:Contract syntax
                 mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
-            elif Path(target_elem).is_dir():
-                LOGGER.debug(f"Identified target {target_elem} as directory")
+            elif element.is_dir():
+                LOGGER.debug(f"Identified target {str(element)} as directory")
                 if (
-                    detect_truffle_files(Path(target_elem))
+                    # detect_truffle_files(Path(target_elem))
+                    (element / Path("truffle-config.js")).exists()
+                    or (element / Path("truffle.js")).exists()
                     or forced_scenario == "truffle"
                 ):
                     LOGGER.debug(
-                        f"Identified {target_elem} directory as truffle project"
+                        f"Identified {str(element)} directory as truffle project"
                     )
-                    mode_list.append((AnalyzeMode.TRUFFLE, Path(target_elem)))
+                    mode_list.append((AnalyzeMode.TRUFFLE, element))
                 else:
                     # implicit: forced_scenario == "solidity"
-                    LOGGER.debug(f"Identified {target_elem} as Solidity directory")
-                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path(target_elem)))
+                    LOGGER.debug(f"Identified {str(element)} as Solidity directory")
+                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, element))
             else:
                 raise click.exceptions.UsageError(
                     f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
