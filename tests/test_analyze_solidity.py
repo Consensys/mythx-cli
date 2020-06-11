@@ -254,7 +254,7 @@ def test_default_recursive_blacklist(tmp_path):
         ),
     ),
 )
-def test_analyze(tmp_path, params, value, contained, retval):
+def test_parameters(tmp_path, params, value, contained, retval):
     setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
     runner = CliRunner()
 

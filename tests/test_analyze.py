@@ -10,7 +10,7 @@ FORMAT_ERROR = (
 )
 
 
-def test_analyze_invalid():
+def test_invalid():
     runner = CliRunner()
 
     with mock_context():
@@ -47,7 +47,7 @@ def test_analyze_invalid():
         "help",
     ),
 )
-def test_analyze_helppage(keyword):
+def test_helppage_keywords(keyword):
     runner = CliRunner()
 
     result = runner.invoke(cli, ["analyze", "--help"])
