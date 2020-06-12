@@ -95,7 +95,7 @@ class SolidityJob:
                 click.echo(process.stderr.decode())
                 click.echo("=====STDOUT=====")
                 process.stdout.decode()
-                sys.exit(1)
+                sys.exit(process.returncode)
 
             # don't delete temp file on close but manually unlink
             # after payload has been generated

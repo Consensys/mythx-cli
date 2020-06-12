@@ -297,7 +297,7 @@ def test_parameters(tmp_path, params, value, contained, retval):
     assert result.exit_code == retval
 
 
-@pytest.mark.parametrize("retval,stdout", ((0, ""), (1, "")))
+@pytest.mark.parametrize("retval,stdout", ((0, ""), (1, ""), (127, "")))
 def test_scribble_call(tmp_path, retval, stdout):
     setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
     runner = CliRunner()
