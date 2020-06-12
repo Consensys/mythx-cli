@@ -261,6 +261,14 @@ def analyze(
 
     LOGGER.debug(f"Submitting {len(jobs)} analysis jobs to the MythX API")
 
+    if not jobs:
+        raise click.UsageError(
+            (
+                "No jobs were generated. Please make sure your Solidity files "
+                "compile correctly or your Truffle project has been compiled."
+            )
+        )
+
     consent = ctx["yes"] or click.confirm(f"Found {len(jobs)} job(s). Submit?")
     if not consent:
         LOGGER.debug("User consent not given - exiting")
