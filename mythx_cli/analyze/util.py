@@ -28,10 +28,9 @@ def detect_truffle_files(
 
     :param path: The path prefix to look in (e.g. the CLI target)
     :param project_base: The truffle-specific path suffix
+    :return: Boolean indicating whether path contains a truffle project
     """
-    output_pattern = Path(path) / project_base
-    artifact_files = list(glob(str(output_pattern.absolute())))
-    return bool(artifact_files)
+    return (path / "truffle-config.js").exists() or (path / "truffle.js").exists()
 
 
 def determine_analysis_targets(
@@ -52,20 +51,15 @@ def determine_analysis_targets(
     :param forced_scenario: A string to manually override scenario detection
     :return: A list of tuples containing detected scenario and target
     """
-    # TODO: Add scenario forcing
     mode_list = []
-
     if not target:
-        if (
-            Path("truffle-config.js").exists()
-            or Path("truffle.js").exists()
-            or forced_scenario == "truffle"
-        ):
+        cwd = Path.cwd()
+        if detect_truffle_files(cwd) or forced_scenario == "truffle":
             LOGGER.debug(f"Identified directory as truffle project")
-            mode_list.append((AnalyzeMode.TRUFFLE, Path.cwd()))  # TRUFFLE DIR
+            mode_list.append((AnalyzeMode.TRUFFLE, cwd))  # TRUFFLE DIR
         elif list(glob("*.sol")) or forced_scenario == "solidity":
             LOGGER.debug(f"Identified directory with Solidity files")
-            mode_list.append((AnalyzeMode.SOLIDITY_DIR, Path.cwd()))  # SOLIDITY DIR
+            mode_list.append((AnalyzeMode.SOLIDITY_DIR, cwd))  # SOLIDITY DIR
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -82,9 +76,7 @@ def determine_analysis_targets(
             elif element.is_dir():
                 LOGGER.debug(f"Identified target {str(element)} as directory")
                 if (
-                    # detect_truffle_files(Path(target_elem))
-                    (element / Path("truffle-config.js")).exists()
-                    or (element / Path("truffle.js")).exists()
+                    detect_truffle_files(Path(target_elem))
                     or forced_scenario == "truffle"
                 ):
                     LOGGER.debug(
