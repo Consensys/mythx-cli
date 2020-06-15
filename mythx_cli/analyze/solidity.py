@@ -107,9 +107,6 @@ class SolidityJob:
             scribble_file = scribble_output_f.name
             scribble_output_f.close()
 
-            click.echo(scribble_file)
-            click.echo(scribble_stdout)
-
         try:
             cwd = str(Path.cwd().absolute())
             LOGGER.debug(
