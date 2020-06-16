@@ -1,16 +1,108 @@
 """This module contains helpers for generating MythX analysis payloads."""
 
 import logging
+from enum import Enum
+from glob import glob
 from os.path import abspath, commonpath
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Tuple, Union
 
 import click
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
+class ScenarioMode(Enum):
+    SOLIDITY_FILE = 1
+    SOLIDITY_DIR = 2
+    TRUFFLE = 3
+
+
+def detect_truffle_files(
+    path: Path, project_base: str = "build/contracts/*.json"
+) -> bool:
+    """Detect Truffle projects in paths.
+
+    This function detects whether a Truffle project can be found
+    in the given project base path.
+
+    :param path: The path prefix to look in (e.g. the CLI target)
+    :param project_base: The truffle-specific path suffix
+    :return: Boolean indicating whether path contains a truffle project
+    """
+    return (path / "truffle-config.js").exists() or (path / "truffle.js").exists()
+
+
+def determine_analysis_targets(
+    target: str, forced_scenario: str
+) -> List[Tuple[ScenarioMode, Union[Path, str]]]:
+    """Determine the scenario for an analysis target.
+
+    This function will, based on a list of targets or lack thereof, return a list
+    of two-tuples, each containing the determined analysis scenario and the target.
+    In case no initial target is given, the current working directory is used as a
+    replacement.
+
+    It is also possible to force evaluation of a given target (or the cwd) by
+    passing the scenario name ("solidity" or "truffle") to the :code:`forced_scenario`
+    parameter.
+
+    :param target: The initial target to determine the scenario for
+    :param forced_scenario: A string to manually override scenario detection
+    :return: A list of tuples containing detected scenario and target
+    """
+    mode_list = []
+    if not target:
+        cwd = Path.cwd()
+        if detect_truffle_files(cwd) or forced_scenario == "truffle":
+            LOGGER.debug(f"Identified directory as truffle project")
+            mode_list.append((ScenarioMode.TRUFFLE, cwd))  # TRUFFLE DIR
+        elif list(glob("*.sol")) or forced_scenario == "solidity":
+            LOGGER.debug(f"Identified directory with Solidity files")
+            mode_list.append((ScenarioMode.SOLIDITY_DIR, cwd))  # SOLIDITY DIR
+        else:
+            raise click.exceptions.UsageError(
+                "No argument given and unable to detect Truffle project or Solidity files"
+            )
+    else:
+        for target_elem in target:
+            element = Path(target_elem.split(":")[0])
+            if (
+                element.is_file() and element.suffix == ".sol"
+            ) or forced_scenario == "solidity":
+                LOGGER.debug(f"Identified target {str(element)} as solidity file")
+                # pass target_elem here to catch the optional path:Contract syntax
+                mode_list.append((ScenarioMode.SOLIDITY_FILE, target_elem))
+            elif element.is_dir():
+                LOGGER.debug(f"Identified target {str(element)} as directory")
+                if (
+                    detect_truffle_files(Path(target_elem))
+                    or forced_scenario == "truffle"
+                ):
+                    LOGGER.debug(
+                        f"Identified {str(element)} directory as truffle project"
+                    )
+                    mode_list.append((ScenarioMode.TRUFFLE, element))
+                else:
+                    # implicit: forced_scenario == "solidity"
+                    LOGGER.debug(f"Identified {str(element)} as Solidity directory")
+                    mode_list.append((ScenarioMode.SOLIDITY_DIR, element))
+            else:
+                raise click.exceptions.UsageError(
+                    f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"
+                )
+    return mode_list
+
+
 def delete_absolute_prefix(path: str, prefix: str):
+    """Delete a prefix of an absolute path.
+
+    If the path is not absolute yet, it will be expanded.
+
+    :param path: Path string to delete the prefix from
+    :param prefix: Prefix to remove
+    :return: The trimmed path
+    """
     absolute = Path(path).absolute()
     return str(absolute).replace(prefix, "")
 

@@ -257,6 +257,38 @@ The :code:`analyze` configuration keys currently supported are:
   of all.
 
 
+Property Validation with Scribble
+---------------------------------
+
+Scribble is a tool develped by `ConsenSys Diligence <https://diligence.consensys.net/>`_ that aims to
+facilitate verification of invariants over smart contract systems. This is done by annotating parts
+of the Solidity code with instrumentation comments. Scribble as a tool then translates the user-provided
+specifications into an instrumented smart contract that can be sent to MythX. The MythX analysis tools
+will then specifically look for assertion violations that break the defined invariants and generate a
+report outlining how they were broken.
+
+Scribble is currently in its early alpha version. The MythX CLI still aims to natively provide a
+Scribble integration to make property validation of Solidity smart contracts as easy as possible. At the
+moment it is integrated into the :code:`analyze` subcommand and can be accessed as follows:
+
+.. code-block:: console
+
+    $ mythx analyze --scribble annotated_token.sol
+    Found 1 job(s). Submit? [y/N]: y
+      [####################################]  100%
+    Report for scribble-annotated_token.sol
+    https://dashboard.mythx.io/#/console/analyses/9a2c4e24-0c9d-4834-b11f-fb99061ba910
+    ╒════════╤══════════════════╤════════════╤═══════════════════════════════════════╕
+    │   Line │ SWC Title        │ Severity   │ Short Description                     │
+    ╞════════╪══════════════════╪════════════╪═══════════════════════════════════════╡
+    │     41 │ Assert Violation │ Medium     │ An assertion violation was triggered. │
+    ╘════════╧══════════════════╧════════════╧═══════════════════════════════════════╛
+
+
+To view the details on how the invariant was violated, check out the report details on the
+dashboard, or switch to a different output format, such as :code:`json-pretty`.
+
+
 Custom Report Rendering
 -----------------------
 

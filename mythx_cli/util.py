@@ -18,6 +18,7 @@ def update_context(
     :param context_key: The key in the click context to overwrite
     :param config: The config to read additional data from
     :param config_key: The config key to overwrite with
+    :param default: The default value to use if all lookups fail
     """
 
     context[context_key] = context.get(context_key) or config.get(config_key) or default

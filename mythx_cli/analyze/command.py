@@ -14,10 +14,14 @@ from mythx_models.response import (
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
-from mythx_cli.analyze.bytecode import generate_bytecode_payload
-from mythx_cli.analyze.solidity import generate_solidity_payload, walk_solidity_files
-from mythx_cli.analyze.truffle import find_truffle_artifacts, generate_truffle_payload
-from mythx_cli.analyze.util import is_valid_job, sanitize_paths
+from mythx_cli.analyze.solidity import SolidityJob, walk_solidity_files
+from mythx_cli.analyze.truffle import TruffleJob
+from mythx_cli.analyze.util import (
+    ScenarioMode,
+    determine_analysis_targets,
+    is_valid_job,
+    sanitize_paths,
+)
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.util import write_or_print
@@ -96,6 +100,25 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Enable property verification mode",
 )
+@click.option(
+    "--scribble",
+    "enable_scribble",
+    is_flag=True,
+    default=None,
+    help="Enable scribble instrumentation (beta)",
+)
+@click.option(
+    "--scribble-path",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a custom scribble executable (beta)",
+)
+@click.option(
+    "--scenario",
+    type=click.Choice(["truffle", "solidity"]),
+    default=None,
+    help="Force an analysis scenario",
+)
 @click.pass_obj
 def analyze(
     ctx,
@@ -112,6 +135,9 @@ def analyze(
     include: Tuple[str],
     remap_import: Tuple[str],
     check_properties: bool,
+    enable_scribble: bool,
+    scribble_path: str,
+    scenario: str,
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -131,6 +157,9 @@ def analyze(
     :param include: List of contract names to send - exclude everything else
     :param remap_import: List of import remappings to pass on to solc
     :param check_properties: Enable property verification mode
+    :param enable_scribble: Enable instrumentation with scribble
+    :param scribble_path: Optional path to the scribble executable
+    :param scenario: Force an analysis scenario
     :return:
     """
 
@@ -141,7 +170,7 @@ def analyze(
         create_group = analyze_config.get("create-group", False)
 
     mode = mode or analyze_config.get("mode") or "quick"
-    group_id = analyze_config.get("group-id") or group_id
+    group_id = analyze_config.get("group-id") or group_id or None
     group_name = group_name or analyze_config.get("group-name") or ""
     min_severity = min_severity or analyze_config.get("min-severity") or None
     swc_blacklist = swc_blacklist or analyze_config.get("blacklist") or None
@@ -152,10 +181,15 @@ def analyze(
     check_properties = (
         check_properties or analyze_config.get("check-properties") or False
     )
+    enable_scribble = enable_scribble or analyze_config.get("enable-scribble") or False
+    scribble_path = scribble_path or analyze_config.get("scribble-path") or "scribble"
     target = target or analyze_config.get("targets") or None
+    scenario = scenario or analyze_config.get("scenario") or None
 
+    # enable property checking if explicitly requested or implicitly when
+    # scribble instrumentation is requested
     ctx["client"].handler.middlewares.append(
-        PropertyCheckingMiddleware(check_properties)
+        PropertyCheckingMiddleware(check_properties or enable_scribble)
     )
 
     if create_group:
@@ -170,87 +204,45 @@ def analyze(
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
+    mode_list = determine_analysis_targets(target, forced_scenario=scenario)
 
-    if not target:
-        if Path("truffle-config.js").exists() or Path("truffle.js").exists():
-            files, source_list = find_truffle_artifacts(Path.cwd())
-            if not files:
-                raise click.exceptions.UsageError(
-                    (
-                        "Could not find any truffle artifacts. Are you in the project root? "
-                        "Did you run truffle compile?"
-                    )
+    for scenario, element in mode_list:
+        if scenario == ScenarioMode.TRUFFLE:
+            job = TruffleJob(element)
+            job.generate_payloads()
+            jobs.extend(job.payloads)
+        elif scenario == ScenarioMode.SOLIDITY_DIR:
+            # recursively enumerate sol files if not a truffle project
+            LOGGER.debug(f"Identified {element} as directory containing Solidity files")
+            jobs.extend(
+                walk_solidity_files(
+                    solc_version,
+                    base_path=element,
+                    remappings=remap_import,
+                    enable_scribble=enable_scribble,
+                    scribble_path=scribble_path,
                 )
-            LOGGER.debug(f"Detected Truffle project with files:{', '.join(files)}")
-            for file in files:
-                jobs.append(generate_truffle_payload(file, source_list))
-
-        elif list(glob("*.sol")):
-            LOGGER.debug(f"Detected Solidity files in directory")
-            jobs = walk_solidity_files(
-                ctx=ctx, solc_version=solc_version, remappings=remap_import
             )
-        else:
-            raise click.exceptions.UsageError(
-                "No argument given and unable to detect Truffle project or Solidity files"
+        elif scenario == ScenarioMode.SOLIDITY_FILE:
+            LOGGER.debug(f"Trying to interpret {element} as a solidity file")
+            target_split = element.split(":")
+            file_path, contract = target_split[0], target_split[1:]
+            if contract:
+                include += contract  # e.g. ["MyContract"] or []
+                contract = contract[0]
+            job = SolidityJob(Path(file_path))
+            job.generate_payloads(
+                version=solc_version,
+                contract=contract or None,
+                remappings=remap_import,
+                enable_scribble=enable_scribble,
+                scribble_path=scribble_path,
             )
-    else:
-        for target_elem in target:
-            target_split = target_elem.split(":")
-            element, suffix = target_split[0], target_split[1:]
-            if suffix:
-                include += suffix
-                suffix = suffix[0]
-            if element.startswith("0x"):
-                LOGGER.debug(f"Identified target {element} as bytecode")
-                jobs.append(generate_bytecode_payload(element))
-            elif Path(element).is_file() and Path(element).suffix == ".sol":
-                LOGGER.debug(f"Trying to interpret {element} as a solidity file")
-                jobs.append(
-                    generate_solidity_payload(
-                        file=element,
-                        version=solc_version,
-                        contract=suffix,
-                        remappings=remap_import,
-                    )
-                )
-            elif Path(element).is_dir():
-                LOGGER.debug(f"Identified target {element} as directory")
-                files, source_list = find_truffle_artifacts(Path(element))
-                if files:
-                    # extract truffle artifacts if config found in target
-                    LOGGER.debug(f"Identified {element} directory as truffle project")
-                    jobs.extend(
-                        [generate_truffle_payload(file, source_list) for file in files]
-                    )
-                else:
-                    # recursively enumerate sol files if not a truffle project
-                    LOGGER.debug(
-                        f"Identified {element} as directory containing Solidity files"
-                    )
-                    jobs.extend(
-                        walk_solidity_files(
-                            ctx,
-                            solc_version,
-                            base_path=element,
-                            remappings=remap_import,
-                        )
-                    )
-            else:
-                raise click.exceptions.UsageError(
-                    f"Could not interpret argument {element} as bytecode, Solidity file, or Truffle project"
-                )
-
-    # sanitize local paths
-    LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
-    jobs = [sanitize_paths(job) for job in jobs]
-    # filter jobs where no bytecode was produced
-    LOGGER.debug(f"Filtering {len(jobs)} jobs for empty bytecode")
-    jobs = [job for job in jobs if is_valid_job(job)]
+            jobs.extend(job.payloads)
 
     # reduce to whitelisted contract names
     if include:
-        LOGGER.debug(f"Filtering {len(jobs)} for contracts to be included")
+        LOGGER.debug(f"Filtering {len(jobs)} job(s) for contracts to be included")
         found_contracts = {job["contract_name"] for job in jobs}
         overlap = set(include).difference(found_contracts)
         if overlap:
@@ -259,7 +251,29 @@ def analyze(
             )
         jobs = [job for job in jobs if job["contract_name"] in include]
 
+    # filter jobs where no bytecode was produced
+    LOGGER.debug(f"Filtering {len(jobs)} job(s) for empty bytecode")
+    jobs = [job for job in jobs if is_valid_job(job)]
+
+    # sanitize local paths
+    LOGGER.debug(f"Sanitizing {len(jobs)} jobs")
+    jobs = [sanitize_paths(job) for job in jobs]
+
     LOGGER.debug(f"Submitting {len(jobs)} analysis jobs to the MythX API")
+
+    if not jobs:
+        raise click.UsageError(
+            (
+                "No jobs were generated. Please make sure your Solidity files "
+                "compile correctly or your Truffle project has been compiled."
+            )
+        )
+
+    consent = ctx["yes"] or click.confirm(f"Found {len(jobs)} job(s). Submit?")
+    if not consent:
+        LOGGER.debug("User consent not given - exiting")
+        sys.exit(0)
+
     uuids = []
     with click.progressbar(jobs) as bar:
         for job in bar:

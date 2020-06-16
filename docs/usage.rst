@@ -107,10 +107,9 @@ optionally on a target directory or file:
    repository of Solidity files (unless they actually want it).
    For automation purposes the prompt can be automatically confirmed by
    providing the :code:`-y/--yes` option, e.g. :code:`mythx --yes analyze`.
-3. To analyze specific Solidity files or bytecode, data can also explicitly
+3. To analyze specific Solidity files, data can also explicitly
    be passed to the :code:`analyze` subcommand.
-   The argument can be a list of creation bytecode strings (beginning with
-   :code:`0x`) and Solidity files (valid files ending with with
+   The argument can be a list of Solidity files (valid files ending with with
    :code:`.sol`). The arguments can have arbitrary order and for each a new
    analysis request will be submitted.
    Otherwise, a directory may be passed. The MythX CLI will then proceed to

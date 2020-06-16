@@ -13,15 +13,6 @@ mythx_cli.analyze.command
     .. autofunction:: analyze
 
 
-mythx_cli.analyze.bytecode
---------------------------
-
-.. automodule:: mythx_cli.analyze.bytecode
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 mythx_cli.analyze.solidity
 --------------------------
 
