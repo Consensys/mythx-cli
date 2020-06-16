@@ -12,7 +12,7 @@ import click
 LOGGER = logging.getLogger("mythx-cli")
 
 
-class AnalyzeMode(Enum):
+class ScenarioMode(Enum):
     SOLIDITY_FILE = 1
     SOLIDITY_DIR = 2
     TRUFFLE = 3
@@ -35,7 +35,7 @@ def detect_truffle_files(
 
 def determine_analysis_targets(
     target: str, forced_scenario: str
-) -> List[Tuple[AnalyzeMode, Union[Path, str]]]:
+) -> List[Tuple[ScenarioMode, Union[Path, str]]]:
     """Determine the scenario for an analysis target.
 
     This function will, based on a list of targets or lack thereof, return a list
@@ -56,10 +56,10 @@ def determine_analysis_targets(
         cwd = Path.cwd()
         if detect_truffle_files(cwd) or forced_scenario == "truffle":
             LOGGER.debug(f"Identified directory as truffle project")
-            mode_list.append((AnalyzeMode.TRUFFLE, cwd))  # TRUFFLE DIR
+            mode_list.append((ScenarioMode.TRUFFLE, cwd))  # TRUFFLE DIR
         elif list(glob("*.sol")) or forced_scenario == "solidity":
             LOGGER.debug(f"Identified directory with Solidity files")
-            mode_list.append((AnalyzeMode.SOLIDITY_DIR, cwd))  # SOLIDITY DIR
+            mode_list.append((ScenarioMode.SOLIDITY_DIR, cwd))  # SOLIDITY DIR
         else:
             raise click.exceptions.UsageError(
                 "No argument given and unable to detect Truffle project or Solidity files"
@@ -72,7 +72,7 @@ def determine_analysis_targets(
             ) or forced_scenario == "solidity":
                 LOGGER.debug(f"Identified target {str(element)} as solidity file")
                 # pass target_elem here to catch the optional path:Contract syntax
-                mode_list.append((AnalyzeMode.SOLIDITY_FILE, target_elem))
+                mode_list.append((ScenarioMode.SOLIDITY_FILE, target_elem))
             elif element.is_dir():
                 LOGGER.debug(f"Identified target {str(element)} as directory")
                 if (
@@ -82,11 +82,11 @@ def determine_analysis_targets(
                     LOGGER.debug(
                         f"Identified {str(element)} directory as truffle project"
                     )
-                    mode_list.append((AnalyzeMode.TRUFFLE, element))
+                    mode_list.append((ScenarioMode.TRUFFLE, element))
                 else:
                     # implicit: forced_scenario == "solidity"
                     LOGGER.debug(f"Identified {str(element)} as Solidity directory")
-                    mode_list.append((AnalyzeMode.SOLIDITY_DIR, element))
+                    mode_list.append((ScenarioMode.SOLIDITY_DIR, element))
             else:
                 raise click.exceptions.UsageError(
                     f"Could not interpret argument {target_elem} as bytecode, Solidity file, or Truffle project"

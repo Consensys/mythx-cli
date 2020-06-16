@@ -17,7 +17,7 @@ from pythx.middleware.property_checking import PropertyCheckingMiddleware
 from mythx_cli.analyze.solidity import SolidityJob, walk_solidity_files
 from mythx_cli.analyze.truffle import TruffleJob
 from mythx_cli.analyze.util import (
-    AnalyzeMode,
+    ScenarioMode,
     determine_analysis_targets,
     is_valid_job,
     sanitize_paths,
@@ -206,12 +206,12 @@ def analyze(
     include = list(include)
     mode_list = determine_analysis_targets(target, forced_scenario=scenario)
 
-    for analyze_mode, element in mode_list:
-        if analyze_mode == AnalyzeMode.TRUFFLE:
+    for scenario, element in mode_list:
+        if scenario == ScenarioMode.TRUFFLE:
             job = TruffleJob(element)
             job.generate_payloads()
             jobs.extend(job.payloads)
-        elif analyze_mode == AnalyzeMode.SOLIDITY_DIR:
+        elif scenario == ScenarioMode.SOLIDITY_DIR:
             # recursively enumerate sol files if not a truffle project
             LOGGER.debug(f"Identified {element} as directory containing Solidity files")
             jobs.extend(
@@ -223,7 +223,7 @@ def analyze(
                     scribble_path=scribble_path,
                 )
             )
-        elif analyze_mode == AnalyzeMode.SOLIDITY_FILE:
+        elif scenario == ScenarioMode.SOLIDITY_FILE:
             LOGGER.debug(f"Trying to interpret {element} as a solidity file")
             target_split = element.split(":")
             file_path, contract = target_split[0], target_split[1:]
