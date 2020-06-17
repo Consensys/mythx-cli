@@ -2,6 +2,31 @@
 History
 =======
 
+0.6.18 (2020-06-16)
+-------------------
+
+- Update :code:`pythx` to 1.6.1 to fix validation errors
+
+
+0.6.17 (2020-06-16)
+-------------------
+
+- Add experimental Scribble integration for property validation
+- Remove bytecode payload option due to lack of usage
+- Require users to explicitly consent to analysis submission
+- Add feature that allows users to force a certain analysis scenario
+- Clean up code into payload-related job objects
+- Fix issue where pypy7.1.1-beta0 doesn't support PathLike in os.chdir
+- Slim down Solidity file walking logic
+- Refresh payload documentation
+- Refactor payload-related tests
+- Update :code:`py-solc-x` to 0.9.0
+- Update :code:`5.4.3`
+- Update :code:`sphinx` to 3.1.1
+- Update :code:`pytest-cov` to 2.10.0
+- Update :code:`tox` to 3.15.2
+
+
 0.6.16 (2020-05-15)
 -------------------
 
