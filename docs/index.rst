@@ -9,6 +9,7 @@ Welcome to MythX CLI's documentation!
    installation
    usage
    advanced-usage
+   troubleshooting
    modules
    contributing
    authors
