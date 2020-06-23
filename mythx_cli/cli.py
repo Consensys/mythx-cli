@@ -94,6 +94,12 @@ class APIErrorCatcherGroup(click.Group):
     type=click.Path(exists=True),
     help="YAML config file for default parameters",
 )
+@click.option(
+    "--stdout",
+    is_flag=True,
+    default=False,
+    help="Force printing to stdout",
+)
 @click.pass_context
 def cli(
     ctx,
@@ -106,6 +112,7 @@ def cli(
     output: str,
     yes: bool,
     config: str,
+    stdout: bool,
 ) -> None:
     """Your CLI for interacting with https://mythx.io/
 
@@ -120,6 +127,7 @@ def cli(
     :param ci: Boolean to return exit code 1 on medium/high-sev issues
     :param output: Output file to write the results into
     :param config: YAML config file to read default parameters from
+    :param stdout: Force printing to stdout and ignore output files
     """
 
     # set loggers to debug mode
@@ -154,7 +162,11 @@ def cli(
 
     # overwrite context with top-level YAML config keys if necessary
     update_context(ctx.obj, "ci", parsed_config, "ci", False)
-    update_context(ctx.obj, "output", parsed_config, "output", None)
+    if stdout:
+        # if forced stdout, don't set output file
+        ctx.obj["output"] = None
+    else:
+        update_context(ctx.obj, "output", parsed_config, "output", None)
     update_context(ctx.obj, "fmt", parsed_config, "format", "table")
     update_context(ctx.obj, "yes", parsed_config, "confirm", False)
 
