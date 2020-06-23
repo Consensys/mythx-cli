@@ -2,6 +2,12 @@
 History
 =======
 
+0.6.19 (2020-06-23)
+-------------------
+
+- Add :code:`--stdout` flag to override YAML-defined :code:`output`
+
+
 0.6.18 (2020-06-16)
 -------------------
 
