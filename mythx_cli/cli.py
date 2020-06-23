@@ -94,12 +94,7 @@ class APIErrorCatcherGroup(click.Group):
     type=click.Path(exists=True),
     help="YAML config file for default parameters",
 )
-@click.option(
-    "--stdout",
-    is_flag=True,
-    default=False,
-    help="Force printing to stdout",
-)
+@click.option("--stdout", is_flag=True, default=False, help="Force printing to stdout")
 @click.pass_context
 def cli(
     ctx,
