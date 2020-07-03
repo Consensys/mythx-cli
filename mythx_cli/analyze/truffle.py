@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import sys
+from collections import defaultdict
 from glob import glob
 from pathlib import Path
 from typing import List, Set, Tuple, Union
@@ -24,6 +25,8 @@ class TruffleJob:
     def __init__(self, target: Path):
         self.target = target
         self.payloads = []
+        self.dependency_map = defaultdict(set)
+        self.sol_artifact_map = {}
 
     def find_truffle_artifacts(
         self
@@ -86,7 +89,7 @@ class TruffleJob:
                 "Could not find any truffle artifacts. Did you run truffle compile?"
             )
         LOGGER.debug(f"Detected Truffle project with files:{', '.join(artifact_files)}")
-
+        self.build_dependency_map(artifact_files)
         for file in artifact_files:
             with open(file) as af:
                 artifact = json.load(af)
@@ -113,8 +116,8 @@ class TruffleJob:
                         artifact.get("sourcePath"): {
                             "source": artifact.get("source"),
                             "ast": artifact.get("ast"),
-                            "legacyAST": artifact.get("legacyAST"),
-                        }
+                        },
+                        **self.get_artifact_context(file),
                     },
                     "source_list": source_list,
                     "main_source": artifact.get("sourcePath"),
@@ -134,3 +137,44 @@ class TruffleJob:
         :return: The patched bytecode with the zero-address filled in
         """
         return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
+
+    def artifact_to_sol_file(self, artifact_path):
+        # don't use lookup so we can resolve node_modules dependencies
+        basename = Path(artifact_path).name.replace(".json", ".sol")
+        sol_file = str(next(Path().rglob(basename)).absolute())
+        self.sol_artifact_map[sol_file] = artifact_path
+        self.sol_artifact_map[artifact_path] = sol_file
+        return sol_file
+
+    def sol_file_to_artifact(self, sol_path, artifact_files):
+        if sol_path in self.sol_artifact_map:
+            return self.sol_artifact_map[sol_path]
+        basename = Path(sol_path).name.replace(".sol", ".json")
+        artifact_path = next((x for x in artifact_files if basename in x), None)
+        self.sol_artifact_map[sol_path] = artifact_path
+        return artifact_path
+
+    def build_dependency_map(self, artifact_files):
+        for artifact_file in artifact_files:
+            with open(artifact_file) as af:
+                artifact = json.load(af)
+
+            for node in artifact.get("ast")["nodes"]:
+                if node["nodeType"] != "ImportDirective":
+                    continue
+                related_artifact = self.sol_file_to_artifact(
+                    node["absolutePath"], artifact_files
+                )
+                if related_artifact is not None:
+                    self.dependency_map[artifact_file].add(related_artifact)
+
+    def get_artifact_context(self, artifact_file):
+        context = {}
+        for related_file in self.dependency_map[artifact_file]:
+            with open(related_file) as af:
+                artifact = json.load(af)
+            context[self.artifact_to_sol_file(related_file)] = {
+                "source": artifact.get("source"),
+                "ast": artifact.get("ast"),
+            }
+        return context
