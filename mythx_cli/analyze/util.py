@@ -218,13 +218,12 @@ def is_valid_job(job) -> bool:
     elif not job.get("contract_name"):
         LOGGER.debug(f"Invalid job because contract name is {job.get('contract_name')}")
         valid = False
+    elif job.get("contract_name") == "Migrations":
+        LOGGER.debug("Invalid job because no one uses Migrations.sol, seriously.")
+        valid = False
 
     if not valid:
         # notify user
-        click.echo(
-            "Skipping submission for contract {} because no bytecode was produced.".format(
-                job.get("contract_name")
-            )
-        )
+        click.echo(f"Skipping submission for contract: {job.get('contract_name')}")
 
     return valid

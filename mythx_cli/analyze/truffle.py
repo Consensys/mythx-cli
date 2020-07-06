@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import sys
+from collections import defaultdict
 from glob import glob
 from pathlib import Path
 from typing import List, Set, Tuple, Union
@@ -24,6 +25,18 @@ class TruffleJob:
     def __init__(self, target: Path):
         self.target = target
         self.payloads = []
+        self.sol_artifact_map = {}
+        self.artifact_files, self.source_list = self.find_truffle_artifacts()
+
+        if not self.artifact_files:
+            raise click.exceptions.UsageError(
+                "Could not find any truffle artifacts. Did you run truffle compile?"
+            )
+        LOGGER.debug(
+            f"Detected Truffle project with files:{', '.join(self.artifact_files)}"
+        )
+
+        self.dependency_map = self.build_dependency_map()
 
     def find_truffle_artifacts(
         self
@@ -36,7 +49,6 @@ class TruffleJob:
 
         :return: Files under :code:`<project-dir>/build/contracts/` or :code:`None`
         """
-
         output_pattern = self.target / "build" / "contracts" / "*.json"
         artifact_files = list(glob(str(output_pattern.absolute())))
         if not artifact_files:
@@ -78,16 +90,7 @@ class TruffleJob:
 
         :return: The payload dictionary to be sent to MythX
         """
-
-        artifact_files, source_list = self.find_truffle_artifacts()
-
-        if not artifact_files:
-            raise click.exceptions.UsageError(
-                "Could not find any truffle artifacts. Did you run truffle compile?"
-            )
-        LOGGER.debug(f"Detected Truffle project with files:{', '.join(artifact_files)}")
-
-        for file in artifact_files:
+        for file in self.artifact_files:
             with open(file) as af:
                 artifact = json.load(af)
                 LOGGER.debug(f"Loaded Truffle artifact with {len(artifact)} keys")
@@ -113,10 +116,10 @@ class TruffleJob:
                         artifact.get("sourcePath"): {
                             "source": artifact.get("source"),
                             "ast": artifact.get("ast"),
-                            "legacyAST": artifact.get("legacyAST"),
-                        }
+                        },
+                        **self.get_artifact_context(file),
                     },
-                    "source_list": source_list,
+                    "source_list": self.source_list,
                     "main_source": artifact.get("sourcePath"),
                     "solc_version": artifact["compiler"]["version"],
                 }
@@ -134,3 +137,99 @@ class TruffleJob:
         :return: The patched bytecode with the zero-address filled in
         """
         return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
+
+    def artifact_to_sol_file(self, artifact_path):
+        """Resolve an artifact file to its corresponding Solidity file.
+
+        This method will take the Truffle artifact's file name, and
+        recursively search through the current directory and all
+        subdirectories, looking for a Solidity file with the same name.
+
+        For additional lookup performance in large Truffle projects with
+        a large dependency graph, the mapping from Solidity file to
+        artifact and vice versa is stored in the job object for future
+        resolution to aboid filesystem interaction.
+
+        NOTE: We do not loop up the entries in the mapping here, because
+        we want to avoid accidentally resolving external dependencies
+        defined by path remappings, e.g. @openzeppelin/SafeMath.sol as
+        these don't turn up as absolute paths in Truffle artifacts but
+        stay in the remapped format.
+
+        :param artifact_path: The path to the Truffle artifact
+        :return: The corresponding Solidity file path
+        """
+        basename = Path(artifact_path).name.replace(".json", ".sol")
+        sol_file = str(next(Path().rglob(basename)).absolute())
+        self.sol_artifact_map[sol_file] = artifact_path
+        self.sol_artifact_map[artifact_path] = sol_file
+        return sol_file
+
+    def sol_file_to_artifact(self, sol_path, artifact_files):
+        """ Resolve a Solidity file to the corresponding artifact file.
+
+        This method will take the path to a Solidity file and return
+        its corresponding Truffle artifact JSON file.
+        If this relation is already stored in the local artifact mapping,
+        the result will be returned right away. Otherwise, the Solidity
+        path's file name is retrieved, and looked up in the list of
+        artifact files and add the relation to the job object's mapping.
+
+        :param sol_path: The path of the Solidity file to retrieve the artifact for
+        :param artifact_files: The list of artifact files in the Truffle build directory
+        :return: The resolved Truffle artifact JSON path
+        """
+        if sol_path in self.sol_artifact_map:
+            return self.sol_artifact_map[sol_path]
+        basename = Path(sol_path).name.replace(".sol", ".json")
+        artifact_path = next((x for x in artifact_files if basename in x), None)
+        self.sol_artifact_map[sol_path] = artifact_path
+        return artifact_path
+
+    def build_dependency_map(self):
+        """Build the local dependency mapping.
+
+        To speed up lookups when attaching related artifacts to analysis
+        payloads, this method builds a dependency map where the current
+        file is the key, and the value is a set containing all related
+        artifact paths the key file path depends on.
+
+        This method is called in the constructor to build the mapping right
+        away and speed up all future lookups.
+        """
+        dependency_map = defaultdict(set)
+        for artifact_file in self.artifact_files:
+            with open(artifact_file) as af:
+                artifact = json.load(af)
+
+            for node in artifact.get("ast")["nodes"]:
+                if node["nodeType"] != "ImportDirective":
+                    continue
+                related_artifact = self.sol_file_to_artifact(
+                    node["absolutePath"], self.artifact_files
+                )
+                if related_artifact is not None:
+                    dependency_map[artifact_file].add(related_artifact)
+        return dependency_map
+
+    def get_artifact_context(self, artifact_file):
+        """Get additional context for a given artifact file.
+
+        This method will look up the artifacts related to the current one
+        in the instace's dependency map, load their JSON, and attach source
+        code and AST information to the context object.
+
+        To do that, the related Solidity file path is resolved.
+
+        :param artifact_file: The artifact file to generate context for
+        :return: A dictionary containing source and AST information of all related files
+        """
+        context = {}
+        for related_file in self.dependency_map[artifact_file]:
+            with open(related_file) as af:
+                artifact = json.load(af)
+            context[self.artifact_to_sol_file(related_file)] = {
+                "source": artifact.get("source"),
+                "ast": artifact.get("ast"),
+            }
+        return context
