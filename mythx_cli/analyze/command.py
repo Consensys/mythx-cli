@@ -209,7 +209,7 @@ def analyze(
     for scenario, element in mode_list:
         if scenario == ScenarioMode.TRUFFLE:
             job = TruffleJob(element)
-            job.generate_payloads()
+            job.generate_payloads(enable_scribble=enable_scribble, remappings=remap_import, scribble_path=scribble_path)
             jobs.extend(job.payloads)
         elif scenario == ScenarioMode.SOLIDITY_DIR:
             # recursively enumerate sol files if not a truffle project

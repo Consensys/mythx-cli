@@ -12,13 +12,16 @@ import click
 import solcx
 import solcx.exceptions
 
+from .scribble import ScribbleMixin
+
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 RGLOB_BLACKLIST = ["node_modules"]
 
 
-class SolidityJob:
+class SolidityJob(ScribbleMixin):
     def __init__(self, target: Path):
+        super().__init__()
         self.target = str(target)
         self.payloads = []
 
@@ -199,23 +202,7 @@ class SolidityJob:
 
         if enable_scribble:
             # use scribble for compilation
-            process = subprocess.run(
-                [scribble_path, "--input-mode=source", "--output-mode=json"]
-                + ([f"--path-remapping={';'.join(remappings)}"] if remappings else [])
-                + [self.target],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            if process.returncode != 0:
-                click.echo(
-                    f"Scribble has encountered an error (code: {process.returncode})"
-                )
-                click.echo("=====STDERR=====")
-                click.echo(process.stderr.decode())
-                click.echo("=====STDOUT=====")
-                click.echo(process.stdout.decode())
-                sys.exit(process.returncode)
-            result = json.loads(process.stdout.decode())
+            result = self.instrument_solc_file(self.target, scribble_path, remappings)
         else:
             # use solc for compilation
             self.setup_solcx(solc_version)
