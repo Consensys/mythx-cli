@@ -14,7 +14,7 @@ from mythx_models.response import (
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.property_checking import PropertyCheckingMiddleware
 
-from mythx_cli.analyze.solidity import SolidityJob, walk_solidity_files
+from mythx_cli.analyze.solidity import SolidityJob
 from mythx_cli.analyze.truffle import TruffleJob
 from mythx_cli.analyze.util import (
     ScenarioMode,
@@ -215,7 +215,7 @@ def analyze(
             # recursively enumerate sol files if not a truffle project
             LOGGER.debug(f"Identified {element} as directory containing Solidity files")
             jobs.extend(
-                walk_solidity_files(
+                SolidityJob.walk_solidity_files(
                     solc_version,
                     base_path=element,
                     remappings=remap_import,
