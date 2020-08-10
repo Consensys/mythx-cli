@@ -489,9 +489,6 @@ JSON format to stdout. Currently the following formatters are available:
 * :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
   indentation of two spaces and alphabetically sorted object keys.
 
-..
-    * :code:`sonar`: Print the results as JSON objects that can be interpreted by SonarQube.
-
 
 API Version Information
 -----------------------

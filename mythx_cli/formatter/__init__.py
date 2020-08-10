@@ -2,7 +2,6 @@
 
 from .json import JSONFormatter, PrettyJSONFormatter
 from .simple_stdout import SimpleFormatter
-from .sonarqube import SonarQubeFormatter
 from .tabular import TabularFormatter
 
 FORMAT_RESOLVER = {
@@ -10,7 +9,6 @@ FORMAT_RESOLVER = {
     "json": JSONFormatter(),
     "json-pretty": PrettyJSONFormatter(),
     "table": TabularFormatter(),
-    "sonar": SonarQubeFormatter(),
 }
 
 __all__ = [
@@ -18,5 +16,4 @@ __all__ = [
     PrettyJSONFormatter,
     SimpleFormatter,
     TabularFormatter,
-    SonarQubeFormatter,
 ]
