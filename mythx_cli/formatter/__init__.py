@@ -11,9 +11,4 @@ FORMAT_RESOLVER = {
     "table": TabularFormatter(),
 }
 
-__all__ = [
-    JSONFormatter,
-    PrettyJSONFormatter,
-    SimpleFormatter,
-    TabularFormatter,
-]
+__all__ = [JSONFormatter, PrettyJSONFormatter, SimpleFormatter, TabularFormatter]
