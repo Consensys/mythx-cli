@@ -35,7 +35,8 @@ class BaseFormatter(abc.ABC):
     def format_detected_issues(
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
-        ]
+        ],
+        **kwargs,
     ) -> str:
         """Format an issue report response."""
 

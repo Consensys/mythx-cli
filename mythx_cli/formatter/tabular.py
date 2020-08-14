@@ -115,12 +115,14 @@ class TabularFormatter(BaseFormatter):
     def format_detected_issues(
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
-        ]
+        ],
+        **kwargs,
     ) -> str:
         """Format an issue report to a tabular representation."""
 
         result = []
         file_to_issues = index_by_filename(issues_list)
+        table_sort_key = kwargs.pop("table_sort_key", "line")
 
         for filename, data in file_to_issues.items():
             result.append(f"Report for {filename}")
@@ -137,7 +139,10 @@ class TabularFormatter(BaseFormatter):
                 )
 
             # sort by line number
-            lines = sorted(lines, key=lambda x: x[0])
+            sort_idx = {"line": 0, "title": 1, "severity": 2, "description": 3}[
+                table_sort_key
+            ]
+            lines = sorted(lines, key=lambda x: x[sort_idx])
 
             result.extend(links)
             result.extend(

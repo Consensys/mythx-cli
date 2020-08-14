@@ -315,6 +315,12 @@ def analyze(
         resp.uuid = uuid
         issues_list.append((resp, inp))
 
-    LOGGER.debug(f"Printing report for {len(issues_list)} issue items")
-    write_or_print(formatter.format_detected_issues(issues_list))
+    LOGGER.debug(
+        f"Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""
+    )
+    write_or_print(
+        formatter.format_detected_issues(
+            issues_list, table_sort_key=ctx["table_sort_key"]
+        )
+    )
     sys.exit(ctx["retval"])
