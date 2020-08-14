@@ -129,12 +129,12 @@ def normalize_swc_list(swc_list: Union[str, List[str], None]) -> List[str]:
 def set_ci_failure() -> None:
     """Based on the current context, set the return code to 1.
 
-    This method sets the return code to 1. It is called by the
-    respective subcommands (analyze and report) in case a severe issue
-    has been found (as specified by the user) if the CI flag is passed.
-    This will make the MythX CLI fail when running on a CI server. If no
-    context is available, this function assumes that it is running
-    outside a CLI scenario (e.g. a test setup) and will not do anything.
+    This method sets the return code to 1. It is called by the respective
+    subcommands (analyze and report) in case a severe issue has been found (as
+    specified by the user) if the CI flag is passed. This will make the MythX
+    CLI fail when running on a CI server. If no context is available, this
+    function assumes that it is running outside a CLI scenario (e.g. a test
+    setup) and will not do anything.
     """
     try:
         ctx = click.get_current_context()

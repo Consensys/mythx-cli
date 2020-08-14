@@ -232,6 +232,7 @@ The currently supported top-level configuration keys are:
 - :code:`format`: The output format to return (equivalent to :code:`--format`)
 - :code:`confirm`: Boolean indicating the automatic confirmation of multiple file submissions
   (equivalent to :code:`--yes`)
+- :code:`table-sort-key`: The column name to sort the default table output by (equivalent to :code:`--table-sort-key`)
 
 The :code:`analyze` configuration keys currently supported are:
 

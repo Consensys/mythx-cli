@@ -36,7 +36,12 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default=None)
+@click.option(
+    "--mode",
+    type=click.Choice(["quick", "standard", "deep"]),
+    help="The MythX analysis mode to use",
+    default=None,
+)
 @click.option(
     "--create-group",
     is_flag=True,

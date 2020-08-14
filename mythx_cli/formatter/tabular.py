@@ -24,10 +24,9 @@ class TabularFormatter(BaseFormatter):
     """The tabular formatter.
 
     This formatter displays an ASCII table. It is enabled by default and
-    requires the analysis input data to display each issue's line number
-    in the source file. It might break on very large field sizes as
-    cell-internal line breaks are not supported by the tabulate library
-    yet.
+    requires the analysis input data to display each issue's line number in the
+    source file. It might break on very large field sizes as cell-internal line
+    breaks are not supported by the tabulate library yet.
     """
 
     report_requires_input = True

@@ -20,10 +20,9 @@ from .util import index_by_filename
 class SimpleFormatter(BaseFormatter):
     """The simple text formatter.
 
-    This formatter generates simplified text output. It also displays
-    the source locations of issues by line in the Solidity source code
-    if given. Therefore, this formatter requires the analysis input to
-    be given.
+    This formatter generates simplified text output. It also displays the source
+    locations of issues by line in the Solidity source code if given. Therefore,
+    this formatter requires the analysis input to be given.
     """
 
     report_requires_input = True

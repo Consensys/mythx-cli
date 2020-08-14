@@ -1,8 +1,7 @@
-=============
-The MythX CLI
-=============
+mythx_cli
+=========
 
 .. toctree::
-    :maxdepth: 4
+   :maxdepth: 4
 
-    mythx_cli
+   mythx_cli
