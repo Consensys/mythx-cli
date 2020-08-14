@@ -14,4 +14,4 @@ black==19.3b0
 isort==5.4.1
 pytest==6.0.1
 pytest-runner==5.2
-pytest-cov==2.10.0
+pytest-cov==2.10.1
