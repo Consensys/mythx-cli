@@ -1,5 +1,6 @@
 import pytest
 from click.testing import CliRunner
+from jinja2 import escape
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.cli import cli
@@ -26,14 +27,14 @@ def assert_content(data, ident, is_template):
             assert filename in data
         for source in map(lambda x: x["source"], INPUT_RESPONSE.sources.values()):
             for line in source.split("\n"):
-                assert line in data
+                assert escape(line.strip()) in data
         for issue in ISSUES_RESPONSE:
             assert issue.swc_id in data
             assert issue.swc_title in data
     else:
-        assert "mythx_models.response.analysis_status.analysisstatusresponse" in data
-        assert "mythx_models.response.detected_issues.detectedissuesresponse" in data
-        assert "mythx_models.response.analysis_input.analysisinputresponse" in data
+        assert "mythx_models.response.analysis_status.AnalysisStatusResponse" in data
+        assert "mythx_models.response.detected_issues.DetectedIssuesResponse" in data
+        assert "mythx_models.response.analysis_input.AnalysisInputResponse" in data
 
 
 @pytest.mark.parametrize(

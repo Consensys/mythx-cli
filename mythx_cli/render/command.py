@@ -92,24 +92,17 @@ def render(
         LOGGER.debug(f"Using default template {default_template.name}")
         template_name = default_template.name
 
-    env_kwargs = {
-        "trim_blocks": True,
-        "lstrip_blocks": True,
-        "keep_trailing_newline": True,
-    }
-    if not markdown:
-        env_kwargs = {
-            "trim_blocks": True,
-            "lstrip_blocks": True,
-            "keep_trailing_newline": True,
-        }
-        if aesthetic:
-            LOGGER.debug(f"Overwriting template to go A E S T H E T I C")
-            template_name = "aesthetic.html"
+    if not markdown and aesthetic:
+        LOGGER.debug(f"Overwriting template to go A E S T H E T I C")
+        template_name = "aesthetic.html"
 
     LOGGER.debug("Initializing Jinja environment")
     env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(template_dirs), **env_kwargs
+        loader=jinja2.FileSystemLoader(template_dirs),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+        autoescape=True,
     )
     template = env.get_template(template_name)
 
