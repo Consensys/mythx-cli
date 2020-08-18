@@ -13,8 +13,8 @@ from mythx_models.response import (
     VersionResponse,
 )
 
-from .base import BaseFormatter
-from .util import index_by_filename
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.util import index_by_filename
 
 
 class SimpleFormatter(BaseFormatter):
@@ -96,12 +96,13 @@ class SimpleFormatter(BaseFormatter):
         for filename, data in file_to_issues.items():
             result.append(f"Report for {filename}")
             # sort by line number
-            data = sorted(data, key=lambda x: x["line"])
-            for issue in data:
-                result.append(f"Title: {issue['swcTitle']} ({issue['severity']})")
-                result.append(f"Description: {issue['description']['head']}")
-                result.append(f"Line: {issue['line']}")
-                result.append("\t" + issue["snippet"].strip() + "\n")
+            data = sorted([o for o in data if o["issues"]], key=lambda x: x["line"])
+            for line in data:
+                for issue in line["issues"]:
+                    result.append(f"Title: {issue['swcTitle']} ({issue['severity']})")
+                    result.append(f"Description: {issue['description']['head']}")
+                    result.append(f"Line: {line['line']}")
+                    result.append("\t" + line["content"].strip() + "\n")
 
         return "\n".join(result)
 

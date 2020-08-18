@@ -16,8 +16,9 @@ from mythx_models.response import (
 )
 from tabulate import tabulate
 
-from .base import BaseFormatter
-from .util import generate_dashboard_link, index_by_filename
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.formatter.util import generate_dashboard_link
+from mythx_cli.util import index_by_filename
 
 
 class TabularFormatter(BaseFormatter):
@@ -124,18 +125,22 @@ class TabularFormatter(BaseFormatter):
         table_sort_key = kwargs.pop("table_sort_key", "line")
 
         for filename, data in file_to_issues.items():
+            data = [o for o in data if o["issues"]]
+            if not data:
+                continue
             result.append(f"Report for {filename}")
             links, lines = set(), set()
-            for issue in data:
-                links.add(generate_dashboard_link(issue["uuid"]))
-                lines.add(
-                    (
-                        issue["line"],
-                        f"({issue['swcID']}) {issue['swcTitle']}",
-                        issue["severity"],
-                        issue["description"]["head"],
+            for line in data:
+                for issue in line["issues"]:
+                    links.add(generate_dashboard_link(issue["uuid"]))
+                    lines.add(
+                        (
+                            line["line"],
+                            f"({issue['swcID']}) {issue['swcTitle']}",
+                            issue["severity"],
+                            issue["description"]["head"],
+                        )
                     )
-                )
 
             # sort by line number
             sort_idx = {"line": 0, "title": 1, "severity": 2, "description": 3}[
