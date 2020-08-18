@@ -53,7 +53,7 @@ def index_by_filename(
                         "tail": issue.description_long,
                     },
                     "severity": issue.severity,
-                    "testCases": issue.extra_data.get("testCases", [])
+                    "testCases": issue.extra_data.get("testCases", []),
                 }
 
                 if issue.swc_id == "" or issue.swc_title == "" or not issue.locations:
