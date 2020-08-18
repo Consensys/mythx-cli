@@ -311,24 +311,43 @@ also support completely user-defined templates. These templates can be specified
 possibly also JavaScript (if you feel fancy), it is fairly easy to write a template. Explaining the
 inner workings of Jinja and the core principles of web design are out of scope for this section.
 It is relevant to know what context MythX provides for user-defined templates. There are two core
-items that are rendered onto the template. The :code:`issues_list`, and the :code:`target`.
+items that are rendered onto the template. The :code:`report_context`, and the :code:`target`.
 
 The :code:`target` is a string containing either the analysis group ID, or the analysis job UUID
 that the user has passed to the :code`render` subcommand.
 
-The :code:`issues_list` is a list of tuples. Each tuple contains three elements. These are in order:
-1. The analysis' status model object
-2. The analysis' issue report object
-3. The analysis' input model object
+The :code:`report_context` is a dictionary containing a mapping from file name to a list of line
+objects. Each line object has the following schema:
 
-These objects along with their methods and properties can be looked up in the
-`MythX domain model package <https://mythx-models.readthedocs.io/>`_. Generating a simple report is
-as easy as iterating over the :code:`issues_list` parameter and displaying the properties of each
-tuple element in the desired way:
+.. code-block:: python
+
+    {
+      "content": "        emit OwnershipTransferred(address(0), _owner);",
+      "issues": [],
+      "line": 19
+    }
+
+The :code:`issues` key can contain zero or more issue objects that have the following schema:
+
+.. code-block:: python
+
+    {
+      "description": {
+        "head": "Any sender can withdraw Ether from the contract account.",
+        "tail": "Arbitrary senders other than t..."
+      },
+      "severity": "High",
+      "swcID": "SWC-105",
+      "swcTitle": "Unprotected Ether Withdrawal",
+      "testCases": []
+    }
+
+Generating a simple report is as easy as iterating over the :code:`report_context` parameter and displaying the
+properties of each issue object in the desired way:
 
 .. code-block:: jinja
 
-    {% for status, report, input in issues_list %}
+    {% for filename, file_data in report_context %}
     {# my template code #}
 
 
@@ -424,34 +443,6 @@ things are displayed. The blocks defined in the layout template are as follows:
     main source file(s) of the analysis job. By default, this heading has the analysis job's
     UUID as ID. This is done so a user can reference the tag's ID in the navigation bar to
     quickly jump to specific report listing entries.
-- :code:`report_header_link`
-    Defines the report link behind the the report header name. By default, this link is
-    encapsulated in a :code:`small` tag and references the default MythX dashboard at
-    https://dashboard.mythx.io/.
-- :code:`report_header_link_name`
-    Defines the report header's link name. This is the link displayed next to the heading of
-    the report pointing to the official MythX dashboard. By default, the current report's UUID
-    is displayed.
-- :code:`section_status`
-    Defines the report's status section. The purpose of this section is to give the user a quick
-    overview over the vulnerabilities that have been found in a job. By default this is a table
-    displaying how many vulnerabilities per severity level have been found in the report.
-- :code:`section_status_high`
-    Defines the column name for :code:`high` severity vulnerabilities in the analysis status
-    overview. This block can be used to e.g. change the column name to its equivalent in another
-    language.
-- :code:`section_status_medium`
-    Defines the column name for :code:`medium` severity vulnerabilities in the analysis status
-    overview. This block can be used to e.g. change the column name to its equivalent in another
-    language.
-- :code:`section_status_low`
-    Defines the column name for :code:`low` severity vulnerabilities in the analysis status
-    overview. This block can be used to e.g. change the column name to its equivalent in another
-    language.
-- :code:`section_status_unknown`
-    Defines the column name for :code:`unknown` severity vulnerabilities in the analysis status
-    overview. This block can be used to e.g. change the column name to its equivalent in another
-    language.
 - :code:`section_report`
     Defines the central report section of an analysis job in the main page's report listing. By
     default this section displays a table is displayed showing the SWC-IDs of the found
@@ -461,28 +452,12 @@ things are displayed. The blocks defined in the layout template are as follows:
 - :code:`section_report_id`
     Defines the SWC-ID column name in the report issues overview table. This block can be used
     to e.g. change the column name to its equivalent in another language.
-- :code:`section_report_severity`
-    Defines the severity column name in the report issues overview table. This block can be used
-    to e.g. change the column name to its equivalent in another language.
 - :code:`section_report_name`
     Defines the SWC title column name in the report issues overview table. This block can be used
     to e.g. change the column name to its equivalent in another language.
-- :code:`section_report_file`
-    Defines the file name column name in the report issues overview table. This block can be used
-    to e.g. change the column name to its equivalent in another language. It should be noted that
-    in the table data field, only source file entries of "text" source format issues are
-    considered as their source list entries contain clear-text filenames. For bytecode locations,
-    a Keccak256 hash of the contract's deployed bytecode would be used. To not confuse readers,
-    this behaviour is omitted and skipped during the default template rendering.
 - :code:`section_report_location`
     Defines the issue location column name in the report issues overview table. This block can be
     used to e.g. change the column name to its equivalent in another language.
-- :code:`section_code`
-    Defines the code section. By default, this section displays a listing of the source code
-    (hidden behind a collapsible :code:`details` tag) where the found issues are highlighted inline.
-    Furthermore, if the issue has any test cases attached to it, these will be rendered as
-    collapsible items that are displayed once the user clicks on a code line that is highlighted
-    with an issue. More fine-grained customization can be done using the blocks defined below.
 - :code:`section_code_name`
     Defines the name of the collapsible to display the source code. This block can be used to e.g.
     change the column name to its equivalent in another language.
@@ -492,15 +467,6 @@ things are displayed. The blocks defined in the layout template are as follows:
 - :code:`section_code_step_name`
     Defines the name of the collapsible to display a test case's step name. This block can be used
     to e.g. change the column name to its equivalent in another language.
-- :code:`section_code_empty_name`
-    Defines the name of the message that is displayed when no test cases are attached to the
-    current issue. This is often the case for static analysis issues (like floating pragmas or the
-    use of deprecated Solidity functions). This block can be used to e.g. change the column name to
-    its equivalent in another language.
-- :code:`no_issues_name`
-    Defines the name of the message that is displayed when no issues were found in the report of
-    this particular analysis job. This block can be used to e.g. change the column name to its
-    equivalent in another language.
 - :code:`footer`
     Defines the content of the footer. By default, the footer carries the class :code:`main-footer`,
     which by default has an absolute fixed position at the bottom. This block by default gives credits
@@ -528,10 +494,6 @@ To allow flexibility without rewriting the whole :code:`templates/layout.md` fil
     This is the header that is displayed for each report in the analysis group - or the single analysis
     job (depending on the user input). It stands above the report status and issues overview and should
     describe the job displayed below.
-- :code:`status`
-    This block aims to give a quick overview over the report displayed in more granular detail below. By
-    default it displays table showing the number of vulnerabilities MythX has found grouped by their
-    severity.
 - :code:`report`
     This block should give detailed information about the issue that has been found. By default, it
     contains the vulnerability title, SWC ID, Severity, the corresponding source lines, and a short

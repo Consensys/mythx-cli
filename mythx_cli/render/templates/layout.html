@@ -414,7 +414,7 @@
                 {% for line_content in report_data %}
                 {% for issue in line_content["issues"] %}
                 <tr>
-                    <td><a href="https://dashboard.mythx.io/#/console/analyses/{{ issue['uuid'] }}">{{ issue["swcID"] }}</a></td> <!-- TODO: link to dashboard uuid -->
+                    <td><a href="https://dashboard.mythx.io/#/console/analyses/{{ issue['uuid'] }}">{{ issue["swcID"] }}</a></td>
                     <td>
                         <span class="badge sev-{{ issue['severity']|lower }}">
                             {{ issue["severity"]|title }}
