@@ -13,7 +13,7 @@ from mythx_models.response import (
 from pythx import Client
 
 from mythx_cli.render.util import get_analysis_info
-from mythx_cli.util import write_or_print
+from mythx_cli.util import index_by_filename, write_or_print
 
 LOGGER = logging.getLogger("mythx-cli")
 DEFAULT_HTML_TEMPLATE = Path(__file__).parent / "templates/default.html"
@@ -107,11 +107,7 @@ def render(
     template = env.get_template(template_name)
 
     issues_list: List[
-        Tuple[
-            AnalysisStatusResponse,
-            DetectedIssuesResponse,
-            Optional[AnalysisInputResponse],
-        ]
+        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
     ] = []
     if len(target) == 24:
         LOGGER.debug(f"Identified group target {target}")
@@ -129,25 +125,25 @@ def render(
             click.echo(
                 "Fetching report for analysis {}".format(analysis.uuid), err=True
             )
-            status, resp, inp = get_analysis_info(
+            _, resp, inp = get_analysis_info(
                 client=client,
                 uuid=analysis.uuid,
                 min_severity=min_severity,
                 swc_blacklist=swc_blacklist,
                 swc_whitelist=swc_whitelist,
             )
-            issues_list.append((status, resp, inp))
+            issues_list.append((resp, inp))
     elif len(target) == 36:
         LOGGER.debug(f"Identified analysis target {target}")
         click.echo("Fetching report for analysis {}".format(target), err=True)
-        status, resp, inp = get_analysis_info(
+        _, resp, inp = get_analysis_info(
             client=client,
             uuid=target,
             min_severity=min_severity,
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
         )
-        issues_list.append((status, resp, inp))
+        issues_list.append((resp, inp))
     else:
         LOGGER.debug(f"Could not identify target with length {len(target)}")
         raise click.UsageError(
@@ -155,7 +151,9 @@ def render(
         )
 
     LOGGER.debug(f"Rendering template for {len(issues_list)} issues")
-    rendered = template.render(issues_list=issues_list, target=target)
+    report_context = index_by_filename(issues_list)
+
+    rendered = template.render(report_context=report_context, target=target)
     if not markdown:
         LOGGER.debug(f"Minifying HTML report")
         rendered = htmlmin.minify(rendered, remove_comments=True)

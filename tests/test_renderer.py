@@ -32,9 +32,7 @@ def assert_content(data, ident, is_template):
             assert issue.swc_id in data
             assert issue.swc_title in data
     else:
-        assert "mythx_models.response.analysis_status.AnalysisStatusResponse" in data
-        assert "mythx_models.response.detected_issues.DetectedIssuesResponse" in data
-        assert "mythx_models.response.analysis_input.AnalysisInputResponse" in data
+        assert data.strip() != ""
 
 
 @pytest.mark.parametrize(
@@ -55,7 +53,7 @@ def test_renderer_group(ident, template):
     with mock_context(), runner.isolated_filesystem():
         if template:
             with open("template.html", "w+") as tpl_f:
-                tpl_f.write("{{ issues_list }}")
+                tpl_f.write("{{ report_context }}")
             arg_list = [
                 "--output=test.html",
                 "render",
