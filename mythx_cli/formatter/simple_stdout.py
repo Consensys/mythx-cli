@@ -13,17 +13,16 @@ from mythx_models.response import (
     VersionResponse,
 )
 
-from .base import BaseFormatter
-from .util import generate_dashboard_link, get_source_location_by_offset
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.util import index_by_filename
 
 
 class SimpleFormatter(BaseFormatter):
     """The simple text formatter.
 
-    This formatter generates simplified text output. It also displays
-    the source locations of issues by line in the Solidity source code
-    if given. Therefore, this formatter requires the analysis input to
-    be given.
+    This formatter generates simplified text output. It also displays the source
+    locations of issues by line in the Solidity source code if given. Therefore,
+    this formatter requires the analysis input to be given.
     """
 
     report_requires_input = True
@@ -86,43 +85,26 @@ class SimpleFormatter(BaseFormatter):
     def format_detected_issues(
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
-        ]
+        ],
+        **kwargs,
     ) -> str:
         """Format an issue report to a simple text representation."""
 
-        # TODO: Sort by file
-        for resp, inp in issues_list:
-            res = []
-            for report in resp.issue_reports:
-                for issue in report.issues:
-                    res.append(generate_dashboard_link(resp.uuid))
-                    res.append(
-                        "Title: {} ({})".format(issue.swc_title or "-", issue.severity)
-                    )
-                    res.append("Description: {}".format(issue.description_long.strip()))
+        file_to_issues = index_by_filename(issues_list)
+        result = []
 
-                    for loc in issue.locations:
-                        comp = loc.source_map.components[0]
-                        source_list = loc.source_list or report.source_list
-                        if source_list and 0 >= comp.file_id < len(source_list):
-                            filename = source_list[comp.file_id]
-                            if not inp.sources or filename not in inp.sources:
-                                # Skip files we don't have source for
-                                # (e.g. with unresolved bytecode hashes)
-                                res.append("")
-                                continue
-                            line = get_source_location_by_offset(
-                                inp.sources[filename]["source"], comp.offset
-                            )
-                            snippet = inp.sources[filename]["source"].split("\n")[
-                                line - 1
-                            ]
-                            res.append("{}:{}".format(filename, line))
-                            res.append("\t" + snippet.strip())
+        for filename, data in file_to_issues.items():
+            result.append(f"Report for {filename}")
+            # sort by line number
+            data = sorted([o for o in data if o["issues"]], key=lambda x: x["line"])
+            for line in data:
+                for issue in line["issues"]:
+                    result.append(f"Title: {issue['swcTitle']} ({issue['severity']})")
+                    result.append(f"Description: {issue['description']['head']}")
+                    result.append(f"Line: {line['line']}")
+                    result.append("\t" + line["content"].strip() + "\n")
 
-                        res.append("")
-
-        return "\n".join(res)
+        return "\n".join(result)
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:

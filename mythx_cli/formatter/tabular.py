@@ -1,7 +1,6 @@
 """This module contains a tabular data formatter class printing a subset of the
 response data."""
 
-from collections import defaultdict
 from itertools import zip_longest
 from os.path import basename
 from typing import List, Optional, Tuple
@@ -17,18 +16,18 @@ from mythx_models.response import (
 )
 from tabulate import tabulate
 
-from .base import BaseFormatter
-from .util import generate_dashboard_link, get_source_location_by_offset
+from mythx_cli.formatter.base import BaseFormatter
+from mythx_cli.formatter.util import generate_dashboard_link
+from mythx_cli.util import index_by_filename
 
 
 class TabularFormatter(BaseFormatter):
     """The tabular formatter.
 
     This formatter displays an ASCII table. It is enabled by default and
-    requires the analysis input data to display each issue's line number
-    in the source file. It might break on very large field sizes as
-    cell-internal line breaks are not supported by the tabulate library
-    yet.
+    requires the analysis input data to display each issue's line number in the
+    source file. It might break on very large field sizes as cell-internal line
+    breaks are not supported by the tabulate library yet.
     """
 
     report_requires_input = True
@@ -116,66 +115,52 @@ class TabularFormatter(BaseFormatter):
     def format_detected_issues(
         issues_list: List[
             Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
-        ]
+        ],
+        **kwargs,
     ) -> str:
         """Format an issue report to a tabular representation."""
 
-        res = []
-        for resp, inp in issues_list:
-            file_to_issue = defaultdict(list)
-            for report in resp.issue_reports:
-                for issue in report.issues:
-                    if (
-                        issue.swc_id == ""
-                        and issue.swc_title == ""
-                        and not issue.locations
-                    ):
-                        res.extend((issue.description_long, ""))
-                    source_formats = [loc.source_format for loc in issue.locations]
-                    for loc in issue.locations:
-                        if loc.source_format != "text" and "text" in source_formats:
-                            continue
-                        for c in loc.source_map.components:
-                            # This is so nested, a barn swallow might be hidden somewhere.
-                            source_list = loc.source_list or report.source_list
-                            if not (source_list and 0 <= c.file_id < len(source_list)):
-                                continue
-                            filename = source_list[c.file_id]
-                            if not inp.sources or filename not in inp.sources:
-                                line = "bytecode offset {}".format(c.offset)
-                            else:
-                                line = get_source_location_by_offset(
-                                    inp.sources[filename]["source"], c.offset
-                                )
-                            file_to_issue[filename].append(
-                                (
-                                    resp.uuid,
-                                    line,
-                                    issue.swc_title,
-                                    issue.severity,
-                                    issue.description_short,
-                                )
-                            )
+        result = []
+        file_to_issues = index_by_filename(issues_list)
+        table_sort_key = kwargs.pop("table_sort_key", "line")
 
-            for filename, data in file_to_issue.items():
-                res.append("Report for {}".format(filename))
-                res.extend(
-                    (
-                        generate_dashboard_link(data[0][0]),
-                        tabulate(
-                            [d[1:] for d in data],
-                            tablefmt="fancy_grid",
-                            headers=(
-                                "Line",
-                                "SWC Title",
-                                "Severity",
-                                "Short Description",
-                            ),
-                        ),
+        for filename, data in file_to_issues.items():
+            data = [o for o in data if o["issues"]]
+            if not data:
+                continue
+            result.append(f"Report for {filename}")
+            links, lines = set(), set()
+            for line in data:
+                for issue in line["issues"]:
+                    links.add(generate_dashboard_link(issue["uuid"]))
+                    lines.add(
+                        (
+                            line["line"],
+                            f"({issue['swcID']}) {issue['swcTitle']}",
+                            issue["severity"],
+                            issue["description"]["head"],
+                        )
                     )
-                )
 
-        return "\n".join(res)
+            # sort by line number
+            sort_idx = {"line": 0, "title": 1, "severity": 2, "description": 3}[
+                table_sort_key
+            ]
+            lines = sorted(lines, key=lambda x: x[sort_idx])
+
+            result.extend(links)
+            result.extend(
+                (
+                    tabulate(
+                        lines,
+                        tablefmt="fancy_grid",
+                        headers=("Line", "SWC Title", "Severity", "Short Description"),
+                    ),
+                    "",  # new line after table
+                )
+            )
+
+        return "\n".join(result)
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:

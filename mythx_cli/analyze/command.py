@@ -1,7 +1,6 @@
 import logging
 import sys
 import time
-from glob import glob
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -37,7 +36,12 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Submit the job and print the UUID, or wait for execution to finish",
 )
-@click.option("--mode", type=click.Choice(["quick", "standard", "deep"]), default=None)
+@click.option(
+    "--mode",
+    type=click.Choice(["quick", "standard", "deep"]),
+    help="The MythX analysis mode to use",
+    default=None,
+)
 @click.option(
     "--create-group",
     is_flag=True,
@@ -316,6 +320,12 @@ def analyze(
         resp.uuid = uuid
         issues_list.append((resp, inp))
 
-    LOGGER.debug(f"Printing report for {len(issues_list)} issue items")
-    write_or_print(formatter.format_detected_issues(issues_list))
+    LOGGER.debug(
+        f"Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""
+    )
+    write_or_print(
+        formatter.format_detected_issues(
+            issues_list, table_sort_key=ctx["table_sort_key"]
+        )
+    )
     sys.exit(ctx["retval"])
