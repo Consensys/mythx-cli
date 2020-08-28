@@ -3,6 +3,7 @@ import subprocess
 import sys
 from collections import defaultdict
 from typing import List
+
 import click
 
 
@@ -21,16 +22,16 @@ class ScribbleMixin:
         if process.returncode == 0:
             return
 
-        click.echo(
-            f"Scribble has encountered an error (code: {process.returncode})"
-        )
+        click.echo(f"Scribble has encountered an error (code: {process.returncode})")
         click.echo("=====STDERR=====")
         click.echo(process.stderr.decode())
         click.echo("=====STDOUT=====")
         click.echo(process.stdout.decode())
         sys.exit(process.returncode)
 
-    def instrument_truffle_artifacts(self, payloads: List[dict], scribble_path: str, remappings: List[str]) -> dict:
+    def instrument_truffle_artifacts(
+        self, payloads: List[dict], scribble_path: str, remappings: List[str]
+    ) -> dict:
         """Instrument a list of truffle artifacts with scribble.
 
         :param payloads: The list of truffle artifact objects
@@ -63,7 +64,8 @@ class ScribbleMixin:
 
         process = subprocess.run(
             [scribble_path, "--input-mode", "json", "--output-mode", "json"]
-            + ([f"--path-remapping" "{';'.join(remappings)}"] if remappings else []) + ["--"],
+            + ([f"--path-remapping" "{';'.join(remappings)}"] if remappings else [])
+            + ["--"],
             input=json.dumps(stdin).encode("utf-8"),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -72,7 +74,9 @@ class ScribbleMixin:
         self._handle_scribble_error(process)
         return json.loads(process.stdout.decode())
 
-    def instrument_solc_file(self, target: str, scribble_path: str, remappings: List[str]) -> dict:
+    def instrument_solc_file(
+        self, target: str, scribble_path: str, remappings: List[str]
+    ) -> dict:
         """Instrument a single Solidity file with scribble.
 
         :param target: The target filename to pass to scribble

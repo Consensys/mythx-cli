@@ -107,39 +107,42 @@ class TruffleJob(ScribbleMixin):
                 artifact = json.load(af)
                 LOGGER.debug(f"Loaded Truffle artifact with {len(artifact)} keys")
 
-            self.payloads.append({
-                "contract_name": artifact.get("contractName"),
-                "bytecode": self.patch_truffle_bytecode(artifact.get("bytecode"))
-                if artifact.get("bytecode") != "0x"
-                else None,
-                "deployed_bytecode": self.patch_truffle_bytecode(
-                    artifact.get("deployedBytecode")
-                )
-                if artifact.get("deployedBytecode") != "0x"
-                else None,
-                "source_map": artifact.get("sourceMap")
-                if artifact.get("sourceMap")
-                else None,
-                "deployed_source_map": artifact.get("deployedSourceMap")
-                if artifact.get("deployedSourceMap")
-                else None,
-                "sources": {
-                    artifact.get("sourcePath"): {
-                        "source": artifact.get("source"),
-                        "ast": artifact.get("ast"),
+            self.payloads.append(
+                {
+                    "contract_name": artifact.get("contractName"),
+                    "bytecode": self.patch_truffle_bytecode(artifact.get("bytecode"))
+                    if artifact.get("bytecode") != "0x"
+                    else None,
+                    "deployed_bytecode": self.patch_truffle_bytecode(
+                        artifact.get("deployedBytecode")
+                    )
+                    if artifact.get("deployedBytecode") != "0x"
+                    else None,
+                    "source_map": artifact.get("sourceMap")
+                    if artifact.get("sourceMap")
+                    else None,
+                    "deployed_source_map": artifact.get("deployedSourceMap")
+                    if artifact.get("deployedSourceMap")
+                    else None,
+                    "sources": {
+                        artifact.get("sourcePath"): {
+                            "source": artifact.get("source"),
+                            "ast": artifact.get("ast"),
+                        },
+                        **self.get_artifact_context(file),
                     },
-                    **self.get_artifact_context(file),
-                },
-                "source_list": self.source_list,
-                "main_source": artifact.get("sourcePath"),
-                "solc_version": artifact["compiler"]["version"],
-            })
+                    "source_list": self.source_list,
+                    "main_source": artifact.get("sourcePath"),
+                    "solc_version": artifact["compiler"]["version"],
+                }
+            )
 
         if enable_scribble:
-            return self.instrument_truffle_artifacts(self.payloads, scribble_path, remappings)
+            return self.instrument_truffle_artifacts(
+                self.payloads, scribble_path, remappings
+            )
         else:
             return self.payloads
-
 
     @staticmethod
     def patch_truffle_bytecode(code: str) -> str:
