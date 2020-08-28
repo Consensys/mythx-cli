@@ -260,6 +260,7 @@ class SolidityJob(ScribbleMixin):
                         scribble_file=None,
                     )
                 )
+                return
             except KeyError:
                 LOGGER.warning(
                     f"Could not find contract {contract} in compilation artifacts. The CLI will find the "

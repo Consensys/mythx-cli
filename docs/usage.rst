@@ -73,20 +73,24 @@ Submitting Analyses
       Analyze the given directory or arguments with MythX.
 
     Options:
-      --async / --wait              Submit the job and print the UUID, or wait for
-                                    execution to finish
-      --mode [quick|standard|deep]
-      --create-group                Create a new group for the analysis
-      --group-id TEXT               The group ID to add the analysis to
-      --group-name TEXT             The group name to attach to the analysis
-      --min-severity TEXT           Ignore SWC IDs below the designated level
-      --swc-blacklist TEXT          A comma-separated list of SWC IDs to ignore
-      --swc-whitelist TEXT          A comma-separated list of SWC IDs to include
-      --solc-version TEXT           The solc version to use for compilation
-      --include TEXT                The contract name(s) to submit to MythX
-      --remap-import TEXT           Add a solc compilation import remapping
-      --check-properties            Enable property verification mode
-      --help                        Show this message and exit.
+      --async / --wait               Submit the job and print the UUID, or wait
+                                     for execution to finish
+
+      --mode [quick|standard|deep]   The MythX analysis mode to use
+      --create-group                 Create a new group for the analysis
+      --group-id TEXT                The group ID to add the analysis to
+      --group-name TEXT              The group name to attach to the analysis
+      --min-severity TEXT            Ignore SWC IDs below the designated level
+      --swc-blacklist TEXT           A comma-separated list of SWC IDs to ignore
+      --swc-whitelist TEXT           A comma-separated list of SWC IDs to include
+      --solc-version TEXT            The solc version to use for compilation
+      --include TEXT                 The contract name(s) to submit to MythX
+      --remap-import TEXT            Add a solc compilation import remapping
+      --check-properties             Enable property verification mode
+      --scribble                     Enable scribble instrumentation (beta)
+      --scribble-path PATH           Path to a custom scribble executable (beta)
+      --scenario [truffle|solidity]  Force an analysis scenario
+      --help                         Show this message and exit.
 
 
 Submit a new analysis to the MythX API.
@@ -488,9 +492,6 @@ JSON format to stdout. Currently the following formatters are available:
   stdout.
 * :code:`json-pretty`: The same as :code:`json`, just pretty-printed, with an
   indentation of two spaces and alphabetically sorted object keys.
-
-..
-    * :code:`sonar`: Print the results as JSON objects that can be interpreted by SonarQube.
 
 
 API Version Information

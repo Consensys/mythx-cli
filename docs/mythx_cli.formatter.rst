@@ -34,16 +34,6 @@ mythx_cli.formatter.tabular
     :undoc-members:
     :show-inheritance:
 
-..
-    mythx_cli.formatter.sonarqube
-    -----------------------------
-
-    .. automodule:: mythx_cli.formatter.sonarqube
-        :members:
-        :undoc-members:
-        :show-inheritance:
-
-
 mythx_cli.formatter.util
 ------------------------
 

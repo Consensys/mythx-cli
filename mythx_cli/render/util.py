@@ -21,10 +21,10 @@ def get_analysis_info(
 ) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
-    Given a UUID, this function will query the MythX API for the
-    analysis status, the analysis' input data, and the issue report.
-    Furthermore, filtering parameters can be passed to remove certain
-    SWCs or severities from the returned report.
+    Given a UUID, this function will query the MythX API for the analysis
+    status, the analysis' input data, and the issue report. Furthermore,
+    filtering parameters can be passed to remove certain SWCs or severities from
+    the returned report.
     """
 
     LOGGER.debug(f"{uuid}: Fetching report")

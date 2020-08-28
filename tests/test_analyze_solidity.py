@@ -68,20 +68,6 @@ def test_analyze(tmp_path):
     assert result.exit_code == 0
 
 
-def test_analyze_multiple(tmp_path):
-    setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
-    setup_solidity_file(tmp_path, name="outdated2.sol", switch_dir=True)
-    runner = CliRunner()
-
-    with mock_context():
-        result = runner.invoke(
-            cli, ["analyze", "outdated.sol", "outdated2.sol"], input="y\n"
-        )
-
-    assert str(result.output).count(ISSUES_TABLE) == 2
-    assert result.exit_code == 0
-
-
 def test_property_checking(tmp_path):
     setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
     runner = CliRunner()
@@ -92,22 +78,6 @@ def test_property_checking(tmp_path):
         )
 
     assert ISSUES_TABLE in result.output
-    assert result.exit_code == 0
-
-
-def test_multiple_in_group(tmp_path):
-    setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
-    setup_solidity_file(tmp_path, name="outdated2.sol", switch_dir=True)
-    runner = CliRunner()
-
-    with mock_context():
-        result = runner.invoke(
-            cli,
-            ["analyze", "--create-group", "outdated.sol", "outdated2.sol"],
-            input="y\n",
-        )
-
-    assert str(result.output).count(ISSUES_TABLE) == 2
     assert result.exit_code == 0
 
 
@@ -122,23 +92,6 @@ def test_blocking_ci(tmp_path):
     assert "Assert Violation" in result.output
     assert INPUT_RESPONSE.source_list[0] in result.output
     assert result.exit_code == 1
-
-
-def test_multiple_with_yaml_group(tmp_path):
-    setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
-    setup_solidity_file(tmp_path, name="outdated2.sol", switch_dir=True)
-    runner = CliRunner()
-
-    with open(".mythx.yml", "w+") as conf_f:
-        conf_f.write("analyze:\n  create-group: true\n")
-
-    with mock_context():
-        result = runner.invoke(
-            cli, ["analyze", "outdated.sol", "outdated2.sol"], input="y\n"
-        )
-
-    assert str(result.output).count(ISSUES_TABLE) == 2
-    assert result.exit_code == 0
 
 
 def test_missing_version_error(tmp_path):

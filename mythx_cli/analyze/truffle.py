@@ -19,9 +19,9 @@ LOGGER = logging.getLogger("mythx-cli")
 class TruffleJob(ScribbleMixin):
     """A truffle job to be sent to the API.
 
-    This object represents a collection of truffle artifacts that will
-    be sent to the API. It aggregates artifacts and transforms them into
-    API-conform payload dicts.
+    This object represents a collection of truffle artifacts that will be sent
+    to the API. It aggregates artifacts and transforms them into API-conform
+    payload dicts.
     """
 
     def __init__(self, target: Path):
@@ -44,7 +44,8 @@ class TruffleJob(ScribbleMixin):
     def find_truffle_artifacts(
         self
     ) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
-        """Look for a Truffle build folder and return all relevant JSON artifacts.
+        """Look for a Truffle build folder and return all relevant JSON
+        artifacts.
 
         This function will skip the Migrations.json file and return all other files
         under :code:`<project-dir>/build/contracts/`. If no files were found,
@@ -181,7 +182,7 @@ class TruffleJob(ScribbleMixin):
         return sol_file
 
     def sol_file_to_artifact(self, sol_path, artifact_files):
-        """ Resolve a Solidity file to the corresponding artifact file.
+        """Resolve a Solidity file to the corresponding artifact file.
 
         This method will take the path to a Solidity file and return
         its corresponding Truffle artifact JSON file.

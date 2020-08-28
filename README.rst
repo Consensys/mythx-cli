@@ -58,11 +58,17 @@ Usage
       --password TEXT                 Your MythX account's password
       --format [simple|json|json-pretty|table]
                                       The format to display the results in
-                                      [default: table]
       --ci                            Return exit code 1 if high-severity issue is
                                       found
+
       -y, --yes                       Do not prompt for any confirmations
       -o, --output TEXT               Output file to write the results into
+      -c, --config PATH               YAML config file for default parameters
+      --stdout                        Force printing to stdout
+      --table-sort-key [line|title|severity|description]
+                                      The column to sort the default table output
+                                      by
+
       --help                          Show this message and exit.
 
     Commands:
@@ -71,7 +77,6 @@ Usage
       group     Create, modify, and view analysis groups.
       render    Render an analysis job or group report as HTML.
       version   Display API version information.
-
 
 
 Installation
@@ -96,7 +101,6 @@ Or directly through Python's :code:`setuptools`:
 .. code-block:: console
 
     $ python3 setup.py install
-
 
 
 * Free software: MIT license

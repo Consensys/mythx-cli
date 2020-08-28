@@ -95,6 +95,12 @@ class APIErrorCatcherGroup(click.Group):
     help="YAML config file for default parameters",
 )
 @click.option("--stdout", is_flag=True, default=False, help="Force printing to stdout")
+@click.option(
+    "--table-sort-key",
+    type=click.Choice(["line", "title", "severity", "description"]),
+    default="line",
+    help="The column to sort the default table output by",
+)
 @click.pass_context
 def cli(
     ctx,
@@ -108,6 +114,7 @@ def cli(
     yes: bool,
     config: str,
     stdout: bool,
+    table_sort_key: str,
 ) -> None:
     """Your CLI for interacting with https://mythx.io/
 
@@ -123,6 +130,7 @@ def cli(
     :param output: Output file to write the results into
     :param config: YAML config file to read default parameters from
     :param stdout: Force printing to stdout and ignore output files
+    :param table_sort_key: The column to sort the default table output by
     """
 
     # set loggers to debug mode
@@ -140,6 +148,7 @@ def cli(
         "output": output,
         "yes": yes,
         "config": config,
+        "table_sort_key": table_sort_key,
     }
 
     LOGGER.debug("Initializing configuration context")
@@ -164,6 +173,7 @@ def cli(
         update_context(ctx.obj, "output", parsed_config, "output", None)
     update_context(ctx.obj, "fmt", parsed_config, "format", "table")
     update_context(ctx.obj, "yes", parsed_config, "confirm", False)
+    update_context(ctx.obj, "table_sort_key", parsed_config, "table-sort-key", "line")
 
     # set return value - used for CI failures
     ctx.obj["retval"] = 0
