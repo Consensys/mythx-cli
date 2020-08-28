@@ -245,6 +245,7 @@ class SolidityJob:
                         scribble_file=scribble_file,
                     )
                 )
+                return
             except KeyError:
                 LOGGER.warning(
                     f"Could not find contract {contract} in compilation artifacts. The CLI will find the "
