@@ -223,7 +223,6 @@ def is_valid_job(job) -> bool:
         valid = False
 
     if not valid:
-        # notify user
-        click.echo(f"Skipping submission for contract: {job.get('contract_name')}")
+        LOGGER.debug(f"Skipping submission for contract: {job.get('contract_name')}")
 
     return valid
