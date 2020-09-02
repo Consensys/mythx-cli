@@ -215,34 +215,6 @@ class SolidityJob(ScribbleMixin):
                     f"Error compiling source with solc {solc_version}: {e}"
                 )
 
-        # instrument with scribble if requested
-        # scribble_file = None
-        # if enable_scribble:
-        #     process = subprocess.run(
-        #         [scribble_path, self.target],
-        #         stdout=subprocess.PIPE,
-        #         stderr=subprocess.PIPE,
-        #     )
-        #     if process.returncode != 0:
-        #         click.echo(
-        #             f"Scribble has encountered an error (code: {process.returncode})"
-        #         )
-        #         click.echo("=====STDERR=====")
-        #         click.echo(process.stderr.decode())
-        #         click.echo("=====STDOUT=====")
-        #         process.stdout.decode()
-        #         sys.exit(process.returncode)
-        #
-        #     # don't delete temp file on close but manually unlink
-        #     # after payload has been generated
-        #     scribble_output_f = tempfile.NamedTemporaryFile(
-        #         mode="w+", delete=False, suffix=".sol"
-        #     )
-        #     scribble_stdout = process.stdout.decode()
-        #     scribble_output_f.write(scribble_stdout)
-        #     scribble_file = scribble_output_f.name
-        #     scribble_output_f.close()
-
         payload = self.payload_from_sources(
             solc_result=result,
             solc_version=solc_version,
@@ -268,22 +240,6 @@ class SolidityJob(ScribbleMixin):
                 )
 
         self.set_payload_bytecode_context(payload, result)
-
-        # if enable_scribble:
-        #     # replace scribble tempfile name with prefixed one
-        #     scribble_payload = payload["sources"].pop(scribble_file)
-        #     payload["sources"]["scribble-" + str(self.target)] = scribble_payload
-        #     payload["source_list"] = [
-        #         "scribble-" + str(self.target) if item == scribble_file else item
-        #         for item in payload["source_list"]
-        #     ]
-        #     payload["main_source"] = "scribble-" + str(self.target)
-        #
-        #     # delete scribble temp file
-        #     os.unlink(scribble_file)
-
-        # print(json.dumps(payload))
-        # sys.exit()
         self.payloads.append(payload)
 
     @staticmethod
