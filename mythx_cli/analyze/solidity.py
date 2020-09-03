@@ -128,8 +128,9 @@ class SolidityJob(ScribbleMixin):
                     )
                     payload["deployed_source_map"] = contract_deployed_source_map
 
-    def solcx_compile(self, path, remappings, enable_scribble, scribble_file=None):
+    def solcx_compile(self, path: str, remappings: Tuple[str], enable_scribble: bool, scribble_file: str = None, solc_path: str = None):
         return solcx.compile_standard(
+            solc_binary=solc_path,
             input_data={
                 "language": "Solidity",
                 "sources": {
@@ -164,6 +165,7 @@ class SolidityJob(ScribbleMixin):
     def generate_payloads(
         self,
         version: Optional[str],
+        solc_path: Optional[str] = None,
         contract: str = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -187,6 +189,7 @@ class SolidityJob(ScribbleMixin):
         * :code:`srcmap-runtime`
 
         :param version: The solc version to use for compilation
+        :param solc_path: The path to a custom solc executable
         :param contract: The contract name(s) to submit
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -209,7 +212,7 @@ class SolidityJob(ScribbleMixin):
             try:
                 cwd = str(Path.cwd().absolute())
                 LOGGER.debug(f"Compiling {self.target} under allowed path {cwd}")
-                result = self.solcx_compile(cwd, remappings, enable_scribble)
+                result = self.solcx_compile(path=cwd, remappings=remappings, enable_scribble=enable_scribble, solc_path=solc_path)
             except solcx.exceptions.SolcError as e:
                 raise click.exceptions.UsageError(
                     f"Error compiling source with solc {solc_version}: {e}"
@@ -259,6 +262,7 @@ class SolidityJob(ScribbleMixin):
     def walk_solidity_files(
         cls,
         solc_version: str,
+        solc_path: Optional[str] = None,
         base_path: Optional[str] = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -271,6 +275,7 @@ class SolidityJob(ScribbleMixin):
         contain all the Solidity payloads (optionally compiled), ready for submission.
 
         :param solc_version: The solc version to use for Solidity compilation
+        :param solc_path: The path to a custom solc executable
         :param base_path: The base path to walk through from
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -294,7 +299,8 @@ class SolidityJob(ScribbleMixin):
         for file in files:
             job = cls(Path(file))
             job.generate_payloads(
-                solc_version,
+                version=solc_version,
+                solc_path=solc_path,
                 remappings=remappings,
                 enable_scribble=enable_scribble,
                 scribble_path=scribble_path,

@@ -85,6 +85,12 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
 )
 @click.option(
+    "--solc-path",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a custom solc executable",
+)
+@click.option(
     "--include",
     type=click.STRING,
     multiple=True,
@@ -136,6 +142,7 @@ def analyze(
     swc_blacklist: str,
     swc_whitelist: str,
     solc_version: str,
+    solc_path: str,
     include: Tuple[str],
     remap_import: Tuple[str],
     check_properties: bool,
@@ -158,6 +165,7 @@ def analyze(
     :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     :param solc_version: The solc version to use for Solidity compilation
+    :param solc_path: The path to a custom solc executable
     :param include: List of contract names to send - exclude everything else
     :param remap_import: List of import remappings to pass on to solc
     :param check_properties: Enable property verification mode
@@ -225,6 +233,7 @@ def analyze(
             jobs.extend(
                 SolidityJob.walk_solidity_files(
                     solc_version,
+                    solc_path=solc_path,
                     base_path=element,
                     remappings=remap_import,
                     enable_scribble=enable_scribble,
@@ -241,6 +250,7 @@ def analyze(
             job = SolidityJob(Path(file_path))
             job.generate_payloads(
                 version=solc_version,
+                solc_path=solc_path,
                 contract=contract or None,
                 remappings=remap_import,
                 enable_scribble=enable_scribble,

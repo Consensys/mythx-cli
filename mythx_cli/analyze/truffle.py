@@ -184,7 +184,7 @@ class TruffleJob(ScribbleMixin):
         self.sol_artifact_map[artifact_path] = sol_file
         return sol_file
 
-    def sol_file_to_artifact(self, sol_path, artifact_files):
+    def sol_file_to_artifact(self, sol_path: str, artifact_files: Tuple[List[str], List[str]]):
         """Resolve a Solidity file to the corresponding artifact file.
 
         This method will take the path to a Solidity file and return
