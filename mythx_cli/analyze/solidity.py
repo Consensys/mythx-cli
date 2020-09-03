@@ -1,11 +1,10 @@
 """This module contains functions to generate Solidity-related payloads."""
 
+import json
 import logging
-import os
 import re
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -13,13 +12,16 @@ import click
 import solcx
 import solcx.exceptions
 
+from .scribble import ScribbleMixin
+
 LOGGER = logging.getLogger("mythx-cli")
 PRAGMA_PATTERN = r"pragma solidity [\^<>=]*(\d+\.\d+\.\d+);"
 RGLOB_BLACKLIST = ["node_modules"]
 
 
-class SolidityJob:
+class SolidityJob(ScribbleMixin):
     def __init__(self, target: Path):
+        super().__init__()
         self.target = str(target)
         self.payloads = []
 
@@ -29,10 +31,12 @@ class SolidityJob:
             "sources": {},
             "solc_version": solc_version,
             "main_source": scribble_file or self.target,
-            "source_list": [None] * len(compiled_sources),
+            "source_list": [None] * len([x for x in compiled_sources if x != "source"]),
         }
 
         for file_path, file_data in compiled_sources.items():
+            if type(file_data) is str:
+                continue
             # fill source list entry
             payload["source_list"][file_data.get("id")] = file_path
             payload_dict = payload["sources"][file_path] = {}
@@ -42,9 +46,13 @@ class SolidityJob:
             if ast:
                 payload_dict["ast"] = ast
 
-            # add source from file path
-            with open(file_path, newline="") as source_f:
-                payload_dict["source"] = source_f.read()
+            if scribble_file is not None:
+                # add source from scribble return value
+                payload_dict["source"] = compiled_sources["source"]
+            else:
+                # add source from file path
+                with open(file_path, newline="") as source_f:
+                    payload_dict["source"] = source_f.read()
 
         return payload
 
@@ -120,7 +128,7 @@ class SolidityJob:
                     )
                     payload["deployed_source_map"] = contract_deployed_source_map
 
-    def solcx_compile(self, path, remappings, enable_scribble, scribble_file):
+    def solcx_compile(self, path, remappings, enable_scribble, scribble_file=None):
         return solcx.compile_standard(
             input_data={
                 "language": "Solidity",
@@ -191,48 +199,27 @@ class SolidityJob:
         solc_version = self.solc_version_from_source(
             source=source, default_version=version
         )
-        self.setup_solcx(solc_version)
 
-        # instrument with scribble if requested
-        scribble_file = None
         if enable_scribble:
-            process = subprocess.run(
-                [scribble_path, self.target],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            if process.returncode != 0:
-                click.echo(
-                    f"Scribble has encountered an error (code: {process.returncode})"
+            # use scribble for compilation
+            result = self.instrument_solc_file(self.target, scribble_path, remappings)
+        else:
+            # use solc for compilation
+            self.setup_solcx(solc_version)
+            try:
+                cwd = str(Path.cwd().absolute())
+                LOGGER.debug(f"Compiling {self.target} under allowed path {cwd}")
+                result = self.solcx_compile(cwd, remappings, enable_scribble)
+            except solcx.exceptions.SolcError as e:
+                raise click.exceptions.UsageError(
+                    f"Error compiling source with solc {solc_version}: {e}"
                 )
-                click.echo("=====STDERR=====")
-                click.echo(process.stderr.decode())
-                click.echo("=====STDOUT=====")
-                process.stdout.decode()
-                sys.exit(process.returncode)
 
-            # don't delete temp file on close but manually unlink
-            # after payload has been generated
-            scribble_output_f = tempfile.NamedTemporaryFile(
-                mode="w+", delete=False, suffix=".sol"
-            )
-            scribble_stdout = process.stdout.decode()
-            scribble_output_f.write(scribble_stdout)
-            scribble_file = scribble_output_f.name
-            scribble_output_f.close()
-
-        try:
-            cwd = str(Path.cwd().absolute())
-            LOGGER.debug(
-                f"Compiling {scribble_file or self.target} under allowed path {cwd}"
-            )
-            result = self.solcx_compile(cwd, remappings, enable_scribble, scribble_file)
-        except solcx.exceptions.SolcError as e:
-            raise click.exceptions.UsageError(
-                f"Error compiling source with solc {solc_version}: {e}"
-            )
-
-        payload = self.payload_from_sources(result, scribble_file, solc_version)
+        payload = self.payload_from_sources(
+            solc_result=result,
+            solc_version=solc_version,
+            scribble_file="flattened.sol" if enable_scribble else None,
+        )
 
         if contract:
             LOGGER.debug("Contract specified - targeted payload selection")
@@ -242,9 +229,10 @@ class SolidityJob:
                         payload=payload,
                         contract=contract,
                         solc_result=result,
-                        scribble_file=scribble_file,
+                        scribble_file=None,
                     )
                 )
+                return
             except KeyError:
                 LOGGER.warning(
                     f"Could not find contract {contract} in compilation artifacts. The CLI will find the "
@@ -252,20 +240,6 @@ class SolidityJob:
                 )
 
         self.set_payload_bytecode_context(payload, result)
-
-        if enable_scribble:
-            # replace scribble tempfile name with prefixed one
-            scribble_payload = payload["sources"].pop(scribble_file)
-            payload["sources"]["scribble-" + str(self.target)] = scribble_payload
-            payload["source_list"] = [
-                "scribble-" + str(self.target) if item == scribble_file else item
-                for item in payload["source_list"]
-            ]
-            payload["main_source"] = "scribble-" + str(self.target)
-
-            # delete scribble temp file
-            os.unlink(scribble_file)
-
         self.payloads.append(payload)
 
     @staticmethod

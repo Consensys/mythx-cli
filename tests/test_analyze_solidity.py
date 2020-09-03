@@ -250,23 +250,23 @@ def test_parameters(tmp_path, params, value, contained, retval):
     assert result.exit_code == retval
 
 
-@pytest.mark.parametrize("retval,stdout", ((0, "contract Foo {}"), (1, ""), (127, "")))
-def test_scribble_call(tmp_path, retval, stdout):
+@pytest.mark.parametrize(
+    "retval,stdout",
+    (
+        (1, "Scribble has encountered an error (code: 1)"),
+        (127, "Scribble has encountered an error (code: 127)"),
+    ),
+)
+def test_scribble_errors(fake_process, tmp_path, retval, stdout):
     setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
-    runner = CliRunner()
-    returner = mock.MagicMock()
-    returner.returncode = retval
-    returner.stdout.decode = lambda: stdout
-
-    with mock.patch(
-        "mythx_cli.analyze.solidity.subprocess.run"
-    ) as run_mock, mock_context():
-        run_mock.return_value = returner
-        result = runner.invoke(
-            cli, ["analyze", "--scribble", "outdated.sol"], input="y\n"
-        )
-
-    run_mock.assert_called_once_with(
-        ["scribble", "outdated.sol"], stdout=mock.ANY, stderr=mock.ANY
+    fake_process.register_subprocess(
+        ["scribble", "--input-mode=source", "--output-mode=json", "outdated.sol"],
+        stdout=["{}"],
+        returncode=retval,
     )
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["analyze", "--scribble", "outdated.sol"], input="y\n")
+
+    assert stdout in result.output
     assert result.exit_code == retval

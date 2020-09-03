@@ -11,10 +11,12 @@ from typing import List, Set, Tuple, Union
 
 import click
 
+from .scribble import ScribbleMixin
+
 LOGGER = logging.getLogger("mythx-cli")
 
 
-class TruffleJob:
+class TruffleJob(ScribbleMixin):
     """A truffle job to be sent to the API.
 
     This object represents a collection of truffle artifacts that will be sent
@@ -23,6 +25,7 @@ class TruffleJob:
     """
 
     def __init__(self, target: Path):
+        super().__init__()
         self.target = target
         self.payloads = []
         self.sol_artifact_map = {}
@@ -72,7 +75,12 @@ class TruffleJob:
         source_list = [x[1] for x in sorted(list(sources), key=lambda x: x[0])]
         return artifact_files, source_list
 
-    def generate_payloads(self):
+    def generate_payloads(
+        self,
+        remappings: Tuple[str] = None,
+        enable_scribble: bool = False,
+        scribble_path: str = "scribble",
+    ):
         """Generate a MythX analysis request payload based on a truffle build
         artifact.
 
@@ -89,6 +97,9 @@ class TruffleJob:
         * :code:`legacyAST`
         * the compiler version
 
+        :param remappings: Optional solc import remappings
+        :param enable_scribble: Whether to instrument the payloads with scribble
+        :param scribble_path: The path to the scribble executable
         :return: The payload dictionary to be sent to MythX
         """
         for file in self.artifact_files:
@@ -125,6 +136,13 @@ class TruffleJob:
                     "solc_version": artifact["compiler"]["version"],
                 }
             )
+
+        if enable_scribble:
+            return self.instrument_truffle_artifacts(
+                self.payloads, scribble_path, remappings
+            )
+        else:
+            return self.payloads
 
     @staticmethod
     def patch_truffle_bytecode(code: str) -> str:
