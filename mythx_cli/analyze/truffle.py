@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 from glob import glob
 from pathlib import Path
-from typing import List, Set, Tuple, Union, Optional, Any, Dict, Iterable
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import click
 
@@ -139,7 +139,9 @@ class TruffleJob(ScribbleMixin):
 
         if enable_scribble:
             return self.instrument_truffle_artifacts(
-                payloads=self.payloads, scribble_path=scribble_path, remappings=remappings
+                payloads=self.payloads,
+                scribble_path=scribble_path,
+                remappings=remappings,
             )
         else:
             return self.payloads
@@ -184,7 +186,9 @@ class TruffleJob(ScribbleMixin):
         self.sol_artifact_map[artifact_path] = sol_file
         return sol_file
 
-    def sol_file_to_artifact(self, sol_path: str, artifact_files: Tuple[List[str], List[str]]) -> Optional[List[str]]:
+    def sol_file_to_artifact(
+        self, sol_path: str, artifact_files: Tuple[List[str], List[str]]
+    ) -> Optional[List[str]]:
         """Resolve a Solidity file to the corresponding artifact file.
 
         This method will take the path to a Solidity file and return
