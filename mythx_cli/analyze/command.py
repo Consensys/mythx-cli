@@ -232,7 +232,7 @@ def analyze(
             LOGGER.debug(f"Identified {element} as directory containing Solidity files")
             jobs.extend(
                 SolidityJob.walk_solidity_files(
-                    solc_version,
+                    solc_version=solc_version,
                     solc_path=solc_path,
                     base_path=element,
                     remappings=remap_import,
