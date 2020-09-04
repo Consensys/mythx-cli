@@ -252,8 +252,9 @@ class SolidityJob(ScribbleMixin):
                 return
             except KeyError:
                 LOGGER.warning(
-                    f"Could not find contract {contract} in compilation artifacts. The CLI will find the "
-                    f"largest bytecode artifact in the compilation output and submit it instead."
+                    f"Could not find contract {contract} in compilation artifacts. The CLI will "
+                    f"find the largest bytecode artifact in the compilation output and submit it "
+                    f"instead."
                 )
 
         self.set_payload_bytecode_context(payload, result)
