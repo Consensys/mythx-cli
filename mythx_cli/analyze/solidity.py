@@ -205,9 +205,12 @@ class SolidityJob(ScribbleMixin):
         with open(self.target) as f:
             source = f.read()
 
-        solc_version = self.solc_version_from_source(
-            source=source, default_version=version
-        )
+        solc_version = None
+        if solc_path is None:
+            solc_version = self.solc_version_from_source(
+                source=source, default_version=version
+            )
+            self.setup_solcx(solc_version)
 
         if enable_scribble:
             # use scribble for compilation
@@ -215,8 +218,6 @@ class SolidityJob(ScribbleMixin):
                 target=self.target, scribble_path=scribble_path, remappings=remappings
             )
         else:
-            # use solc for compilation
-            self.setup_solcx(solc_version)
             try:
                 cwd = str(Path.cwd().absolute())
                 LOGGER.debug(f"Compiling {self.target} under allowed path {cwd}")
