@@ -2,6 +2,34 @@
 History
 =======
 
+0.6.20 (2020-09-05)
+-------------------
+
+- Add table sort key parameter
+- Fix bug where payloads were unnecessarily duplicated before filtering
+- Improve custom rendering documentation
+- Improve HTML/MD default template styles
+- Refactor and speed up template rendering routines
+- Add file-indexed formatting/rendering data structures
+- Add Scribble middleware to support Solidity and Truffle
+- Add Scribble JSON support for Solidity jobs
+- Refactor Solidity payload job
+- Add truffle payload context generation
+- Remove deprecated Sonarqube formatter
+
+- Update :code:`py-solc-x` to 1.0.0
+- Update :code:`pytest` to 6.0.1
+- Update :code:`pytest-cov` to 2.10.1
+- Update :code:`coveralls` to 2.1.2
+- Update :code:`coverage` to 5.2.1
+- Update :code:`sphinx` to 3.2.1
+- Update :code:`isort` to 5.5.1
+- Update :code:`tox` to 3.20.0
+- Update :code:`watchdog` to 0.10.3
+- Update :code:`twine` to 3.2.0
+
+
+
 0.6.19 (2020-06-23)
 -------------------
 
@@ -27,7 +55,6 @@ History
 - Refresh payload documentation
 - Refactor payload-related tests
 - Update :code:`py-solc-x` to 0.9.0
-- Update :code:`5.4.3`
 - Update :code:`sphinx` to 3.1.1
 - Update :code:`pytest-cov` to 2.10.0
 - Update :code:`tox` to 3.15.2
