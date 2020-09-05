@@ -220,18 +220,23 @@ By default, it will print a tabular representation of the report to stdout:
 
     Report for /home/circleci/project/contracts/token.sol
     https://dashboard.mythx.io/#/console/analyses/f9e69a6a-2339-43b0-ad03-125c6cf81a70
-    ╒════════╤═══════════════════════════════════╤════════════╤═══════════════════════════════════════════╕
-    │   Line │ SWC Title                         │ Severity   │ Short Description                         │
-    ╞════════╪═══════════════════════════════════╪════════════╪═══════════════════════════════════════════╡
-    │     14 │ Integer Overflow and Underflow    │ High       │ The binary addition can overflow.         │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │     13 │ Integer Overflow and Underflow    │ High       │ The binary subtraction can underflow.     │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │      1 │ Floating Pragma                   │ Low        │ A floating pragma is set.                 │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │      5 │ State Variable Default Visibility │ Low        │ The state variable visibility is not set. │
-    ╘════════╧═══════════════════════════════════╧════════════╧═══════════════════════════════════════════╛
+    ╒════════╤═════════════════════════════════════════════╤════════════╤════════════════════════════════════════╕
+    │   Line │ SWC Title                                   │ Severity   │ Short Description                      │
+    ╞════════╪═════════════════════════════════════════════╪════════════╪════════════════════════════════════════╡
+    │      1 │ (SWC-103) Floating Pragma                   │ Low        │ A floating pragma is set.              │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │      3 │ (SWC-000) Unknown                           │ Medium     │ Incorrect ERC20 implementation         │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │      5 │ (SWC-108) State Variable Default Visibility │ Low        │ State variable visibility is not set.  │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │     13 │ (SWC-101) Integer Overflow and Underflow    │ High       │ The arithmetic operator can underflow. │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │     14 │ (SWC-101) Integer Overflow and Underflow    │ High       │ The arithmetic operator can overflow.  │
+    ╘════════╧═════════════════════════════════════════════╧════════════╧════════════════════════════════════════╛
 
+This table by default is sorted by line number. If another sorting is required,
+the user can specify e.g. :code:`--table-sort-key=severity` to sort by alphabetically by the
+severity column.
 
 The :code:`simple` format option will also resolve the report's source map
 locations to the corresponding line and column numbers in the Solidity
