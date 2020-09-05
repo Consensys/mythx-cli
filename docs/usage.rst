@@ -84,6 +84,7 @@ Submitting Analyses
       --swc-blacklist TEXT           A comma-separated list of SWC IDs to ignore
       --swc-whitelist TEXT           A comma-separated list of SWC IDs to include
       --solc-version TEXT            The solc version to use for compilation
+      --solc-path PATH               Path to a custom solc executable
       --include TEXT                 The contract name(s) to submit to MythX
       --remap-import TEXT            Add a solc compilation import remapping
       --check-properties             Enable property verification mode
@@ -128,7 +129,11 @@ This will increase the number of detected issues (as e.g. symbolic execution
 tools in the MythX backend can pick up on the bytecode), as well as reduce
 the number of false positive issues. The MythX CLI will try to infer the
 :code:`solc` version based on the pragma set in the source code. An explicit
-compiler version can be specified with the :code:`--solc-version` flag.
+compiler version can be specified with the :code:`--solc-version` flag. If
+:code:`solc` is already installed, an existing executable can be passed to the
+CLI by specifying :code:`--solc-path`. Please note that this only works with
+a compiled :code:`solc` binary and not with executable wrappers such as
+:code:`solcjs` due to differences in their interfaces.
 
 By default, the MythX CLI will submit the bytecode of the target contract
 (if specified), and add the source code and AST information of its
