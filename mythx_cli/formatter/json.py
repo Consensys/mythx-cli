@@ -19,8 +19,8 @@ from mythx_cli.formatter.base import BaseFormatter
 class JSONFormatter(BaseFormatter):
     """The JSON formatter.
 
-    It returns string-encoded JSON objects and does not require the analysis
-    input to generate payloads.
+    It returns string-encoded JSON objects and does not require the
+    analysis input to generate payloads.
     """
 
     report_requires_input = False
@@ -71,9 +71,9 @@ class JSONFormatter(BaseFormatter):
 class PrettyJSONFormatter(BaseFormatter):
     """The pretty-printing JSON formatter.
 
-    It works exactly as the JSON formatter, with the difference that the string-
-    encoded JSON object is indented with two spaces for each level, and the keys
-    are sorted in alphabetical order.
+    It works exactly as the JSON formatter, with the difference that the
+    string- encoded JSON object is indented with two spaces for each
+    level, and the keys are sorted in alphabetical order.
     """
 
     report_requires_input = False

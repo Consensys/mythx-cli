@@ -19,9 +19,9 @@ LOGGER = logging.getLogger("mythx-cli")
 class TruffleJob(ScribbleMixin):
     """A truffle job to be sent to the API.
 
-    This object represents a collection of truffle artifacts that will be sent
-    to the API. It aggregates artifacts and transforms them into API-conform
-    payload dicts.
+    This object represents a collection of truffle artifacts that will
+    be sent to the API. It aggregates artifacts and transforms them into
+    API-conform payload dicts.
     """
 
     def __init__(self, target: Path):
