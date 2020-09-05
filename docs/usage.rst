@@ -84,6 +84,7 @@ Submitting Analyses
       --swc-blacklist TEXT           A comma-separated list of SWC IDs to ignore
       --swc-whitelist TEXT           A comma-separated list of SWC IDs to include
       --solc-version TEXT            The solc version to use for compilation
+      --solc-path PATH               Path to a custom solc executable
       --include TEXT                 The contract name(s) to submit to MythX
       --remap-import TEXT            Add a solc compilation import remapping
       --check-properties             Enable property verification mode
@@ -128,7 +129,11 @@ This will increase the number of detected issues (as e.g. symbolic execution
 tools in the MythX backend can pick up on the bytecode), as well as reduce
 the number of false positive issues. The MythX CLI will try to infer the
 :code:`solc` version based on the pragma set in the source code. An explicit
-compiler version can be specified with the :code:`--solc-version` flag.
+compiler version can be specified with the :code:`--solc-version` flag. If
+:code:`solc` is already installed, an existing executable can be passed to the
+CLI by specifying :code:`--solc-path`. Please note that this only works with
+a compiled :code:`solc` binary and not with executable wrappers such as
+:code:`solcjs` due to differences in their interfaces.
 
 By default, the MythX CLI will submit the bytecode of the target contract
 (if specified), and add the source code and AST information of its
@@ -215,18 +220,23 @@ By default, it will print a tabular representation of the report to stdout:
 
     Report for /home/circleci/project/contracts/token.sol
     https://dashboard.mythx.io/#/console/analyses/f9e69a6a-2339-43b0-ad03-125c6cf81a70
-    ╒════════╤═══════════════════════════════════╤════════════╤═══════════════════════════════════════════╕
-    │   Line │ SWC Title                         │ Severity   │ Short Description                         │
-    ╞════════╪═══════════════════════════════════╪════════════╪═══════════════════════════════════════════╡
-    │     14 │ Integer Overflow and Underflow    │ High       │ The binary addition can overflow.         │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │     13 │ Integer Overflow and Underflow    │ High       │ The binary subtraction can underflow.     │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │      1 │ Floating Pragma                   │ Low        │ A floating pragma is set.                 │
-    ├────────┼───────────────────────────────────┼────────────┼───────────────────────────────────────────┤
-    │      5 │ State Variable Default Visibility │ Low        │ The state variable visibility is not set. │
-    ╘════════╧═══════════════════════════════════╧════════════╧═══════════════════════════════════════════╛
+    ╒════════╤═════════════════════════════════════════════╤════════════╤════════════════════════════════════════╕
+    │   Line │ SWC Title                                   │ Severity   │ Short Description                      │
+    ╞════════╪═════════════════════════════════════════════╪════════════╪════════════════════════════════════════╡
+    │      1 │ (SWC-103) Floating Pragma                   │ Low        │ A floating pragma is set.              │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │      3 │ (SWC-000) Unknown                           │ Medium     │ Incorrect ERC20 implementation         │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │      5 │ (SWC-108) State Variable Default Visibility │ Low        │ State variable visibility is not set.  │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │     13 │ (SWC-101) Integer Overflow and Underflow    │ High       │ The arithmetic operator can underflow. │
+    ├────────┼─────────────────────────────────────────────┼────────────┼────────────────────────────────────────┤
+    │     14 │ (SWC-101) Integer Overflow and Underflow    │ High       │ The arithmetic operator can overflow.  │
+    ╘════════╧═════════════════════════════════════════════╧════════════╧════════════════════════════════════════╛
 
+This table by default is sorted by line number. If another sorting is required,
+the user can specify e.g. :code:`--table-sort-key=severity` to sort by alphabetically by the
+severity column.
 
 The :code:`simple` format option will also resolve the report's source map
 locations to the corresponding line and column numbers in the Solidity

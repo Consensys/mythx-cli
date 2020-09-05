@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 from glob import glob
 from pathlib import Path
-from typing import List, Set, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Union
 
 import click
 
@@ -19,9 +19,9 @@ LOGGER = logging.getLogger("mythx-cli")
 class TruffleJob(ScribbleMixin):
     """A truffle job to be sent to the API.
 
-    This object represents a collection of truffle artifacts that will be sent
-    to the API. It aggregates artifacts and transforms them into API-conform
-    payload dicts.
+    This object represents a collection of truffle artifacts that will
+    be sent to the API. It aggregates artifacts and transforms them into
+    API-conform payload dicts.
     """
 
     def __init__(self, target: Path):
@@ -139,7 +139,9 @@ class TruffleJob(ScribbleMixin):
 
         if enable_scribble:
             return self.instrument_truffle_artifacts(
-                self.payloads, scribble_path, remappings
+                payloads=self.payloads,
+                scribble_path=scribble_path,
+                remappings=remappings,
             )
         else:
             return self.payloads
@@ -157,7 +159,7 @@ class TruffleJob(ScribbleMixin):
         """
         return re.sub(re.compile(r"__\w{38}"), "0" * 40, code)
 
-    def artifact_to_sol_file(self, artifact_path):
+    def artifact_to_sol_file(self, artifact_path: str) -> str:
         """Resolve an artifact file to its corresponding Solidity file.
 
         This method will take the Truffle artifact's file name, and
@@ -184,7 +186,9 @@ class TruffleJob(ScribbleMixin):
         self.sol_artifact_map[artifact_path] = sol_file
         return sol_file
 
-    def sol_file_to_artifact(self, sol_path, artifact_files):
+    def sol_file_to_artifact(
+        self, sol_path: str, artifact_files: Tuple[List[str], List[str]]
+    ) -> Optional[List[str]]:
         """Resolve a Solidity file to the corresponding artifact file.
 
         This method will take the path to a Solidity file and return
@@ -205,7 +209,7 @@ class TruffleJob(ScribbleMixin):
         self.sol_artifact_map[sol_path] = artifact_path
         return artifact_path
 
-    def build_dependency_map(self):
+    def build_dependency_map(self) -> Dict[Any, Iterable]:
         """Build the local dependency mapping.
 
         To speed up lookups when attaching related artifacts to analysis
@@ -225,13 +229,13 @@ class TruffleJob(ScribbleMixin):
                 if node["nodeType"] != "ImportDirective":
                     continue
                 related_artifact = self.sol_file_to_artifact(
-                    node["absolutePath"], self.artifact_files
+                    sol_path=node["absolutePath"], artifact_files=self.artifact_files
                 )
                 if related_artifact is not None:
                     dependency_map[artifact_file].add(related_artifact)
         return dependency_map
 
-    def get_artifact_context(self, artifact_file):
+    def get_artifact_context(self, artifact_file: str) -> Dict[str, Any]:
         """Get additional context for a given artifact file.
 
         This method will look up the artifacts related to the current one
@@ -247,7 +251,7 @@ class TruffleJob(ScribbleMixin):
         for related_file in self.dependency_map[artifact_file]:
             with open(related_file) as af:
                 artifact = json.load(af)
-            context[self.artifact_to_sol_file(related_file)] = {
+            context[self.artifact_to_sol_file(artifact_path=related_file)] = {
                 "source": artifact.get("source"),
                 "ast": artifact.get("ast"),
             }

@@ -1,10 +1,7 @@
 """This module contains functions to generate Solidity-related payloads."""
 
-import json
 import logging
 import re
-import subprocess
-import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -25,7 +22,9 @@ class SolidityJob(ScribbleMixin):
         self.target = str(target)
         self.payloads = []
 
-    def payload_from_sources(self, solc_result, scribble_file, solc_version):
+    def payload_from_sources(
+        self, solc_result: Dict, scribble_file: str, solc_version: str
+    ) -> Dict:
         compiled_sources = solc_result.get("sources", {})
         payload = {
             "sources": {},
@@ -56,7 +55,7 @@ class SolidityJob(ScribbleMixin):
 
         return payload
 
-    def solc_version_from_source(self, source, default_version):
+    def solc_version_from_source(self, source: str, default_version: str):
         solc_version = re.findall(PRAGMA_PATTERN, source)
         LOGGER.debug(f"solc version matches in {self.target}: {solc_version}")
 
@@ -69,7 +68,7 @@ class SolidityJob(ScribbleMixin):
         return f"v{default_version or solc_version[0]}"
 
     @staticmethod
-    def setup_solcx(solc_version):
+    def setup_solcx(solc_version: str):
         if solc_version not in solcx.get_installed_solc_versions():
             try:
                 LOGGER.debug(f"Installing solc {solc_version}")
@@ -104,7 +103,7 @@ class SolidityJob(ScribbleMixin):
 
         return payload
 
-    def set_payload_bytecode_context(self, payload, solc_result):
+    def set_payload_bytecode_context(self, payload: Dict, solc_result: Dict):
         # extract the largest bytecode from the compilation result and add it
         bytecode_max = 0
         for file_path, file_element in solc_result.get("contracts", {}).items():
@@ -128,8 +127,16 @@ class SolidityJob(ScribbleMixin):
                     )
                     payload["deployed_source_map"] = contract_deployed_source_map
 
-    def solcx_compile(self, path, remappings, enable_scribble, scribble_file=None):
+    def solcx_compile(
+        self,
+        path: str,
+        remappings: Tuple[str],
+        enable_scribble: bool,
+        scribble_file: str = None,
+        solc_path: str = None,
+    ) -> Dict:
         return solcx.compile_standard(
+            solc_binary=solc_path,
             input_data={
                 "language": "Solidity",
                 "sources": {
@@ -164,6 +171,7 @@ class SolidityJob(ScribbleMixin):
     def generate_payloads(
         self,
         version: Optional[str],
+        solc_path: Optional[str] = None,
         contract: str = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -187,6 +195,7 @@ class SolidityJob(ScribbleMixin):
         * :code:`srcmap-runtime`
 
         :param version: The solc version to use for compilation
+        :param solc_path: The path to a custom solc executable
         :param contract: The contract name(s) to submit
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -196,20 +205,28 @@ class SolidityJob(ScribbleMixin):
         with open(self.target) as f:
             source = f.read()
 
-        solc_version = self.solc_version_from_source(
-            source=source, default_version=version
-        )
+        solc_version = None
+        if solc_path is None:
+            solc_version = self.solc_version_from_source(
+                source=source, default_version=version
+            )
+            self.setup_solcx(solc_version)
 
         if enable_scribble:
             # use scribble for compilation
-            result = self.instrument_solc_file(self.target, scribble_path, remappings)
+            result = self.instrument_solc_file(
+                target=self.target, scribble_path=scribble_path, remappings=remappings
+            )
         else:
-            # use solc for compilation
-            self.setup_solcx(solc_version)
             try:
                 cwd = str(Path.cwd().absolute())
                 LOGGER.debug(f"Compiling {self.target} under allowed path {cwd}")
-                result = self.solcx_compile(cwd, remappings, enable_scribble)
+                result = self.solcx_compile(
+                    path=cwd,
+                    remappings=remappings,
+                    enable_scribble=enable_scribble,
+                    solc_path=solc_path,
+                )
             except solcx.exceptions.SolcError as e:
                 raise click.exceptions.UsageError(
                     f"Error compiling source with solc {solc_version}: {e}"
@@ -235,8 +252,9 @@ class SolidityJob(ScribbleMixin):
                 return
             except KeyError:
                 LOGGER.warning(
-                    f"Could not find contract {contract} in compilation artifacts. The CLI will find the "
-                    f"largest bytecode artifact in the compilation output and submit it instead."
+                    f"Could not find contract {contract} in compilation artifacts. The CLI will "
+                    f"find the largest bytecode artifact in the compilation output and submit it "
+                    f"instead."
                 )
 
         self.set_payload_bytecode_context(payload, result)
@@ -259,6 +277,7 @@ class SolidityJob(ScribbleMixin):
     def walk_solidity_files(
         cls,
         solc_version: str,
+        solc_path: Optional[str] = None,
         base_path: Optional[str] = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -271,6 +290,7 @@ class SolidityJob(ScribbleMixin):
         contain all the Solidity payloads (optionally compiled), ready for submission.
 
         :param solc_version: The solc version to use for Solidity compilation
+        :param solc_path: The path to a custom solc executable
         :param base_path: The base path to walk through from
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -294,7 +314,8 @@ class SolidityJob(ScribbleMixin):
         for file in files:
             job = cls(Path(file))
             job.generate_payloads(
-                solc_version,
+                version=solc_version,
+                solc_path=solc_path,
                 remappings=remappings,
                 enable_scribble=enable_scribble,
                 scribble_path=scribble_path,
