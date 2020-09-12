@@ -12,7 +12,7 @@ twine==3.2.0
 
 black==19.3b0
 isort==5.5.2
-pytest==6.0.1
+pytest==6.0.2
 pytest-runner==5.2
 pytest-cov==2.10.1
 pytest-subprocess==1.0.0
