@@ -2,6 +2,17 @@
 History
 =======
 
+
+0.6.21 (2020-09-18)
+-------------------
+
+- Fix bug in render command analysis list pagination query
+
+- Update :code:`isort` to 5.5.2
+- Update :code:`pytest` to 6.0.2
+- Update :code`coverage` to 5.3
+
+
 0.6.20 (2020-09-05)
 -------------------
 
