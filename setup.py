@@ -58,6 +58,6 @@ setup(
     test_suite="tests",
     tests_require=test_requirements,
     url="https://github.com/dmuhs/mythx-cli",
-    version="0.6.20",
+    version="0.6.21",
     zip_safe=False,
 )
