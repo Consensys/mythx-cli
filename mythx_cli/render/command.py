@@ -115,11 +115,10 @@ def render(
         offset = 0
 
         LOGGER.debug(f"Fetching analyses in group {target}")
-        while len(list_resp.analyses) < list_resp.total:
+        while offset < list_resp.total:
             offset += len(list_resp.analyses)
-            list_resp.analyses.extend(
-                client.analysis_list(group_id=target, offset=offset)
-            )
+            next_list = client.analysis_list(group_id=target, offset=offset)
+            list_resp.analyses.extend(next_list.analyses)
 
         for analysis in list_resp.analyses:
             click.echo(
