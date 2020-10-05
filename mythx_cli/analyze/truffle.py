@@ -67,8 +67,16 @@ class TruffleJob(ScribbleMixin):
                     ast = artifact.get("ast") or artifact.get("legacyAST")
                     idx = ast.get("src", "").split(":")[2]
                     sources.add((int(idx), artifact.get("sourcePath")))
-                except (KeyError, IndexError) as e:
+                except (KeyError, IndexError, AttributeError) as e:
                     LOGGER.warning(f"Could not reconstruct artifact source list: {e}")
+                    click.echo(
+                        (
+                            "Unable to construct a valid payload from the Truffle build artifacts. "
+                            "Do your payloads contain an 'ast' or 'legacyAST' field? "
+                            "Alternatively, consider explicitly compiling your project using solc: "
+                            "https://mythx-cli.readthedocs.io/en/latest/usage.html#submitting-analyses"
+                        )
+                    )
                     sys.exit(1)
 
         # infer source list from artifact collection
