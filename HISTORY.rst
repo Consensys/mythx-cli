@@ -3,6 +3,15 @@ History
 =======
 
 
+0.6.22 (2020-10-05)
+-------------------
+
+- Catch AttributeError on fauly Truffle artifact schema
+
+- Update :code:`pytest` to 6.1.1
+- Update :code:`isort` to 5.5.4
+
+
 0.6.21 (2020-09-18)
 -------------------
 
