@@ -11,7 +11,7 @@ watchdog==0.10.3
 twine==3.2.0
 
 black==19.3b0
-isort==5.6.1
+isort==5.6.3
 pytest==6.1.1
 pytest-runner==5.2
 pytest-cov==2.10.1
