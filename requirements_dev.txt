@@ -2,7 +2,7 @@
 
 bumpversion==0.6.0
 coverage==5.3
-coveralls==2.1.2
+coveralls==2.2.0
 tox==3.20.1
 
 sphinx==3.3.1
