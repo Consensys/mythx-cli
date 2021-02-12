@@ -10,6 +10,7 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     GroupListResponse,
     GroupStatusResponse,
+    ProjectListResponse,
     VersionResponse,
 )
 
@@ -29,43 +30,49 @@ class JSONFormatter(BaseFormatter):
     def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json(by_alias=True)
+
+    @staticmethod
+    def format_project_list(resp: ProjectListResponse):
+        """Format a project list response as pretty-printed JSON."""
+
+        return resp.json(by_alias=True)
 
     @staticmethod
     def format_group_list(resp: GroupListResponse) -> str:
         """Format a group list response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json(by_alias=True)
 
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json(by_alias=True)
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         """Format an analysis status response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json(by_alias=True)
 
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:
         """Format an issue report response as compressed JSON."""
 
-        output = [resp.to_dict(as_list=True) for resp, _ in issues_list]
+        output = [resp.dict(by_alias=True) for _, resp, _ in issues_list]
         return json.dumps(output)
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:
         """Format a version response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json(by_alias=True)
 
 
 class PrettyJSONFormatter(BaseFormatter):
@@ -85,9 +92,15 @@ class PrettyJSONFormatter(BaseFormatter):
         json_args = {"indent": 2, "sort_keys": True}
         if report_mode:
             return json.dumps(
-                [resp.to_dict(as_list=True) for resp, _ in obj], **json_args
+                [resp.dict(by_alias=True) for _, resp, _ in obj], **json_args
             )
-        return json.dumps(obj.to_dict(), **json_args)
+        return json.dumps(obj.dict(by_alias=True), **json_args)
+
+    @staticmethod
+    def format_project_list(resp: ProjectListResponse):
+        """Format a project list response as pretty-printed JSON."""
+
+        return PrettyJSONFormatter._print_as_json(resp)
 
     @staticmethod
     def format_group_status(resp: GroupStatusResponse) -> str:
@@ -116,7 +129,7 @@ class PrettyJSONFormatter(BaseFormatter):
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:

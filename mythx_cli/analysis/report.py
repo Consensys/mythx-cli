@@ -4,6 +4,7 @@ from typing import List, Optional, Tuple
 
 import click
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
+from pythx import Client
 
 from mythx_cli.formatter import FORMAT_RESOLVER, util
 from mythx_cli.formatter.base import BaseFormatter
@@ -54,9 +55,10 @@ def analysis_report(
     """
 
     issues_list: List[
-        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
     ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
+    ctx["client"]: Client
     for uuid in uuids:
         LOGGER.debug(f"{uuid}: Fetching report")
         resp = ctx["client"].report(uuid)
@@ -74,8 +76,7 @@ def analysis_report(
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
         )
-        resp.uuid = uuid
-        issues_list.append((resp, inp))
+        issues_list.append((uuid, resp, inp))
 
     LOGGER.debug(
         f"{uuid}: Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""

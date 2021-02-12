@@ -44,5 +44,5 @@ def analysis_list(ctx, number: int) -> None:
 
     # trim result to desired result number
     LOGGER.debug(f"Got {len(result.analyses)} analyses, trimming to {number}")
-    result = AnalysisListResponse(analyses=result[:number], total=resp.total)
+    result = AnalysisListResponse(analyses=result.analyses[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_list(result))

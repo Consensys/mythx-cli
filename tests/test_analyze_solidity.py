@@ -39,7 +39,7 @@ contract OutdatedCompilerVersion {
 
 def get_high_severity_report():
     issues_resp = deepcopy(ISSUES_RESPONSE)
-    issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+    issues_resp.issue_reports[0].issues[0].severity = "high"
     return issues_resp
 
 
@@ -157,7 +157,7 @@ def test_default_recursive_blacklist(tmp_path):
     (
         pytest.param(
             ["analyze", "--async"],
-            SUBMISSION_RESPONSE.analysis.uuid,
+            SUBMISSION_RESPONSE.uuid,
             True,
             0,
             id="analyze async",

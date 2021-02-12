@@ -10,6 +10,7 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     GroupListResponse,
     GroupStatusResponse,
+    ProjectListResponse,
     VersionResponse,
 )
 
@@ -33,7 +34,7 @@ class SimpleFormatter(BaseFormatter):
         """Format an analysis list response to a simple text representation."""
 
         res = []
-        for analysis in resp:
+        for analysis in resp.analyses:
             res.append("UUID: {}".format(analysis.uuid))
             res.append("Submitted at: {}".format(analysis.submitted_at))
             res.append("Status: {}".format(analysis.status))
@@ -46,10 +47,10 @@ class SimpleFormatter(BaseFormatter):
         """Format a group status response to a simple text representation."""
 
         res = [
-            "ID: {}".format(resp.group.identifier),
-            "Name: {}".format(resp.group.name or "<unnamed>"),
-            "Created on: {}".format(resp.group.created_at),
-            "Status: {}".format(resp.group.status),
+            "ID: {}".format(resp.identifier),
+            "Name: {}".format(resp.name or "<unnamed>"),
+            "Created on: {}".format(resp.created_at),
+            "Status: {}".format(resp.status),
             "",
         ]
         return "\n".join(res)
@@ -60,11 +61,26 @@ class SimpleFormatter(BaseFormatter):
         representation."""
 
         res = []
-        for group in resp:
+        for group in resp.groups:
             res.append("ID: {}".format(group.identifier))
             res.append("Name: {}".format(group.name or "<unnamed>"))
             res.append("Created on: {}".format(group.created_at))
             res.append("Status: {}".format(group.status))
+            res.append("")
+
+        return "\n".join(res)
+
+    @staticmethod
+    def format_project_list(resp: ProjectListResponse) -> str:
+        """Format an analysis group response to a simple text
+        representation."""
+
+        res = []
+        for project in resp.projects:
+            res.append("ID: {}".format(project.id))
+            res.append("Name: {}".format(project.name or "<unnamed>"))
+            res.append("Created on: {}".format(project.created))
+            res.append("Modified: {}".format(project.modified))
             res.append("")
 
         return "\n".join(res)
@@ -85,7 +101,7 @@ class SimpleFormatter(BaseFormatter):
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:
@@ -113,10 +129,10 @@ class SimpleFormatter(BaseFormatter):
 
         return "\n".join(
             [
-                "API: {}".format(resp.api_version),
-                "Harvey: {}".format(resp.harvey_version),
-                "Maru: {}".format(resp.maru_version),
-                "Mythril: {}".format(resp.mythril_version),
-                "Hashed: {}".format(resp.hashed_version),
+                "API: {}".format(resp.api),
+                "Harvey: {}".format(resp.harvey),
+                "Maru: {}".format(resp.maru),
+                "Mythril: {}".format(resp.mythril),
+                "Hashed: {}".format(resp.hash),
             ]
         )

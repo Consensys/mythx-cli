@@ -46,5 +46,5 @@ def group_list(ctx, number: int) -> None:
 
     # trim result to desired result number
     LOGGER.debug(f"Got {len(result.groups)} analyses, trimming to {number}")
-    result = GroupListResponse(groups=result[:number], total=resp.total)
+    result = GroupListResponse(groups=result.groups[:number], total=resp.total)
     write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_group_list(result))

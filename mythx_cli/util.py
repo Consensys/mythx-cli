@@ -10,8 +10,134 @@ from mythx_cli.formatter.util import get_source_location_by_offset
 LOGGER = logging.getLogger("mythx-cli")
 
 
+class SourceMapLocation:
+    def __init__(
+        self, offset: int = 0, length: int = 0, file_id: int = -1, jump_type: str = "-"
+    ):
+        self.o = int(offset)
+        self.l = int(length)
+        self.f = int(file_id)
+        self.j = jump_type
+
+    @property
+    def offset(self) -> int:
+        return self.o
+
+    @offset.setter
+    def offset(self, value: int) -> None:
+        value = int(value)
+        if value <= 0:
+            raise ValueError("Expected positive offset but received {}".format(value))
+        self.o = int(value)
+
+    @property
+    def length(self) -> int:
+        return self.l
+
+    @length.setter
+    def length(self, value: int) -> None:
+        value = int(value)
+        if value <= 0:
+            raise ValueError("Expected positive length but received {}".format(value))
+        self.l = int(value)
+
+    @property
+    def file_id(self) -> int:
+        return self.f
+
+    @file_id.setter
+    def file_id(self, value: int) -> None:
+        value = int(value)
+        if value < -1:
+            raise ValueError(
+                "Expected positive file ID or -1 but received {}".format(value)
+            )
+        self.f = int(value)
+
+    @property
+    def jump_type(self) -> str:
+        return self.j
+
+    @jump_type.setter
+    def jump_type(self, value: str) -> None:
+        if value not in ("i", "o", "-"):
+            raise ValueError(
+                "Invalid jump type {}, must be one of i, o, -".format(value)
+            )
+        self.j = value
+
+    def to_full_component_string(self) -> str:
+        return "{}:{}:{}:{}".format(self.o, self.l, self.f, self.j)
+
+    def to_short_component_string(self) -> str:
+        return "{}:{}:{}".format(self.o, self.l, self.f)
+
+    def __repr__(self) -> str:
+        return "<SourceMapComponent ({})>".format(self.to_full_component_string())
+
+    def __eq__(self, other: "SourceMapLocation") -> bool:
+        return all(
+            (self.o == other.o, self.l == other.l, self.f == other.f, self.j == other.j)
+        )
+
+
+class SourceMap:
+    def __init__(self, source_map: str):
+        self.components = self._decompress(source_map)
+
+    @staticmethod
+    def sourcemap_reducer(
+        accumulator: Tuple[int, int, int, str], component: str
+    ) -> List[str]:
+        parts = component.split(":")
+        full = []
+        for i in range(4):
+            part_exists = i < len(parts) and parts[i]
+            part = parts[i] if part_exists else accumulator[i]
+            full.append(part)
+        return full
+
+    @staticmethod
+    def _decompress(source_map: str) -> List[SourceMapLocation]:
+        components = source_map.split(";")
+        accumulator = (-1, -1, -2, "-")
+        result = []
+
+        for val in components:
+            curr = SourceMap.sourcemap_reducer(accumulator, val)
+            accumulator = curr
+            result.append(curr)
+
+        return [SourceMapLocation(*c) for c in result]
+
+    def _compress(self) -> str:
+        compressed = []
+        accumulator = (-1, -1, -2, "")
+        for val in self.components:
+            compr = []
+            for i, v in enumerate((val.offset, val.length, val.file_id, val.jump_type)):
+                if accumulator[i] == v:
+                    compr.append("")
+                else:
+                    compr.append(str(v))
+            accumulator = (val.offset, val.length, val.file_id, val.jump_type)
+            compressed.append(":".join(compr).rstrip(":"))
+        return ";".join(compressed)
+
+    def to_compressed_sourcemap(self) -> str:
+        return self._compress()
+
+    def to_decompressed_sourcemap(self) -> str:
+        return ";".join(map(lambda x: x.to_short_component_string(), self.components))
+
+    def __eq__(self, other: "SourceMap") -> bool:
+        return self.components == other.components
+
+
 def index_by_filename(
-    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    issues_list: List[
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+    ]
 ):
     """Index the given report/input responses by filename.
 
@@ -28,7 +154,7 @@ def index_by_filename(
     """
 
     report_context = defaultdict(list)
-    for resp, inp in issues_list:
+    for uuid, resp, inp in issues_list:
         # initialize context with source line objects
         for filename, file_data in inp.sources.items():
             source = file_data.get("source")
@@ -45,15 +171,15 @@ def index_by_filename(
         for report in resp.issue_reports:
             for issue in report.issues:
                 issue_entry = {
-                    "uuid": resp.uuid,
+                    "uuid": uuid,
                     "swcID": issue.swc_id,
                     "swcTitle": issue.swc_title,
                     "description": {
-                        "head": issue.description_short,
-                        "tail": issue.description_long,
+                        "head": issue.description.head,
+                        "tail": issue.description.tail,
                     },
                     "severity": issue.severity,
-                    "testCases": issue.extra_data.get("testCases", []),
+                    "testCases": issue.extra.get("testCases", []),
                 }
 
                 if issue.swc_id == "" or issue.swc_title == "" or not issue.locations:
@@ -66,7 +192,7 @@ def index_by_filename(
                         # skip non-text locations when we have one attached to the issue
                         continue
 
-                    for c in loc.source_map.components:
+                    for c in SourceMap(loc.source_map).components:
                         source_list = loc.source_list or report.source_list
                         if not (source_list and 0 <= c.file_id < len(source_list)):
                             # skip issues whose srcmap file ID if out of range of the source list

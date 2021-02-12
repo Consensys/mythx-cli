@@ -23,7 +23,5 @@ def group_open(ctx, name: str) -> None:
     LOGGER.debug(f"Opening group with name {name}")
     resp: GroupCreationResponse = ctx["client"].create_group(group_name=name)
     write_or_print(
-        "Opened group with ID {} and name '{}'".format(
-            resp.group.identifier, resp.group.name
-        )
+        "Opened group with ID {} and name '{}'".format(resp.identifier, resp.name)
     )

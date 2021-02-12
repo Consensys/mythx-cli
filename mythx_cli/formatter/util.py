@@ -3,15 +3,9 @@
 from typing import List, Union
 
 import click
-from mythx_models.response import DetectedIssuesResponse, Severity
+from mythx_models.response import DetectedIssuesResponse, Issue, Severity
 
-SEVERITY_ORDER = (
-    Severity.UNKNOWN,
-    Severity.NONE,
-    Severity.LOW,
-    Severity.MEDIUM,
-    Severity.HIGH,
-)
+SEVERITY_ORDER = ("unknown", "none", "low", "medium", "high")
 
 
 def get_source_location_by_offset(source: str, offset: int) -> int:
@@ -99,17 +93,17 @@ def filter_report(
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     :return: The filtered issue report
     """
-
-    min_severity = Severity(min_severity.title()) if min_severity else Severity.UNKNOWN
+    min_severity = min_severity.lower() if min_severity else SEVERITY_ORDER[0]
     swc_blacklist = normalize_swc_list(swc_blacklist)
     swc_whitelist = normalize_swc_list(swc_whitelist)
 
     new_issues = []
     for report in resp.issue_reports:
         for issue in report.issues:
-            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(
-                min_severity
-            )
+            issue: Issue
+            is_severe = SEVERITY_ORDER.index(
+                issue.severity.lower()
+            ) >= SEVERITY_ORDER.index(min_severity.lower())
             not_blacklisted = issue.swc_id not in swc_blacklist
             is_whitelisted = issue.swc_id in swc_whitelist if swc_whitelist else True
 

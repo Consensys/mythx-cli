@@ -108,7 +108,9 @@ def test_report_json():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.to_json())
+        assert json.loads(result.output)[0] == json.loads(
+            ISSUES_RESPONSE.json(by_alias=True)
+        )
         assert result.exit_code == 0
 
 
@@ -129,7 +131,8 @@ def test_report_json_blacklist():
         )
 
         assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] != "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 
@@ -151,7 +154,8 @@ def test_report_json_whitelist():
         )
 
         assert all(
-            x["swcID"] == "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] == "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 
@@ -173,7 +177,8 @@ def test_report_json_filter():
         )
 
         assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] != "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 
@@ -192,7 +197,9 @@ def test_report_json_pretty():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.to_json())
+        assert json.loads(result.output)[0] == json.loads(
+            ISSUES_RESPONSE.json(by_alias=True)
+        )
         assert result.exit_code == 0
 
 
@@ -213,7 +220,8 @@ def test_report_json_pretty_blacklist():
         )
 
         assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] != "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 
@@ -235,7 +243,8 @@ def test_report_json_pretty_whitelist():
         )
 
         assert all(
-            x["swcID"] == "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] == "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 
@@ -257,7 +266,8 @@ def test_report_json_pretty_filter():
         )
 
         assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
+            x["swcID"] != "SWC-110"
+            for x in json.loads(result.output)[0]["issue_reports"][0]["issues"]
         )
         assert result.exit_code == 0
 

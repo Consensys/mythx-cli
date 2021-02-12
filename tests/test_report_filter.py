@@ -88,7 +88,12 @@ def test_report_filter_blacklist(blacklist, whitelist, severity, contained):
         resp, swc_blacklist=blacklist, swc_whitelist=whitelist, min_severity=severity
     )
 
+    swc_ids = []
+    for report in resp.issue_reports:
+        for issue in report.issues:
+            swc_ids.append(issue.swc_id)
+
     if contained:
-        assert "SWC-110" in resp
+        assert "SWC-110" in swc_ids
     else:
-        assert "SWC-110" not in resp
+        assert "SWC-110" not in swc_ids

@@ -53,7 +53,7 @@ def setup_truffle_project(base_path, compiled=True, switch_dir=False):
 
 def get_high_severity_report():
     issues_resp = deepcopy(ISSUES_RESPONSE)
-    issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+    issues_resp.issue_reports[0].issues[0].severity = "high"
     return issues_resp
 
 
@@ -145,11 +145,7 @@ def test_param_yaml_override(tmp_path):
     "params,value,contained,retval",
     (
         pytest.param(
-            ["analyze", "--async"],
-            SUBMISSION_RESPONSE.analysis.uuid,
-            True,
-            0,
-            id="async",
+            ["analyze", "--async"], SUBMISSION_RESPONSE.uuid, True, 0, id="async"
         ),
         pytest.param(["analyze"], ISSUES_TABLE, True, 0, id="issue table"),
         pytest.param(

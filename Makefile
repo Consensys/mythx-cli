@@ -58,7 +58,7 @@ lint: ## check style with flake8
 	flake8 mythx_cli tests
 
 test: ## run tests quickly with the default Python
-	py.test -vv
+	pytest --cov-report html --cov-report term --cov mythx_cli tests/
 
 test-all: ## run tests on every Python version with tox
 	tox
