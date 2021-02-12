@@ -22,6 +22,6 @@ def analysis_status(ctx, uuids: List[str]) -> None:
     """
     for uuid in uuids:
         LOGGER.debug(f"{uuid}: Fetching status")
-        resp = ctx["client"].status(uuid)
+        resp = ctx["client"].analysis_status(uuid)
         LOGGER.debug(f"{uuid}: Printing status information")
         write_or_print(FORMAT_RESOLVER[ctx["fmt"]].format_analysis_status(resp))

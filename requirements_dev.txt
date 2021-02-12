@@ -1,18 +1,18 @@
 -r requirements.txt
 
 bumpversion==0.6.0
-coverage==5.3
-coveralls==2.2.0
-tox==3.20.1
+coverage==5.4
+coveralls==3.0.0
+tox==3.21.4
 
-sphinx==3.3.1
-sphinx_rtd_theme==0.5.0
-watchdog==0.10.4
-twine==3.2.0
+sphinx==3.4.3
+sphinx_rtd_theme==0.5.1
+watchdog==1.0.2
+twine==3.3.0
 
 black==19.3b0
 isort==5.6.4
-pytest==6.1.2
+pytest==6.2.2
 pytest-runner==5.2
-pytest-cov==2.10.1
+pytest-cov==2.11.1
 pytest-subprocess==1.0.0

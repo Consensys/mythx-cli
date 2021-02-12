@@ -34,7 +34,7 @@ class BaseFormatter(abc.ABC):
     @abc.abstractmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:

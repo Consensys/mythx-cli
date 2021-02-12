@@ -25,7 +25,5 @@ def group_close(ctx, identifiers: List[str]) -> None:
         LOGGER.debug(f"Closing group for ID {identifier}")
         resp: GroupCreationResponse = ctx["client"].seal_group(group_id=identifier)
         write_or_print(
-            "Closed group with ID {} and name '{}'".format(
-                resp.group.identifier, resp.group.name
-            )
+            "Closed group with ID {} and name '{}'".format(resp.identifier, resp.name)
         )

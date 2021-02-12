@@ -18,7 +18,7 @@ def get_analysis_info(
     min_severity: Optional[str],
     swc_blacklist: Optional[List[str]],
     swc_whitelist: Optional[List[str]],
-) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
+) -> Tuple[str, AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
     Given a UUID, this function will query the MythX API for the
@@ -32,7 +32,7 @@ def get_analysis_info(
     LOGGER.debug(f"{uuid}: Fetching input")
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
     LOGGER.debug(f"{uuid}: Fetching status")
-    status: AnalysisStatusResponse = client.status(uuid)
+    status: AnalysisStatusResponse = client.analysis_status(uuid)
 
     LOGGER.debug(f"{uuid}: Applying SWC filters")
     util.filter_report(
@@ -41,7 +41,5 @@ def get_analysis_info(
         swc_blacklist=swc_blacklist,
         swc_whitelist=swc_whitelist,
     )
-    # extend response with job UUID to keep formatter logic isolated
-    resp.uuid = uuid
 
-    return status, resp, inp
+    return uuid, status, resp, inp

@@ -12,13 +12,14 @@ from mythx_models.response import (
     DetectedIssuesResponse,
     GroupListResponse,
     GroupStatusResponse,
+    ProjectListResponse,
     VersionResponse,
 )
 from tabulate import tabulate
 
 from mythx_cli.formatter.base import BaseFormatter
 from mythx_cli.formatter.util import generate_dashboard_link
-from mythx_cli.util import index_by_filename
+from mythx_cli.util import SourceMap, index_by_filename
 
 
 class TabularFormatter(BaseFormatter):
@@ -44,6 +45,16 @@ class TabularFormatter(BaseFormatter):
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
+    def format_project_list(resp: ProjectListResponse) -> str:
+        """Format an analysis group response to a tabular representation."""
+
+        data = [
+            (project.id, project.name, project.group_count, project.modified)
+            for project in resp.projects
+        ]
+        return tabulate(data, tablefmt="fancy_grid")
+
+    @staticmethod
     def format_group_list(resp: GroupListResponse) -> str:
         """Format an analysis group response to a tabular representation."""
 
@@ -52,7 +63,7 @@ class TabularFormatter(BaseFormatter):
                 group.identifier,
                 group.status,
                 ",".join([basename(x) for x in group.main_source_files]),
-                group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                group.created_at,
             )
             for group in resp.groups
         ]
@@ -64,42 +75,37 @@ class TabularFormatter(BaseFormatter):
 
         data = (
             (
-                ("ID", resp.group.identifier),
-                ("Name", resp.group.name or "<unnamed>"),
-                (
-                    "Creation Date",
-                    resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
-                ),
-                ("Created By", resp.group.created_by),
-                ("Progress", "{}/100".format(resp.group.progress)),
+                ("ID", resp.identifier),
+                ("Name", resp.name or "<unnamed>"),
+                ("Creation Date", resp.created_at),
+                ("Created By", resp.created_by),
+                ("Progress", "{}/100".format(resp.progress)),
             )
             + tuple(
-                zip_longest(
-                    ("Main Sources",), resp.group.main_source_files, fillvalue=""
-                )
+                zip_longest(("Main Sources",), resp.main_source_files, fillvalue="")
             )
             + (
-                ("Status", resp.group.status.title()),
-                ("Queued Analyses", resp.group.analysis_statistics.queued or 0),
-                ("Running Analyses", resp.group.analysis_statistics.running or 0),
-                ("Failed Analyses", resp.group.analysis_statistics.failed or 0),
-                ("Finished Analyses", resp.group.analysis_statistics.finished or 0),
-                ("Total Analyses", resp.group.analysis_statistics.total or 0),
+                ("Status", resp.status.title()),
+                ("Queued Analyses", resp.analysis_statistics.queued or 0),
+                ("Running Analyses", resp.analysis_statistics.running or 0),
+                ("Failed Analyses", resp.analysis_statistics.failed or 0),
+                ("Finished Analyses", resp.analysis_statistics.finished or 0),
+                ("Total Analyses", resp.analysis_statistics.total or 0),
                 (
                     "High Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.high or 0,
+                    resp.vulnerability_statistics.high or 0,
                 ),
                 (
                     "Medium Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.medium or 0,
+                    resp.vulnerability_statistics.medium or 0,
                 ),
                 (
                     "Low Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.low or 0,
+                    resp.vulnerability_statistics.low or 0,
                 ),
                 (
                     "Unknown Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.none or 0,
+                    resp.vulnerability_statistics.none or 0,
                 ),
             )
         )
@@ -109,13 +115,28 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         """Format an analysis status response to a tabular representation."""
 
-        data = ((k, v) for k, v in resp.analysis.to_dict().items())
+        data = (
+            ("UUID", resp.uuid),
+            ("API Version", resp.api_version),
+            ("Mythril Version", resp.mythril_version),
+            ("Harvey Version", resp.harvey_version),
+            ("Maru Version", resp.maru_version),
+            ("Queue Time", resp.queue_time),
+            ("Run Time", resp.run_time),
+            ("Status", resp.status),
+            ("Submitted At", resp.submitted_at),
+            ("Submitted By", resp.submitted_by),
+            ("Tool Name", resp.client_tool_name),
+            ("Group ID", resp.group_id),
+            ("Group Name", resp.group_name),
+            ("Analysis Mode", resp.analysis_mode),
+        )
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:
@@ -167,5 +188,5 @@ class TabularFormatter(BaseFormatter):
     def format_version(resp: VersionResponse) -> str:
         """Format a version response to a tabular representation."""
 
-        data = ((k.title(), v) for k, v in resp.to_dict().items())
+        data = ((k.title(), v) for k, v in resp.dict(by_alias=True).items())
         return tabulate(data, tablefmt="fancy_grid")

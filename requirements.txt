@@ -1,6 +1,6 @@
 Click==7.1.2
 py-solc-x==1.1.0
-pythx==1.6.1
+pythx==1.6.2
 tabulate==0.8.7
 Jinja2==2.11.3
 htmlmin==0.1.12

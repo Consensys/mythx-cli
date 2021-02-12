@@ -18,6 +18,7 @@ from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
+from mythx_cli.project.list import project_list
 from mythx_cli.render.command import render
 from mythx_cli.util import update_context
 from mythx_cli.version.command import version
@@ -203,6 +204,25 @@ LOGGER.debug("Registering main commands")
 cli.add_command(analyze)
 cli.add_command(render)
 cli.add_command(version)
+
+
+@cli.group()
+def project() -> None:
+    """Create, modify, and view analysis projects.
+
+    \f
+
+    This subcommand holds all project-related actions, such as creating,
+    listing, and managing projects, as well as fetching the status of one
+    or more groups inside a project.
+    """
+    pass
+
+
+from mythx_cli.project import project_list
+
+LOGGER.debug("Registering project commands")
+project.add_command(project_list)
 
 
 @cli.group()
