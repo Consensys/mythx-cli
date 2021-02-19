@@ -51,7 +51,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -fr .pytest_cache
 
 format:
-	isort -rc mythx_cli tests
+	isort mythx_cli tests
 	black -t py37 mythx_cli tests
 
 lint: ## check style with flake8

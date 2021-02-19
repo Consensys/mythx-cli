@@ -319,9 +319,11 @@ def analyze(
         LOGGER.debug(f"{uuid}: Fetching report")
         resp: DetectedIssuesResponse = ctx["client"].report(uuid)
         LOGGER.debug(f"{uuid}: Fetching input")
-        inp: Optional[AnalysisInputResponse] = ctx["client"].request_by_uuid(
-            uuid
-        ) if formatter.report_requires_input else None
+        inp: Optional[AnalysisInputResponse] = (
+            ctx["client"].request_by_uuid(uuid)
+            if formatter.report_requires_input
+            else None
+        )
 
         LOGGER.debug(f"{uuid}: Applying SWC filters")
         util.filter_report(
