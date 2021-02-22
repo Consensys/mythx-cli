@@ -14,6 +14,8 @@ from mythx_cli.analysis.report import analysis_report
 from mythx_cli.analysis.status import analysis_status
 from mythx_cli.analyze.command import analyze
 from mythx_cli.formatter import FORMAT_RESOLVER
+from mythx_cli.fuzz.run import fuzz_run
+from mythx_cli.fuzz.setup import fuzz_setup
 from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
@@ -262,6 +264,24 @@ LOGGER.debug("Registering analysis commands")
 analysis.add_command(analysis_status)
 analysis.add_command(analysis_list)
 analysis.add_command(analysis_report)
+
+
+@cli.group()
+def fuzz() -> None:
+    """Interact with the MythX FaaS solution.
+
+    \f
+
+    This subcommand holds all fuzz-related actions, such as initializing
+    new fuzzing campaigns, preparing projects for FaaS submission, and
+    launching new campaigns.
+    """
+    pass
+
+
+LOGGER.debug("Registering fuzz commands")
+fuzz.add_command(fuzz_setup)
+fuzz.add_command(fuzz_run)
 
 
 if __name__ == "__main__":
