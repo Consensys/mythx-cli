@@ -4,7 +4,7 @@ from click.testing import CliRunner
 from mythx_cli.cli import cli
 
 
-@pytest.mark.parametrize("keyword", ("run", "setup"))
+@pytest.mark.parametrize("keyword", ("run", "setup", "arm"))
 def test_fuzz_subcommands_present(keyword):
     runner = CliRunner()
 

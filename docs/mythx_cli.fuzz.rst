@@ -20,6 +20,14 @@ mythx\_cli.fuzz.setup module
    :undoc-members:
    :show-inheritance:
 
+mythx\_cli.fuzz.arm module
+----------------------------
+
+.. automodule:: mythx_cli.fuzz.arm
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
