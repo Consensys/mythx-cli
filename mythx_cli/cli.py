@@ -14,14 +14,14 @@ from mythx_cli.analysis.report import analysis_report
 from mythx_cli.analysis.status import analysis_status
 from mythx_cli.analyze.command import analyze
 from mythx_cli.formatter import FORMAT_RESOLVER
+from mythx_cli.fuzz.arm import fuzz_arm
+from mythx_cli.fuzz.disarm import fuzz_disarm
 from mythx_cli.fuzz.run import fuzz_run
 from mythx_cli.fuzz.setup import fuzz_setup
-from mythx_cli.fuzz.arm import fuzz_arm
 from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
-from mythx_cli.project.list import project_list
 from mythx_cli.render.command import render
 from mythx_cli.util import update_context
 from mythx_cli.version.command import version
@@ -193,7 +193,8 @@ def cli(
         ctx.obj["client"] = Client(
             username=username, password=password, middlewares=[toolname_mw]
         )
-    else:
+    elif sys.argv[1] not in ("fuzz",):
+        # fuzz subcommand is exempt from API auth
         raise click.UsageError(
             (
                 "The trial user has been deprecated. You can still use the MythX CLI for free "
@@ -284,6 +285,7 @@ LOGGER.debug("Registering fuzz commands")
 fuzz.add_command(fuzz_setup)
 fuzz.add_command(fuzz_run)
 fuzz.add_command(fuzz_arm)
+fuzz.add_command(fuzz_disarm)
 
 
 if __name__ == "__main__":

@@ -93,3 +93,57 @@ class ScribbleMixin:
         )
         self._handle_scribble_error(process)
         return json.loads(process.stdout.decode())
+
+    @staticmethod
+    def instrument_solc_in_place(
+        file_list: List[str],
+        scribble_path: str,
+        remappings: List[str] = None,
+        solc_version: str = None,
+    ) -> None:
+        """Instrument a collection of Solidity files in place.
+
+        :param file_list: List of paths to Solidity files to instrument
+        :param scribble_path: The path to the scribble executable
+        :param remappings: List of import remappings to pass to solc
+        :param solc_version: The solc compiler version to use
+        """
+
+        command = [scribble_path, "--arm", "--output-mode=files"]
+        if remappings:
+            command.append(f"--path-remapping={';'.join(remappings)}")
+        if solc_version:
+            command.append(f"--compiler-version={solc_version}")
+        command.extend(file_list)
+
+        process = subprocess.run(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        ScribbleMixin._handle_scribble_error(process)
+
+    @staticmethod
+    def disarm_solc_in_place(
+        file_list: List[str],
+        scribble_path: str,
+        remappings: List[str] = None,
+        solc_version: str = None,
+    ) -> None:
+        """Un-instrument a collection of Solidity files in place.
+
+        :param file_list: List of paths to Solidity files to instrument
+        :param scribble_path: The path to the scribble executable
+        :param remappings: List of import remappings to pass to solc
+        :param solc_version: The solc compiler version to use
+        """
+
+        command = [scribble_path, "--disarm"]
+        if remappings:
+            command.append(f"--path-remapping={';'.join(remappings)}")
+        if solc_version:
+            command.append(f"--compiler-version={solc_version}")
+        command.extend(file_list)
+
+        process = subprocess.run(
+            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        ScribbleMixin._handle_scribble_error(process)

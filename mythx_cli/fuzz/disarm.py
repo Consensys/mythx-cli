@@ -8,7 +8,7 @@ from mythx_cli.analyze.scribble import ScribbleMixin
 LOGGER = logging.getLogger("mythx-cli")
 
 
-@click.command("arm")
+@click.command("disarm")
 @click.argument("targets", default=None, nargs=-1, required=False)
 @click.option(
     "--scribble-path",
@@ -30,16 +30,16 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
 )
 @click.pass_obj
-def fuzz_arm(
+def fuzz_disarm(
     ctx, targets, scribble_path: str, remap_import: Tuple[str], solc_version: str
 ) -> None:
-    """Prepare the target files for FaaS submission.
+    """Revert the target files to their original, un-instrumented state.
 
     \f
 
-    This will run :code:`scribble --arm ...` on the given target files,
-    instrumenting their code in-place with scribble. Additionally,
-    solc parameters can be passed to get compilation to work.
+    This will run :code:`scribble --disarm ...` on the given target files,
+    reverting their code in-place to their original state using scribble.
+    Additionally, solc parameters can be passed to get compilation to work.
 
     The following YAML context options are supported:
     - analyze
@@ -60,7 +60,7 @@ def fuzz_arm(
     scribble_path = scribble_path or analyze_config.get("scribble-path") or "scribble"
     targets = targets or analyze_config.get("targets") or None
 
-    ScribbleMixin.instrument_solc_in_place(
+    ScribbleMixin.disarm_solc_in_place(
         file_list=targets,
         scribble_path=scribble_path,
         remappings=remap_import,
