@@ -43,10 +43,10 @@ def fuzz_arm(
 
     The following YAML context options are supported:
     - analyze
-        - targets
-        - scribble-path
-        - remappings
-        - solc
+    - targets
+    - scribble-path
+    - remappings
+    - solc
 
     :param ctx: The context, mainly used to get YAML params
     :param targets: Arguments passed to the `analyze` subcommand
