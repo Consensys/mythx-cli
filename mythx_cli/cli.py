@@ -22,6 +22,7 @@ from mythx_cli.group.close import group_close
 from mythx_cli.group.list import group_list
 from mythx_cli.group.open import group_open
 from mythx_cli.group.status import group_status
+from mythx_cli.project import project_list
 from mythx_cli.render.command import render
 from mythx_cli.util import update_context
 from mythx_cli.version.command import version
@@ -222,8 +223,6 @@ def project() -> None:
     """
     pass
 
-
-from mythx_cli.project import project_list
 
 LOGGER.debug("Registering project commands")
 project.add_command(project_list)
