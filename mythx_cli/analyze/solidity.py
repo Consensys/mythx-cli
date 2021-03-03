@@ -201,7 +201,7 @@ class SolidityJob(ScribbleMixin):
         :param enable_scribble: Enable instrumentation with scribble
         :param scribble_path: Optional path to the scribble executable
         """
-
+        remappings = remappings or []
         with open(self.target) as f:
             source = f.read()
 
