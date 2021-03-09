@@ -1,8 +1,10 @@
 import logging
+import os
+
 import requests
 import click
-from mythx_cli.analyze.solidity import SolidityJob
 import json
+from .brownie import  BrownieJob
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -13,7 +15,6 @@ headers = {
 }
 
 time_limit_seconds = 3000
-
 
 def rpc_call(method: str, params: str):
     payload = "{\"jsonrpc\":\"2.0\",\"method\":\"" + method + "\",\"params\":" + params + ",\"id\":1}"
@@ -67,17 +68,6 @@ def get_seed_state(address: str, other_addresses: [str]):
         }
     )
 
-
-def camel_case_payload(payload):
-    payload["mainSource"] = payload.pop("main_source")
-    payload["solcVersion"] = payload.pop("solc_version")
-    payload["contractName"] = payload.pop("contract_name")
-    payload["sourceMap"] = payload.pop("source_map")
-    payload["sourceList"] = payload.pop("source_list")
-    payload["deployedBytecode"] = payload.pop("deployed_bytecode")
-    payload["deployedSourceMap"] = payload.pop("deployed_source_map")
-
-
 @click.command("run")
 @click.option(
     "-a",
@@ -124,17 +114,12 @@ def fuzz_run(ctx, address, more_addresses, target):
         other_addresses = more_addresses.split(',')
 
     seed_state = get_seed_state(contract_address, other_addresses)
-    payloads = []
-    for t in target:
-        sol = SolidityJob(target=t)
-        sol.generate_payloads(version="0.6.12")
-        camel_case_payload(sol.payloads[0])
-        payloads.append(sol.payloads[0])
 
-    data = {
-        "execution": seed_state,
-        "input": payloads
-    }
+    # print(json.dumps(api_payload))
+    brownie = BrownieJob(target)
+    brownie.generate_payload(seed_state)
 
-    print(json.dumps(data))
-    pass
+    api_payload = brownie.payload
+    print(json.dumps(api_payload))
+
+pass
