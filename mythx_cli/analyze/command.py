@@ -9,6 +9,7 @@ from mythx_models.response import (
     AnalysisInputResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
+    GroupOperationResponse
 )
 from pythx.middleware.group_data import GroupDataMiddleware
 from pythx.middleware.property_checking import PropertyCheckingMiddleware
@@ -129,6 +130,13 @@ LOGGER = logging.getLogger("mythx-cli")
     default=None,
     help="Force an analysis scenario",
 )
+@click.option(
+    "--project-id",
+    type=click.STRING,
+    help="The project ID to add the analysis to",
+    default=None,
+)
+
 @click.pass_obj
 def analyze(
     ctx,
@@ -149,6 +157,7 @@ def analyze(
     enable_scribble: bool,
     scribble_path: str,
     scenario: str,
+    project_id: str
 ) -> None:
     """Analyze the given directory or arguments with MythX.
 
@@ -172,6 +181,7 @@ def analyze(
     :param enable_scribble: Enable instrumentation with scribble
     :param scribble_path: Optional path to the scribble executable
     :param scenario: Force an analysis scenario
+    :param project_id: Id of project to add this analysis to
     :return:
     """
 
@@ -182,6 +192,7 @@ def analyze(
         create_group = analyze_config.get("create-group", False)
 
     mode = mode or analyze_config.get("mode") or "quick"
+    project_id = project_id or analyze_config.get("project-id") or None
     group_id = analyze_config.get("group-id") or group_id or None
     group_name = group_name or analyze_config.get("group-name") or ""
     min_severity = min_severity or analyze_config.get("min-severity") or None
@@ -198,6 +209,10 @@ def analyze(
     target = target or analyze_config.get("targets") or None
     scenario = scenario or analyze_config.get("scenario") or None
 
+    if project_id and not create_group:
+        LOGGER.debug(f"Only use project-id when create_group is enabled.")
+        sys.exit(1)
+
     # enable property checking if explicitly requested or implicitly when
     # scribble instrumentation is requested
     ctx["client"].handler.middlewares.append(
@@ -213,6 +228,11 @@ def analyze(
         # associate all following analyses to the passed or newly created group
         group_mw = GroupDataMiddleware(group_id=group_id, group_name=group_name)
         ctx["client"].handler.middlewares.append(group_mw)
+
+    if project_id and group_id:
+        resp: GroupOperationResponse = ctx["client"].add_group_to_project(group_id=group_id, project_id=project_id)
+        if not resp.project_id == project_id:
+            LOGGER.debug(f"Failed to add group to project with id {project_id}.")
 
     jobs: List[Dict[str, Any]] = []
     include = list(include)
