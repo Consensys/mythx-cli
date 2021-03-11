@@ -6,6 +6,8 @@ import click
 import json
 from .brownie import  BrownieJob
 
+from mythx_cli.analyze.scribble import ScribbleMixin
+
 LOGGER = logging.getLogger("mythx-cli")
 
 rpc_url = "http://localhost:7545"
@@ -118,6 +120,11 @@ def fuzz_run(ctx, address, more_addresses, target):
     brownie = BrownieJob(target, analyze_config["build_directory"])
     brownie.generate_payload(seed_state)
     api_payload = brownie.payload
+    instr_meta = ScribbleMixin.get_arming_instr_meta()
+
+    if instr_meta is not None:
+        api_payload["instrumentation_metadata"] = instr_meta
+
     print(json.dumps(api_payload))
 
 pass
