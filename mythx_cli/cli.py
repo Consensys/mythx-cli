@@ -164,9 +164,10 @@ def cli(
     else:
         parsed_config = {"analyze": {}}
 
-    # The analyze context is updated separately in the command
+    # The analyze/fuzz context is updated separately in the command
     # implementation
     ctx.obj["analyze"] = parsed_config.get("analyze", {})
+    ctx.obj["fuzz"] = parsed_config.get("fuzz", {})
 
     # overwrite context with top-level YAML config keys if necessary
     update_context(ctx.obj, "ci", parsed_config, "ci", False)
@@ -193,7 +194,8 @@ def cli(
         ctx.obj["client"] = Client(
             username=username, password=password, middlewares=[toolname_mw]
         )
-    elif sys.argv[1] not in ("fuzz",):
+    #elif sys.argv[1] not in ("fuzz",):
+    elif "fuzz" not in sys.argv:
         # fuzz subcommand is exempt from API auth
         raise click.UsageError(
             (

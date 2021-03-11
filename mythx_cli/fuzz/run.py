@@ -69,6 +69,7 @@ def get_seed_state(address: str, other_addresses: [str]):
     )
 
 @click.command("run")
+@click.argument("target", default=None, nargs=-1, required=False)
 @click.option(
     "-a",
     "--address",
@@ -81,7 +82,7 @@ def get_seed_state(address: str, other_addresses: [str]):
     type=click.STRING,
     help="Addresses of other contracts to analyze, separated by commas",
 )
-@click.argument("target", default=None, nargs=-1, required=False)
+
 @click.pass_obj
 def fuzz_run(ctx, address, more_addresses, target):
     # read YAML config params from ctx dict, e.g. ganache rpc url
@@ -101,8 +102,8 @@ def fuzz_run(ctx, address, more_addresses, target):
     # submit the FaaS payload, do error handling
 
     # print FaaS dashbaord url pointing to campaign
-
-    contract_address = address
+    analyze_config = ctx.get("fuzz")
+    contract_address = analyze_config["deployed_contract_address"]
     contract_code_response = rpc_call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
 
     if contract_code_response is None:
@@ -114,11 +115,8 @@ def fuzz_run(ctx, address, more_addresses, target):
         other_addresses = more_addresses.split(',')
 
     seed_state = get_seed_state(contract_address, other_addresses)
-
-    # print(json.dumps(api_payload))
-    brownie = BrownieJob(target)
+    brownie = BrownieJob(target, analyze_config["build_directory"])
     brownie.generate_payload(seed_state)
-
     api_payload = brownie.payload
     print(json.dumps(api_payload))
 
