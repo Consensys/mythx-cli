@@ -1,6 +1,7 @@
 import logging
+import os
 from collections import defaultdict
-from typing import Any, List, Optional, Tuple
+from typing import Any, List, Optional, Tuple, AnyStr
 
 import click
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
@@ -248,3 +249,38 @@ def write_or_print(ctx, data: str, mode="a+") -> None:
     with open(ctx["output"], mode) as outfile:
         LOGGER.debug(f"Writing data to {ctx['output']}")
         outfile.write(data + "\n")
+
+
+def sol_files_by_directory(target_path: AnyStr) -> List:
+    """Gathers all the solidity files inside the target path
+    including sub-directories and returns them as a List.
+    Non solidity files are ignored.
+
+    :param target_path: The directory to look for .sol files
+    :return:
+    """
+    sol_files = []
+    # We start by checking if the target_path is potentially a .sol file
+    if target_path.endswith('.sol'):
+        # If .sol file we check if the target exists or if it's a user input error
+        if not os.path.isfile(target_path):
+            raise click.exceptions.UsageError(
+                "Could not find " + str(target_path) + ". Did you pass the correct directory?"
+            )
+        else:
+            # If it's a valid .sol file there is no need to search further and we just append it to our
+            # List to be returned
+            sol_files.append(target_path)
+    source_dir = os.walk(target_path)
+    for sub_dir in source_dir:
+        if len(sub_dir[2]) > 0:
+            # sub directory with .sol files
+            file_prefix = sub_dir[0]
+            for file in sub_dir[2]:
+                if not file.endswith(".sol"):
+                    LOGGER.debug(f"Skipped for not being a solidity file: {file}")
+                    continue
+                file_name = file_prefix + "/" + file
+                LOGGER.debug(f"Found solidity file: {file_name}")
+                sol_files.append(file_name)
+    return sol_files

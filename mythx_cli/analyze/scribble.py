@@ -7,7 +7,10 @@ from typing import List
 
 import click
 
+from mythx_cli.util import sol_files_by_directory
+
 SCRIBBLE_ARMING_META_FILE = ".scribble-arming.meta.json"
+
 
 class ScribbleMixin:
     """A mixing for job objects to instrument code with Scribble."""
@@ -128,7 +131,16 @@ class ScribbleMixin:
         if solc_version:
             command.append(f"--compiler-version={solc_version}")
 
-        command.extend(file_list)
+        # Scribble doesnt currently support directories as inputs
+        # so we create a list of all solidity files inside each of the targets
+        # and submit that to Scribble.
+
+        sol_files = []
+        for file in file_list:
+            target_files = sol_files_by_directory(file)
+            sol_files = [*sol_files, *target_files]
+
+        command.extend(sol_files)
 
         process = subprocess.run(
             command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -158,7 +170,16 @@ class ScribbleMixin:
         if solc_version:
             command.append(f"--compiler-version={solc_version}")
 
-        command.extend(file_list)
+        # Scribble doesnt currently support directories as inputs
+        # so we create a list of all solidity files inside each of the targets
+        # and submit that to Scribble.
+
+        sol_files = []
+        for file in file_list:
+            target_files = sol_files_by_directory(file)
+            sol_files = [*sol_files, *target_files]
+
+        command.extend(sol_files)
 
         if os.path.isfile(SCRIBBLE_ARMING_META_FILE):
             os.remove(SCRIBBLE_ARMING_META_FILE)

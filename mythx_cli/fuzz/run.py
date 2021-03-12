@@ -119,7 +119,15 @@ def fuzz_run(ctx, address, more_addresses, target):
     seed_state = get_seed_state(contract_address, other_addresses)
     brownie = BrownieJob(target, analyze_config["build_directory"])
     brownie.generate_payload(seed_state)
-    api_payload = brownie.payload
+
+    api_payload = {"name": "default_name", "parameters": {}}
+    api_payload["parameters"]["discovery-probability-threshold"]=seed_state["discovery-probability-threshold"]
+    api_payload["parameters"]["assertion-checking-mode"]=seed_state["assertion-checking-mode"]
+    api_payload["corpus"] = seed_state["analysis-setup"]
+
+    api_payload["sources"] = brownie.payload["sources"]
+    api_payload["contracts"] = brownie.payload["contracts"]
+
     instr_meta = ScribbleMixin.get_arming_instr_meta()
 
     if instr_meta is not None:

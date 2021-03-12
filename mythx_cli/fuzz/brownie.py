@@ -3,7 +3,11 @@ import json
 import os
 import logging
 import click
+
 LOGGER = logging.getLogger("mythx-cli")
+
+from mythx_cli.util import sol_files_by_directory
+
 
 class BrownieJob():
     def __init__(self, target: Path, build_dir: Path):
@@ -21,27 +25,8 @@ class BrownieJob():
         self.source_files_paths = list(set(self.source_files_paths))
         LOGGER.debug(f"Found {str(len(self.source_files_paths))} solidity files")
 
-
     def find_solidity_files(self, target_item: str):
-        if target_item.endswith('.sol'):
-            if not os.path.isfile(target_item):
-                raise click.exceptions.UsageError(
-                    "Could not find "+str(target_item)+". Did you pass the correct directory?"
-                )
-            else:
-                self.source_files_paths.append(target_item)
-        source_dir = os.walk(target_item)
-        for sub_dir in source_dir:
-            if len(sub_dir[2]) > 0:
-                # sub directory with .json files
-                file_prefix = sub_dir[0]
-                for file in sub_dir[2]:
-                    if not file.endswith(".sol"):
-                        LOGGER.debug(f"Skipped for not being a solidity file: {file}")
-                        continue
-                    file_name = file_prefix + "/" + file
-                    LOGGER.debug(f"Found solidity file: {file_name}")
-                    self.source_files_paths.append(file_name)
+        self.source_files_paths = sol_files_by_directory(target_item)
 
     def find_brownie_artifacts(self):
         build_files = {}
