@@ -45,7 +45,7 @@ def generate_campaign_name (prefix: str):
 )
 
 @click.pass_obj
-def fuzz_run(ctx, address, more_addresses, target):
+def fuzz_run(ctx, address, more_addresses, target ):
     # read YAML config params from ctx dict, e.g. ganache rpc url
     #   Introduce a separate `fuzz` section in the YAML file
 
@@ -118,6 +118,10 @@ def fuzz_run(ctx, address, more_addresses, target):
     if instr_meta is not None:
         api_payload["instrumentation_metadata"] = instr_meta
 
+
     campaign_id = start_faas_campaign(json.dumps(api_payload), faas_url)
     print("You can view campaign here: "+ faas_url+"/campaigns/"+str(campaign_id))
+
+    # print(json.dumps(api_payload))
+
 pass

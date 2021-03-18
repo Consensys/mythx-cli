@@ -277,6 +277,10 @@ def sol_files_by_directory(target_path: AnyStr) -> List:
             # sub directory with .sol files
             file_prefix = sub_dir[0]
             for file in sub_dir[2]:
+                if "__scribble_" in file:
+                    LOGGER.debug(f"Skipped for being a scribble file {file}")
+                    continue
+
                 if not file.endswith(".sol"):
                     LOGGER.debug(f"Skipped for not being a solidity file: {file}")
                     continue
