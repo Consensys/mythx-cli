@@ -1,16 +1,17 @@
 import logging
 import os
+import random
+import string
 
 import requests
 import click
 import json
 from .brownie import  BrownieJob
+from .rpc import  RPCClient
 
 from mythx_cli.analyze.scribble import ScribbleMixin
 
 LOGGER = logging.getLogger("mythx-cli")
-
-rpc_url = "http://localhost:7545"
 
 headers = {
     'Content-Type': 'application/json'
@@ -18,57 +19,15 @@ headers = {
 
 time_limit_seconds = 3000
 
-def rpc_call(method: str, params: str):
-    payload = "{\"jsonrpc\":\"2.0\",\"method\":\"" + method + "\",\"params\":" + params + ",\"id\":1}"
-    response = (requests.request("POST", rpc_url, headers=headers, data=payload)).json()
-    return response["result"]
+def start_faas_campaign(payload, faas_url):
+    response = (requests.request("POST", faas_url+"/api/campaigns?start_immediately=true", headers=headers, data=payload)).json()
+    return response["id"]
 
 
-def get_block(latest: bool = False, block_number: int = -1):
-    block_value = "latest" if latest else str(block_number)
-    if not latest:
-        block_value = hex(block_number)
-
-    block = rpc_call("eth_getBlockByNumber", "[\"" + block_value + "\", true]")
-    if block is None:
-        return None
-    else:
-        return block
-
-
-def get_all_blocks():
-    latest_block = get_block(True)
-    if not latest_block:
-        return []
-
-    blocks = []
-    for i in range(0, int(latest_block["number"], 16) + 1, 1):
-        blocks.append(get_block(block_number=i))
-    return blocks
-
-
-def get_seed_state(address: str, other_addresses: [str]):
-    blocks = get_all_blocks()
-    processed_transactions = []
-    for block in blocks:
-        for transaction in block["transactions"]:
-            for key, value in dict(transaction).items():
-                if value is None:
-                    transaction[key] = ""
-            processed_transactions.append(transaction)
-    setup = dict({
-        "address-under-test": address,
-        "steps": processed_transactions,
-        "other-addresses-under-test": other_addresses})
-    return dict(
-        {
-            "time-limit-secs": time_limit_seconds,
-            "analysis-setup": setup,
-            "discovery-probability-threshold": 0.0,
-            "assertion-checking-mode": 1,
-            "emit-mythx-report": True
-        }
-    )
+def generate_campaign_name (prefix: str):
+    letters = string.ascii_lowercase
+    random_string = ''.join(random.choice(letters) for i in range(5))
+    return str(prefix+"_"+random_string)
 
 @click.command("run")
 @click.argument("target", default=None, nargs=-1, required=False)
@@ -103,10 +62,28 @@ def fuzz_run(ctx, address, more_addresses, target):
 
     # submit the FaaS payload, do error handling
 
-    # print FaaS dashbaord url pointing to campaign
+    # print FaaS dashboard url pointing to campaign
     analyze_config = ctx.get("fuzz")
+
     contract_address = analyze_config["deployed_contract_address"]
-    contract_code_response = rpc_call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
+
+
+
+    rpc_url = "http://localhost:7545"
+    faas_url = "http://localhost:8080"
+
+    if 'rpc_url' in analyze_config.keys():
+        rpc_url = analyze_config["rpc_url"]
+
+    if 'faas_url' in analyze_config.keys():
+        faas_url = analyze_config["faas_url"]
+
+    rpc_client = RPCClient(rpc_url)
+
+    number_of_cores = 2
+    if 'number_of_cores' in analyze_config.keys():
+        number_of_cores = analyze_config["number_of_cores"]
+    contract_code_response = rpc_client.rpc_call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
 
     if contract_code_response is None:
         print("Invalid address")
@@ -116,12 +93,20 @@ def fuzz_run(ctx, address, more_addresses, target):
     else:
         other_addresses = more_addresses.split(',')
 
-    seed_state = get_seed_state(contract_address, other_addresses)
+    seed_state = rpc_client.get_seed_state(contract_address, other_addresses, number_of_cores)
     brownie = BrownieJob(target, analyze_config["build_directory"])
     brownie.generate_payload(seed_state)
 
-    api_payload = {"name": "default_name", "parameters": {}}
+
+    api_payload = {"parameters": {}}
+
+    # We set the name for the campaign if there is a prefix in the config file
+    # If no prefix is configured, we don't include a name in the request, and the API generates one.
+    if "campaign_name_prefix" in analyze_config:
+        api_payload["name"] = generate_campaign_name((analyze_config["campaign_name_prefix"]))
+
     api_payload["parameters"]["discovery-probability-threshold"]=seed_state["discovery-probability-threshold"]
+    api_payload["parameters"]["num-cores"]=seed_state["num-cores"]
     api_payload["parameters"]["assertion-checking-mode"]=seed_state["assertion-checking-mode"]
     api_payload["corpus"] = seed_state["analysis-setup"]
 
@@ -133,6 +118,6 @@ def fuzz_run(ctx, address, more_addresses, target):
     if instr_meta is not None:
         api_payload["instrumentation_metadata"] = instr_meta
 
-    print(json.dumps(api_payload))
-
+    campaign_id = start_faas_campaign(json.dumps(api_payload), faas_url)
+    print("You can view campaign here: "+ faas_url+"/campaigns/"+str(campaign_id))
 pass

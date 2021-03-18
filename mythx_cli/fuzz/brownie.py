@@ -31,6 +31,7 @@ class BrownieJob():
     def find_brownie_artifacts(self):
         build_files = {}
         build_files_by_source_file = {}
+        # we search on Brownie's build directory
         build_dir = os.walk(self.build_dir)
 
         for sub_dir in build_dir:
