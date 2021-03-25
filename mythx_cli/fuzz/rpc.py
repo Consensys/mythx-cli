@@ -13,6 +13,7 @@ headers = {
 time_limit_seconds = 3000
 NUM_BLOCKS_UPPER_LIMIT = 9999
 
+# TODO: separate into an RPC class and a Harvey class
 class RPCClient():
     def __init__(self, rpc_url: str, number_of_cores: int):
         self.rpc_url = rpc_url
@@ -21,8 +22,9 @@ class RPCClient():
     """Makes an rpc call to the RPC endpoint passed to the construcotr
     and returns the `result` property of the rpc response.
     """
-
+    # TODO: rename to call
     def rpc_call(self, method: str, params: str):
+        # TODO: add try catch, use the base exceptions if available
         payload = "{\"jsonrpc\":\"2.0\",\"method\":\"" + method + "\",\"params\":" + params + ",\"id\":1}"
         response = (requests.request("POST", self.rpc_url, headers=headers, data=payload)).json()
         return response["result"]

@@ -100,6 +100,7 @@ def fuzz_run(ctx, address, more_addresses, target):
         target = [analyze_config["target"]]
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
+    # TODO: make into ifs or use dict.update  dict.get('key', default), safe way to check it exists
     rpc_url = analyze_config["rpc_url"] if 'rpc_url' in config_options else default_config["rpc_url"]
     faas_url = analyze_config["faas_url"] if 'faas_url' in config_options else default_config["faas_url"]
     number_of_cores = analyze_config["number_of_cores"] if 'number_of_cores' in config_options else default_config[
@@ -111,6 +112,7 @@ def fuzz_run(ctx, address, more_addresses, target):
 
     contract_code_response = rpc_client.rpc_call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
 
+    # TODO: raise exception with wrong contract address
     if contract_code_response is None:
         print("Invalid address")
 
@@ -122,15 +124,14 @@ def fuzz_run(ctx, address, more_addresses, target):
     # We get the seed state from the provided rpc endpoint
     seed_state = rpc_client.get_seed_state(contract_address, other_addresses)
     brownie_artifacts = BrownieJob(target, analyze_config["build_directory"])
-    brownie_artifacts.generate_payload(seed_state)
+    brownie_artifacts.generate_payload()
 
     faas_client = FaasClient(faas_url=faas_url, campaign_name_prefix=campaign_name_prefix, project_type="brownie")
     try:
         campaign_id = faas_client.create_faas_campaign(campaign_data=brownie_artifacts, seed_state=seed_state)
         click.echo("You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id))
-    except:
+    except Exception as e:
         LOGGER.warning(f"Could not submit campaign to the FaaS")
-        click.echo(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?")
-
-
+        click.echo(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
+                   f"Error: {e}")
 pass
