@@ -130,4 +130,5 @@ def fuzz_run(ctx, address, more_addresses, target):
         LOGGER.warning(f"Could not submit campaign to the FaaS")
         click.echo(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
                    f"Error: {e}")
+        raise
 pass

@@ -8,31 +8,51 @@ LOGGER = logging.getLogger("mythx-cli")
 from mythx_cli.util import sol_files_by_directory
 from collections import defaultdict
 from pathlib import Path
-from typing import Tuple, Dict
+from typing import Tuple, Dict, List
+
 
 class IDEArtifacts:
     @property
-    def contracts(self):
+    def contracts(self) -> Dict:
+        """ Returns sources
+        sources = {
+            "filename": [
+                {
+                    "bytecode": <>,
+                    ...
+                    "deployedBytecode": <>
+                }
+            ]
+        }
+        """
         pass
 
     @property
-    def sources(self):
+    def sources(self) -> Dict:
+        """ Returns sources
+        sources = {
+            "filename": {
+                "ast": <>,
+                "source: ""
+            }
+        }
+        """
         pass
 
-    def get_source_data(self, source_path) -> Dict:
-        pass
 
-    def get_contract_data(self, source_path, contract_name):
-        pass
+class BrownieArtifacts(IDEArtifacts):
+    def __init__(self, build_dir=None, targets=None):
+        self._include = []
+        if targets:
+            include = []
+            for target in targets:
+                include.extend(sol_files_by_directory(target))
+            self._include = include
 
-
-class BrownieArtifacts:
-    def __init__(self, build_dir=None):
         self._build_dir = build_dir or Path("./build/contracts")
-        build_files, build_files_by_source_file = self._get_build_artifacts(self._build_dir)
+        build_files_by_source_file = self._get_build_artifacts(self._build_dir)
 
-        self._contracts = self.populate_contracts(build_files, build_files_by_source_file)
-        self._sources = self.populate_sources(self._contracts, build_files_by_source_file)
+        self._contracts, self._sources = self.fetch_data(build_files_by_source_file)
 
     @property
     def contracts(self):
@@ -40,25 +60,19 @@ class BrownieArtifacts:
 
     @property
     def sources(self):
-        return self._contracts
+        return self._sources
 
-    def get_source_data(self, source_path) -> Dict:
-        return self._contracts.get(source_path, None)
-
-    def get_contract_data(self, source_path, contract_name):
-        return self._contracts.get(source_path, {}).get(contract_name, None)
-
-    @staticmethod
-    def populate_contracts(build_files, build_files_by_source_file):
-        contracts = {}
-        for source_file, contracts in build_files_by_source_file.values():
-            contracts[source_file] = {}
+    def fetch_data(self, build_files_by_source_file):
+        result_contracts = {}
+        result_sources = {}
+        for source_file, contracts in build_files_by_source_file.items():
+            if source_file not in self._include:
+                continue
+            result_contracts[source_file] = []
             for contract in contracts:
-                LOGGER.debug(f"Getting artifacts from {contract}.")
-
                 # We get the build items from brownie and rename them into the properties used by the FaaS
                 try:
-                    contracts[source_file][contract] ={
+                    result_contracts[source_file] += [{
                         "sourcePaths": contract["allSourcePaths"],
                         "deployedSourceMap": contract["deployedSourceMap"],
                         "deployedBytecode": contract["deployedBytecode"],
@@ -66,38 +80,32 @@ class BrownieArtifacts:
                         "bytecode": contract["bytecode"],
                         "contractName": contract["contractName"],
                         "mainSourceFile": contract["sourcePath"],
-                    }
+                    }]
                 except KeyError as e:
                     raise BuildArtifactsError(
                         f"Build artifact did not contain expected key. Contract: {contract}: \n{e}"
                     )
-        return contracts
 
-    @staticmethod
-    def populate_sources(contracts, build_files_by_source_file):
-        sources = {}
-        for source_file, contracts in contracts.items():
-            for contract_name, contract in contracts.items():
-                for file_index, source_file in contract["allSourcePaths"].items():
-                    if source_file in sources:
+                for file_index, source_file_dep in contract["allSourcePaths"].items():
+                    if source_file_dep in result_sources.keys():
                         continue
 
-                    if source_file not in build_files_by_source_file:
+                    if source_file_dep not in build_files_by_source_file:
                         LOGGER.debug(f"{source_file} not found.")
                         continue
 
                     # We can select any dict on the build_files_by_source_file[source_file] array
                     # because the .source and .ast values will be the same in all.
-                    target_file = build_files_by_source_file[source_file][0]
-                    sources[source_file] = {
+                    target_file = build_files_by_source_file[source_file_dep][0]
+                    result_sources[source_file_dep] = {
                         "fileIndex": file_index,
                         "source": target_file["source"],
                         "ast": target_file["ast"],
                     }
-        return sources
+        return result_contracts, result_sources
 
     @staticmethod
-    def _get_build_artifacts(build_dir) -> Tuple[Dict, Dict]:
+    def _get_build_artifacts(build_dir) -> Dict:
         """Build indexes of Brownie build artifacts.
 
         This function starts by loading the contents from the Brownie build artifacts json, found in the /build
@@ -115,7 +123,6 @@ class BrownieArtifacts:
         is indexed by the compilation artifact file name (the json found in /build/*) and the second is indexed by the
         source file (.sol) found in the .sourcePath property of the json.
         """
-        build_files = {}
         build_files_by_source_file = {}
 
         build_dir = Path(build_dir)
@@ -130,7 +137,6 @@ class BrownieArtifacts:
                 continue
 
             data = json.loads(child.read_text('utf-8'))
-            build_files[child.name] = data
             source_path = data["sourcePath"]
 
             if source_path not in build_files_by_source_file:
@@ -139,58 +145,27 @@ class BrownieArtifacts:
 
             build_files_by_source_file[source_path].append(data)
 
-        return build_files, build_files_by_source_file
+        return build_files_by_source_file
 
 
-class BrownieJobBuilder:
-    def __init__(self):
-        pass
+class JobBuilder:
+    def __init__(self, artifacts: IDEArtifacts):
+        self._artifacts = artifacts
 
-    def generate_payload(self, target: Path, build_directory: Path):
-        sources, contracts = {}, {}
-
-        build_files, build_files_by_source_file = BrownieArtifacts.get_build_artifacts(build_directory)
-        for source_file in sol_files_by_directory(target):
-            for contract in build_files_by_source_file.get(source_file, None):
-                if not contract:
-                    continue
-                LOGGER.debug(f"Getting artifacts from {contract}.")
-
-                # We get the build items from brownie and rename them into the properties used by the FaaS
-                try:
-                    contracts += [{
-                        "sourcePaths": contract["allSourcePaths"],
-                        "deployedSourceMap": contract["deployedSourceMap"],
-                        "deployedBytecode": contract["deployedBytecode"],
-                        "sourceMap": contract["sourceMap"],
-                        "bytecode": contract["bytecode"],
-                        "contractName": contract["contractName"],
-                        "mainSourceFile": contract["sourcePath"],
-                    }]
-                except KeyError as e:
-                    raise BuildArtifactsError(
-                        f"Build artifact did not contain expected key. Contract: {contract}: \n{e}"
-                    )
-
-                # After getting the build items, we fetch the source code and AST
-                for file_index, source_file in contract["allSourcePaths"].items():
-                    if source_file in sources:
-                        continue
-
-                    if source_file not in build_files_by_source_file:
-                        LOGGER.debug(f"{source_file} not found.")
-                        continue
-
-                    # We can select any dict on the build_files_by_source_file[source_file] array
-                    # because the .source and .ast values will be the same in all.
-                    target_file = build_files_by_source_file[source_file][0]
-                    sources[source_file] = {
-                        "fileIndex": file_index,
-                        "source": target_file["source"],
-                        "ast": target_file["ast"],
-                    }
+    def payload(self):
+        sources = self._artifacts.sources
+        contracts = [c for contracts_for_file in self._artifacts.contracts.values() for c in contracts_for_file]
         return {
             "contracts": contracts,
             "sources": sources
         }
 
+
+class BrownieJob:
+    def __init__(self, target: List[str], build_dir: Path):
+        artifacts = BrownieArtifacts(build_dir, targets=target)
+        self._jb = JobBuilder(artifacts)
+        self.payload = None
+
+    def generate_payload(self):
+        self.payload = self._jb.payload()
