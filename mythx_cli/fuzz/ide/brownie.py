@@ -3,41 +3,13 @@ import json
 import os
 import logging
 from mythx_cli.fuzz.exceptions import BrownieError, BuildArtifactsError, SourceError, PayloadError
-LOGGER = logging.getLogger("mythx-cli")
 
-from mythx_cli.util import sol_files_by_directory
-from collections import defaultdict
+from ...util import sol_files_by_directory
 from pathlib import Path
-from typing import Tuple, Dict, List
+from typing import Dict, List
+from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
-
-class IDEArtifacts:
-    @property
-    def contracts(self) -> Dict:
-        """ Returns sources
-        sources = {
-            "filename": [
-                {
-                    "bytecode": <>,
-                    ...
-                    "deployedBytecode": <>
-                }
-            ]
-        }
-        """
-        pass
-
-    @property
-    def sources(self) -> Dict:
-        """ Returns sources
-        sources = {
-            "filename": {
-                "ast": <>,
-                "source: ""
-            }
-        }
-        """
-        pass
+LOGGER = logging.getLogger("mythx-cli")
 
 
 class BrownieArtifacts(IDEArtifacts):
@@ -146,19 +118,6 @@ class BrownieArtifacts(IDEArtifacts):
             build_files_by_source_file[source_path].append(data)
 
         return build_files_by_source_file
-
-
-class JobBuilder:
-    def __init__(self, artifacts: IDEArtifacts):
-        self._artifacts = artifacts
-
-    def payload(self):
-        sources = self._artifacts.sources
-        contracts = [c for contracts_for_file in self._artifacts.contracts.values() for c in contracts_for_file]
-        return {
-            "contracts": contracts,
-            "sources": sources
-        }
 
 
 class BrownieJob:
