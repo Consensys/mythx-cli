@@ -1,16 +1,12 @@
 import logging
-import os
 import random
 import string
 
 import requests
 import click
-import json
-from .brownie import BrownieJob
+from mythx_cli.fuzz.ide.brownie import BrownieJob
 from .faas import FaasClient
 from .rpc import RPCClient
-
-from mythx_cli.analyze.scribble import ScribbleMixin
 
 LOGGER = logging.getLogger("mythx-cli")
 
