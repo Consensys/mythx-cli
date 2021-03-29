@@ -102,7 +102,7 @@ class BrownieArtifacts(IDEArtifacts):
         if not build_dir.is_dir():
             raise BuildArtifactsError("Build directory doesn't exist")
 
-        for child in build_dir.iterdir():
+        for child in build_dir.glob('**/*'):
             if not child.is_file():
                 continue
             if not child.name.endswith(".json"):
