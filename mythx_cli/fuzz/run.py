@@ -1,16 +1,12 @@
 import logging
-import os
 import random
 import string
 
 import requests
 import click
-import json
-from .brownie import BrownieJob
+from mythx_cli.fuzz.ide.brownie import BrownieJob
 from .faas import FaasClient
 from .rpc import RPCClient
-
-from mythx_cli.analyze.scribble import ScribbleMixin
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -134,4 +130,5 @@ def fuzz_run(ctx, address, more_addresses, target):
         LOGGER.warning(f"Could not submit campaign to the FaaS")
         click.echo(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
                    f"Error: {e}")
+        raise
 pass
