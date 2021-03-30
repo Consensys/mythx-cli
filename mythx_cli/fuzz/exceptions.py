@@ -54,3 +54,15 @@ class SourceError(BrownieError):
 class PayloadError(BrownieError):
     """Exception raised for errors assembling the FaaS payload"""
     pass
+
+#
+# RPC client
+#
+
+class RPCCallError(FaaSError):
+    """Exception raised when there is an error calling the RPC endpoint"""
+    pass
+
+class SeedStateError(FaaSError):
+    """Exception raised when there is an error generating the seed state"""
+    pass

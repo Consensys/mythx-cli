@@ -1,3 +1,4 @@
+import json
 import logging
 import random
 from mythx_cli.analyze.scribble import ScribbleMixin
@@ -41,7 +42,7 @@ class FaasClient():
                 raise BadStatusCode(f"Got http status code {response.status_code} for request {req_url}")
             return response_data["id"]
         except Exception as e:
-            raise RequestError(f"Error starting FaaS campaign: \n {e}")
+            raise RequestError(f"Error starting FaaS campaign.")
 
     def create_faas_campaign(self, campaign_data, seed_state):
         """Submit a campaign to the FaaS and start that campaign.
@@ -84,10 +85,10 @@ class FaasClient():
                 if instr_meta is not None:
                     api_payload["instrumentation_metadata"] = instr_meta
             except Exception as e:
-                raise ScribbleMetaError(f"Error getting Scribble arming metadata:\n {e}")
+                raise ScribbleMetaError(f"Error getting Scribble arming metadata.") from e
 
             campaign_id = self.start_faas_campaign(api_payload)
 
             return campaign_id
-        except Exception as e:
-            raise CreateFaaSCampaignError(f"Error creating the FaaS campaign: \n {e}")
+        except (PayloadError,ScribbleMetaError ) as e:
+            raise CreateFaaSCampaignError(f"Error creating the FaaS campaign:")

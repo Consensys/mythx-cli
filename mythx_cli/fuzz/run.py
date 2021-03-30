@@ -5,6 +5,7 @@ import string
 import requests
 import click
 from mythx_cli.fuzz.ide.brownie import BrownieJob
+from .exceptions import RPCCallError
 from .faas import FaasClient
 from .rpc import RPCClient
 
@@ -64,8 +65,6 @@ def fuzz_run(ctx, address, more_addresses, target):
     # print FaaS dashboard url pointing to campaign
     analyze_config = ctx.get("fuzz")
 
-    contract_address = analyze_config["deployed_contract_address"]
-
     default_config = {
         "rpc_url": "http://localhost:7545",
         "faas_url": "http://localhost:8080",
@@ -82,7 +81,7 @@ def fuzz_run(ctx, address, more_addresses, target):
         )
     if "deployed_contract_address" not in config_options:
         raise click.exceptions.UsageError(
-            "deployed_contract_address not found on .mythx.yaml config file"
+            "deployed_contract_address not found on .mythx.yaml config file."
             "You need to provide the address where your main contract is deployed on the .mythx.yaml"
         )
     if not target and "target" not in config_options:
@@ -96,7 +95,7 @@ def fuzz_run(ctx, address, more_addresses, target):
         target = [analyze_config["target"]]
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
-    # TODO: make into ifs or use dict.update  dict.get('key', default), safe way to check it exists
+    contract_address = analyze_config["deployed_contract_address"]
     rpc_url = analyze_config["rpc_url"] if 'rpc_url' in config_options else default_config["rpc_url"]
     faas_url = analyze_config["faas_url"] if 'faas_url' in config_options else default_config["faas_url"]
     number_of_cores = analyze_config["number_of_cores"] if 'number_of_cores' in config_options else default_config[
@@ -104,13 +103,16 @@ def fuzz_run(ctx, address, more_addresses, target):
     campaign_name_prefix = analyze_config["campaign_name_prefix"] if "campaign_name_prefix" in config_options else \
     default_config["campaign_name_prefix"]
 
-    rpc_client = RPCClient(rpc_url, number_of_cores)
+    try:
+        rpc_client = RPCClient(rpc_url, number_of_cores)
+        contract_code_response = rpc_client.contract_exists( contract_address)
+    except RPCCallError as e:
+        raise click.exceptions.UsageError(f"RPC endpoint."
+        f"\n{e}")
 
-    contract_code_response = rpc_client.rpc_call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
-
-    # TODO: raise exception with wrong contract address
-    if contract_code_response is None:
-        print("Invalid address")
+    if not contract_code_response:
+        LOGGER.warning(f"Contract code not found")
+        raise click.exceptions.ClickException(f"Unable to find a contract deployed at {contract_address}.")
 
     if more_addresses is None:
         other_addresses = []
@@ -128,7 +130,5 @@ def fuzz_run(ctx, address, more_addresses, target):
         click.echo("You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id))
     except Exception as e:
         LOGGER.warning(f"Could not submit campaign to the FaaS")
-        click.echo(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
-                   f"Error: {e}")
-        raise
+        raise click.exceptions.UsageError(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?")
 pass

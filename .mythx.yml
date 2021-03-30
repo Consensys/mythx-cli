@@ -1,0 +1,7 @@
+fuzz:
+  deployed_contract_address: "0x7277646075fa72737e1F6114654C5d9949a67dF2"
+  number_of_cores: 1
+  campaign_name_prefix: "brownie_test"
+  rpc_url: "http://localhost:9898"
+  faas_url: "http://localhost:9899"
+  build_directory: /private/var/folders/w9/36q5pfw94rz6bh0062p2j8p40000gn/T/pytest-of-boss/pytest-100/test_rpc_not_running0/build/contracts
