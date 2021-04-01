@@ -34,6 +34,7 @@ def get_test_case(path: str, obj=None, raw=False):
 
 AST = get_test_case("testdata/test-ast.json")
 
+
 @contextmanager
 def mock_faas_context():
     # with patch("mythx_cli.fuzz.rpc.RPCClient.get_all_blocks", new=) as get_all_blocks_patch, patch(
@@ -44,7 +45,9 @@ def mock_faas_context():
     #     contract_exists_patch.return_value = True
     with patch("mythx_cli.fuzz.rpc.RPCClient") as RPCClient_mock:
         instance = RPCClient_mock.return_value
-        instance.get_all_blocks.return_value = get_test_case("testdata/ganache-all-blocks.json")
+        instance.get_all_blocks.return_value = get_test_case(
+            "testdata/ganache-all-blocks.json"
+        )
         instance.contract_exists.return_value = True
     yield
 

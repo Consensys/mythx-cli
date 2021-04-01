@@ -25,17 +25,14 @@ setup(
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "Intended Audience :: Information Technology",
-
         "Topic :: Security",
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
         "Topic :: Terminals :: Terminal Emulators/X Terminals",
         "Topic :: Utilities",
-
         "Typing :: Typed",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",

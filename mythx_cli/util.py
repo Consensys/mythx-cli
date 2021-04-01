@@ -1,7 +1,7 @@
 import logging
 import os
 from collections import defaultdict
-from typing import Any, List, Optional, Tuple, AnyStr
+from typing import Any, AnyStr, List, Optional, Tuple
 
 import click
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
@@ -261,11 +261,13 @@ def sol_files_by_directory(target_path: AnyStr) -> List:
     """
     sol_files = []
     # We start by checking if the target_path is potentially a .sol file
-    if target_path.endswith('.sol'):
+    if target_path.endswith(".sol"):
         # If .sol file we check if the target exists or if it's a user input error
         if not os.path.isfile(target_path):
             raise click.exceptions.UsageError(
-                "Could not find " + str(target_path) + ". Did you pass the correct directory?"
+                "Could not find "
+                + str(target_path)
+                + ". Did you pass the correct directory?"
             )
         else:
             # If it's a valid .sol file there is no need to search further and we just append it to our

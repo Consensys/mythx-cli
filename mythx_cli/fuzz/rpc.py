@@ -1,26 +1,25 @@
-from pathlib import Path
 import json
-import os
 import logging
+import os
+from pathlib import Path
 
 import click
 import requests
 from requests import RequestException
 
 from .exceptions import RPCCallError
+
 LOGGER = logging.getLogger("mythx-cli")
 
-headers = {
-    'Content-Type': 'application/json'
-}
+headers = {"Content-Type": "application/json"}
 time_limit_seconds = 3000
 NUM_BLOCKS_UPPER_LIMIT = 9999
 
-class RPCClient():
+
+class RPCClient:
     def __init__(self, rpc_url: str, number_of_cores: int):
         self.rpc_url = rpc_url
         self.number_of_cores = number_of_cores
-
 
     def call(self, method: str, params: str):
         """Make an rpc call to the RPC endpoint
@@ -28,22 +27,32 @@ class RPCClient():
         :return: Result property of the RPC response
         """
         try:
-            payload = "{\"jsonrpc\":\"2.0\",\"method\":\"" + method + "\",\"params\":" + params + ",\"id\":1}"
-            response = (requests.request("POST", self.rpc_url, headers=headers, data=payload)).json()
+            payload = (
+                '{"jsonrpc":"2.0","method":"'
+                + method
+                + '","params":'
+                + params
+                + ',"id":1}'
+            )
+            response = (
+                requests.request("POST", self.rpc_url, headers=headers, data=payload)
+            ).json()
             return response["result"]
         except RequestException as e:
-            raise RPCCallError(f"HTTP error calling RPC method {method} with parameters: {params}"
-                               f"\nAre you sure the RPC is running at {self.rpc_url}?")
+            raise RPCCallError(
+                f"HTTP error calling RPC method {method} with parameters: {params}"
+                f"\nAre you sure the RPC is running at {self.rpc_url}?"
+            )
 
     def contract_exists(self, contract_address):
-        return self.call("eth_getCode", "[\"" + contract_address + "\",\"latest\"]")
+        return self.call("eth_getCode", '["' + contract_address + '","latest"]')
 
     def get_block(self, latest: bool = False, block_number: int = -1):
         block_value = "latest" if latest else str(block_number)
         if not latest:
             block_value = hex(block_number)
 
-        block = self.call("eth_getBlockByNumber", "[\"" + block_value + "\", true]")
+        block = self.call("eth_getBlockByNumber", '["' + block_value + '", true]')
         if block is None:
             return None
         else:
@@ -64,13 +73,13 @@ class RPCClient():
         if num_of_blocks > NUM_BLOCKS_UPPER_LIMIT:
             raise click.exceptions.UsageError(
                 "Number of blocks existing on the ethereum node running at"
-                + str(self.rpc_url) + "can not exceed 10000. Did you pass the correct RPC url?"
+                + str(self.rpc_url)
+                + "can not exceed 10000. Did you pass the correct RPC url?"
             )
         blocks = []
         for i in range(0, num_of_blocks, 1):
             blocks.append(self.get_block(block_number=i))
         return blocks
-
 
     def get_seed_state(self, address: str, other_addresses: [str]):
         """Get a seed state for the target contract to be used by Harvey"""
@@ -83,10 +92,13 @@ class RPCClient():
                         if value is None:
                             transaction[key] = ""
                     processed_transactions.append(transaction)
-            setup = dict({
-                "address-under-test": address,
-                "steps": processed_transactions,
-                "other-addresses-under-test": other_addresses})
+            setup = dict(
+                {
+                    "address-under-test": address,
+                    "steps": processed_transactions,
+                    "other-addresses-under-test": other_addresses,
+                }
+            )
             return dict(
                 {
                     "time-limit-secs": time_limit_seconds,
@@ -94,7 +106,7 @@ class RPCClient():
                     "discovery-probability-threshold": 0.0,
                     "assertion-checking-mode": 1,
                     "emit-mythx-report": True,
-                    "num-cores": self.number_of_cores
+                    "num-cores": self.number_of_cores,
                 }
             )
         except Exception as e:

@@ -1,13 +1,18 @@
-from pathlib import Path
 import json
-import os
 import logging
-from mythx_cli.fuzz.exceptions import BrownieError, BuildArtifactsError, SourceError, PayloadError
-
-from ...util import sol_files_by_directory
+import os
 from pathlib import Path
 from typing import Dict, List
+
+from mythx_cli.fuzz.exceptions import (
+    BrownieError,
+    BuildArtifactsError,
+    PayloadError,
+    SourceError,
+)
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
+
+from ...util import sol_files_by_directory
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -44,15 +49,17 @@ class BrownieArtifacts(IDEArtifacts):
             for contract in contracts:
                 # We get the build items from brownie and rename them into the properties used by the FaaS
                 try:
-                    result_contracts[source_file] += [{
-                        "sourcePaths": contract["allSourcePaths"],
-                        "deployedSourceMap": contract["deployedSourceMap"],
-                        "deployedBytecode": contract["deployedBytecode"],
-                        "sourceMap": contract["sourceMap"],
-                        "bytecode": contract["bytecode"],
-                        "contractName": contract["contractName"],
-                        "mainSourceFile": contract["sourcePath"],
-                    }]
+                    result_contracts[source_file] += [
+                        {
+                            "sourcePaths": contract["allSourcePaths"],
+                            "deployedSourceMap": contract["deployedSourceMap"],
+                            "deployedBytecode": contract["deployedBytecode"],
+                            "sourceMap": contract["sourceMap"],
+                            "bytecode": contract["bytecode"],
+                            "contractName": contract["contractName"],
+                            "mainSourceFile": contract["sourcePath"],
+                        }
+                    ]
                 except KeyError as e:
                     raise BuildArtifactsError(
                         f"Build artifact did not contain expected key. Contract: {contract}: \n{e}"
@@ -102,13 +109,13 @@ class BrownieArtifacts(IDEArtifacts):
         if not build_dir.is_dir():
             raise BuildArtifactsError("Build directory doesn't exist")
 
-        for child in build_dir.glob('**/*'):
+        for child in build_dir.glob("**/*"):
             if not child.is_file():
                 continue
             if not child.name.endswith(".json"):
                 continue
 
-            data = json.loads(child.read_text('utf-8'))
+            data = json.loads(child.read_text("utf-8"))
             source_path = data["sourcePath"]
 
             if source_path not in build_files_by_source_file:

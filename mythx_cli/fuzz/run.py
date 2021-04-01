@@ -2,41 +2,44 @@ import logging
 import random
 import string
 
-import requests
 import click
+import requests
+
 from mythx_cli.fuzz.ide.brownie import BrownieJob
+
 from .exceptions import RPCCallError
 from .faas import FaasClient
 from .rpc import RPCClient
 
 LOGGER = logging.getLogger("mythx-cli")
 
-headers = {
-    'Content-Type': 'application/json'
-}
+headers = {"Content-Type": "application/json"}
 
 time_limit_seconds = 3000
 
 
 def start_faas_campaign(payload, faas_url):
-    response = (requests.request("POST", faas_url + "/api/campaigns?start_immediately=true", headers=headers,
-                                 data=payload)).json()
+    response = (
+        requests.request(
+            "POST",
+            faas_url + "/api/campaigns?start_immediately=true",
+            headers=headers,
+            data=payload,
+        )
+    ).json()
     return response["id"]
 
 
 def generate_campaign_name(prefix: str):
     letters = string.ascii_lowercase
-    random_string = ''.join(random.choice(letters) for i in range(5))
+    random_string = "".join(random.choice(letters) for i in range(5))
     return str(prefix + "_" + random_string)
 
 
 @click.command("run")
 @click.argument("target", default=None, nargs=-1, required=False)
 @click.option(
-    "-a",
-    "--address",
-    type=click.STRING,
-    help="Address of the main contract to analyze",
+    "-a", "--address", type=click.STRING, help="Address of the main contract to analyze"
 )
 @click.option(
     "-m",
@@ -69,8 +72,7 @@ def fuzz_run(ctx, address, more_addresses, target):
         "rpc_url": "http://localhost:7545",
         "faas_url": "http://localhost:8080",
         "harvey_num_cores": 2,
-        "campaign_name_prefix": "untitled"
-
+        "campaign_name_prefix": "untitled",
     }
     config_options = analyze_config.keys()
     # Mandatory config parameters verification
@@ -96,39 +98,66 @@ def fuzz_run(ctx, address, more_addresses, target):
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
     contract_address = analyze_config["deployed_contract_address"]
-    rpc_url = analyze_config["rpc_url"] if 'rpc_url' in config_options else default_config["rpc_url"]
-    faas_url = analyze_config["faas_url"] if 'faas_url' in config_options else default_config["faas_url"]
-    number_of_cores = analyze_config["number_of_cores"] if 'number_of_cores' in config_options else default_config[
-        "harvey_num_cores"]
-    campaign_name_prefix = analyze_config["campaign_name_prefix"] if "campaign_name_prefix" in config_options else \
-    default_config["campaign_name_prefix"]
+    rpc_url = (
+        analyze_config["rpc_url"]
+        if "rpc_url" in config_options
+        else default_config["rpc_url"]
+    )
+    faas_url = (
+        analyze_config["faas_url"]
+        if "faas_url" in config_options
+        else default_config["faas_url"]
+    )
+    number_of_cores = (
+        analyze_config["number_of_cores"]
+        if "number_of_cores" in config_options
+        else default_config["harvey_num_cores"]
+    )
+    campaign_name_prefix = (
+        analyze_config["campaign_name_prefix"]
+        if "campaign_name_prefix" in config_options
+        else default_config["campaign_name_prefix"]
+    )
 
     try:
         rpc_client = RPCClient(rpc_url, number_of_cores)
-        contract_code_response = rpc_client.contract_exists( contract_address)
+        contract_code_response = rpc_client.contract_exists(contract_address)
     except RPCCallError as e:
-        raise click.exceptions.UsageError(f"RPC endpoint."
-        f"\n{e}")
+        raise click.exceptions.UsageError(f"RPC endpoint." f"\n{e}")
 
     if not contract_code_response:
         LOGGER.warning(f"Contract code not found")
-        raise click.exceptions.ClickException(f"Unable to find a contract deployed at {contract_address}.")
+        raise click.exceptions.ClickException(
+            f"Unable to find a contract deployed at {contract_address}."
+        )
 
     if more_addresses is None:
         other_addresses = []
     else:
-        other_addresses = more_addresses.split(',')
+        other_addresses = more_addresses.split(",")
 
     # We get the seed state from the provided rpc endpoint
     seed_state = rpc_client.get_seed_state(contract_address, other_addresses)
     brownie_artifacts = BrownieJob(target, analyze_config["build_directory"])
     brownie_artifacts.generate_payload()
 
-    faas_client = FaasClient(faas_url=faas_url, campaign_name_prefix=campaign_name_prefix, project_type="brownie")
+    faas_client = FaasClient(
+        faas_url=faas_url,
+        campaign_name_prefix=campaign_name_prefix,
+        project_type="brownie",
+    )
     try:
-        campaign_id = faas_client.create_faas_campaign(campaign_data=brownie_artifacts, seed_state=seed_state)
-        click.echo("You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id))
+        campaign_id = faas_client.create_faas_campaign(
+            campaign_data=brownie_artifacts, seed_state=seed_state
+        )
+        click.echo(
+            "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)
+        )
     except Exception as e:
         LOGGER.warning(f"Could not submit campaign to the FaaS")
-        raise click.exceptions.UsageError(f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?")
+        raise click.exceptions.UsageError(
+            f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
+        )
+
+
 pass

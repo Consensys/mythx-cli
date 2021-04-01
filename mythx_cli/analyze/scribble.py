@@ -122,7 +122,7 @@ class ScribbleMixin:
             scribble_path,
             "--arm",
             "--output-mode=files",
-            f"--instrumentation-metadata-file={SCRIBBLE_ARMING_META_FILE}"
+            f"--instrumentation-metadata-file={SCRIBBLE_ARMING_META_FILE}",
         ]
 
         if remappings:
@@ -193,7 +193,7 @@ class ScribbleMixin:
     @staticmethod
     def get_arming_instr_meta():
         if os.path.exists(SCRIBBLE_ARMING_META_FILE):
-            with open(SCRIBBLE_ARMING_META_FILE, 'r') as f:
+            with open(SCRIBBLE_ARMING_META_FILE, "r") as f:
                 return json.load(f)
 
         return None

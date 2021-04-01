@@ -1,5 +1,5 @@
-from typing import Dict
 from abc import ABC, abstractmethod
+from typing import Dict
 
 
 class IDEArtifacts(ABC):
@@ -39,8 +39,9 @@ class JobBuilder:
 
     def payload(self):
         sources = self._artifacts.sources
-        contracts = [c for contracts_for_file in self._artifacts.contracts.values() for c in contracts_for_file]
-        return {
-            "contracts": contracts,
-            "sources": sources
-        }
+        contracts = [
+            c
+            for contracts_for_file in self._artifacts.contracts.values()
+            for c in contracts_for_file
+        ]
+        return {"contracts": contracts, "sources": sources}

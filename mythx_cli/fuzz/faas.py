@@ -1,20 +1,27 @@
 import json
 import logging
 import random
-from mythx_cli.analyze.scribble import ScribbleMixin
-from .exceptions import RequestError, BadStatusCode, PayloadError, ScribbleMetaError, CreateFaaSCampaignError
+import string
+
 import click
 import requests
-import string
+
+from mythx_cli.analyze.scribble import ScribbleMixin
+
+from .exceptions import (
+    BadStatusCode,
+    CreateFaaSCampaignError,
+    PayloadError,
+    RequestError,
+    ScribbleMetaError,
+)
 
 LOGGER = logging.getLogger("mythx-cli")
 
-headers = {
-    'Content-Type': 'application/json'
-}
+headers = {"Content-Type": "application/json"}
 
 
-class FaasClient():
+class FaasClient:
     """ A client to interact with the FaaS API.
 
     This object receives solidity compilation artifacts and a Harvey Seed state, generates a payload that the faas
@@ -29,7 +36,7 @@ class FaasClient():
     def generate_campaign_name(self):
         """Return a random name with the provided prefix self.campaign_name_prefix."""
         letters = string.ascii_lowercase
-        random_string = ''.join(random.choice(letters) for i in range(5))
+        random_string = "".join(random.choice(letters) for i in range(5))
         return str(self.campaign_name_prefix + "_" + random_string)
 
     def start_faas_campaign(self, payload):
@@ -39,7 +46,9 @@ class FaasClient():
             response = requests.post(req_url, json=payload, headers=headers)
             response_data = response.json()
             if response.status_code != requests.codes.ok:
-                raise BadStatusCode(f"Got http status code {response.status_code} for request {req_url}")
+                raise BadStatusCode(
+                    f"Got http status code {response.status_code} for request {req_url}"
+                )
             return response_data["id"]
         except Exception as e:
             raise RequestError(f"Error starting FaaS campaign.")
@@ -63,16 +72,21 @@ class FaasClient():
         :return: Campaign ID
         """
         try:
-            if self.project_type != 'brownie':
-                raise click.exceptions.UsageError("Currently only Brownie projects are supported")
+            if self.project_type != "brownie":
+                raise click.exceptions.UsageError(
+                    "Currently only Brownie projects are supported"
+                )
 
             try:
                 api_payload = {"parameters": {}}
                 api_payload["name"] = self.generate_campaign_name()
-                api_payload["parameters"]["discovery-probability-threshold"] = seed_state[
-                    "discovery-probability-threshold"]
+                api_payload["parameters"][
+                    "discovery-probability-threshold"
+                ] = seed_state["discovery-probability-threshold"]
                 api_payload["parameters"]["num-cores"] = seed_state["num-cores"]
-                api_payload["parameters"]["assertion-checking-mode"] = seed_state["assertion-checking-mode"]
+                api_payload["parameters"]["assertion-checking-mode"] = seed_state[
+                    "assertion-checking-mode"
+                ]
                 api_payload["corpus"] = seed_state["analysis-setup"]
                 api_payload["sources"] = campaign_data.payload["sources"]
                 api_payload["contracts"] = campaign_data.payload["contracts"]
@@ -85,10 +99,12 @@ class FaasClient():
                 if instr_meta is not None:
                     api_payload["instrumentation_metadata"] = instr_meta
             except Exception as e:
-                raise ScribbleMetaError(f"Error getting Scribble arming metadata.") from e
+                raise ScribbleMetaError(
+                    f"Error getting Scribble arming metadata."
+                ) from e
 
             campaign_id = self.start_faas_campaign(api_payload)
 
             return campaign_id
-        except (PayloadError,ScribbleMetaError ) as e:
+        except (PayloadError, ScribbleMetaError) as e:
             raise CreateFaaSCampaignError(f"Error creating the FaaS campaign:")
