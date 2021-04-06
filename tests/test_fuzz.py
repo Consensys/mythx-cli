@@ -11,16 +11,15 @@ from mythx_cli.cli import cli
 from mythx_cli.fuzz.exceptions import RequestError
 from mythx_cli.fuzz.faas import FaasClient
 from mythx_cli.fuzz.rpc import RPCClient
-from mythx_cli.analyze.scribble import ScribbleMixin
 
-from .common import get_test_case, mock_context, mock_faas_context
+from .common import get_test_case
 
 BROWNIE_ARTIFACT = get_test_case("testdata/brownie-artifact.json")
 GANACHE_URL = "http://localhost:9898"
 FAAS_URL = "http://localhost:9899"
 
 
-def setup_brownie_project(base_path, compiled=True, switch_dir=False):
+def setup_brownie_project(base_path, switch_dir=False):
     # switch to temp dir if requested
     if switch_dir:
         os.chdir(str(base_path))
