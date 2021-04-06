@@ -11,6 +11,7 @@ from mythx_cli.cli import cli
 from mythx_cli.fuzz.exceptions import RequestError
 from mythx_cli.fuzz.faas import FaasClient
 from mythx_cli.fuzz.rpc import RPCClient
+from mythx_cli.analyze.scribble import ScribbleMixin
 
 from .common import get_test_case, mock_context, mock_faas_context
 
@@ -93,6 +94,7 @@ def test_fuzz_no_target(tmp_path):
     assert "Error: Target not provided." in result.output
     assert result.exit_code != 0
 
+
 def test_fuzz_no_contract_at_address(tmp_path):
     setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
 
@@ -114,6 +116,7 @@ def test_fuzz_no_contract_at_address(tmp_path):
 
     assert "Error: Unable to find a contract deployed" in result.output
     assert result.exit_code != 0
+
 
 def test_faas_not_running(tmp_path):
     setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
@@ -144,6 +147,7 @@ def test_faas_not_running(tmp_path):
         in result.output
     )
     assert result.exit_code != 0
+
 
 def test_faas_target_config_file(tmp_path):
     """Here we reuse the test_faas_not_running logic to check that the target is being read
@@ -179,6 +183,7 @@ def test_faas_target_config_file(tmp_path):
         in result.output
     )
     assert result.exit_code != 0
+
 
 def test_rpc_not_running(tmp_path):
     with open(".mythx.yml", "w+") as conf_f:
@@ -262,3 +267,27 @@ def test_fuzz_subcommands_present(keyword):
     result = runner.invoke(cli, ["fuzz", "--help"])
 
     assert keyword in result.output
+
+@patch('mythx_cli.analyze.scribble.ScribbleMixin.instrument_solc_in_place')
+def test_fuzz_arm(mock, tmp_path):
+    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["fuzz", "arm", f"{tmp_path}/contracts/sample.sol"])
+
+    mock.assert_called()
+    mock.assert_called_with(file_list=(f"{tmp_path}/contracts/sample.sol",), scribble_path='scribble', remappings=[], solc_version=None)
+    assert result.exit_code == 0
+
+
+@patch('mythx_cli.analyze.scribble.ScribbleMixin.disarm_solc_in_place')
+def test_fuzz_disarm(mock, tmp_path):
+    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+
+    runner = CliRunner()
+    result = runner.invoke(cli, ["fuzz", "disarm", f"{tmp_path}/contracts/sample.sol"])
+
+    mock.assert_called()
+    mock.assert_called_with(file_list=(f"{tmp_path}/contracts/sample.sol",), scribble_path='scribble', remappings=[], solc_version=None)
+    assert result.exit_code == 0
+
