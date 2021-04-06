@@ -17,25 +17,6 @@ headers = {"Content-Type": "application/json"}
 
 time_limit_seconds = 3000
 
-
-def start_faas_campaign(payload, faas_url):
-    response = (
-        requests.request(
-            "POST",
-            faas_url + "/api/campaigns?start_immediately=true",
-            headers=headers,
-            data=payload,
-        )
-    ).json()
-    return response["id"]
-
-
-def generate_campaign_name(prefix: str):
-    letters = string.ascii_lowercase
-    random_string = "".join(random.choice(letters) for i in range(5))
-    return str(prefix + "_" + random_string)
-
-
 @click.command("run")
 @click.argument("target", default=None, nargs=-1, required=False)
 @click.option(
@@ -86,7 +67,7 @@ def fuzz_run(ctx, address, more_addresses, target):
             "deployed_contract_address not found on .mythx.yaml config file."
             "You need to provide the address where your main contract is deployed on the .mythx.yaml"
         )
-    if not target and "target" not in config_options:
+    if not target and "targets" not in config_options:
         raise click.exceptions.UsageError(
             "Target not provided. You need to provide a target as the last parameter of the fuzz run command."
             "\nYou can also set the target on the `fuzz` key of your .mythx.yaml config file."
@@ -94,7 +75,7 @@ def fuzz_run(ctx, address, more_addresses, target):
             " for more information."
         )
     if not target:
-        target = [analyze_config["target"]]
+        target = analyze_config["targets"]
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
     contract_address = analyze_config["deployed_contract_address"]

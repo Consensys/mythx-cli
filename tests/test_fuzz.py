@@ -54,7 +54,8 @@ def generate_config_file(base_path="", not_include=[]):
         config_file += f'\n  faas_url: "{FAAS_URL}"'
     if "build_directory" not in not_include:
         config_file += f"\n  build_directory: {base_path}/build/contracts"
-
+    if "targets" not in not_include:
+        config_file += f'\n  targets:\n    - "{base_path}/contracts"'
     return config_file
 
 
@@ -86,12 +87,11 @@ def test_fuzz_no_deployed_address(tmp_path):
 def test_fuzz_no_target(tmp_path):
     runner = CliRunner()
     with open(".mythx.yml", "w+") as conf_f:
-        conf_f.write(generate_config_file())
+        conf_f.write(generate_config_file(not_include=["targets"]))
 
     result = runner.invoke(cli, ["fuzz", "run"])
     assert "Error: Target not provided." in result.output
     assert result.exit_code != 0
-
 
 def test_fuzz_no_contract_at_address(tmp_path):
     setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
@@ -114,7 +114,6 @@ def test_fuzz_no_contract_at_address(tmp_path):
 
     assert "Error: Unable to find a contract deployed" in result.output
     assert result.exit_code != 0
-
 
 def test_faas_not_running(tmp_path):
     setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
@@ -146,6 +145,40 @@ def test_faas_not_running(tmp_path):
     )
     assert result.exit_code != 0
 
+def test_faas_target_config_file(tmp_path):
+    """Here we reuse the test_faas_not_running logic to check that the target is being read
+    from the config file. This is possible because the faas not running error is triggered
+    after the Target check. If the target was not available, a different error would be thrown
+    and the test would fail"""
+    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+
+    with open(".mythx.yml", "w+") as conf_f:
+        conf_f.write(generate_config_file(base_path=tmp_path))
+
+    with patch.object(
+        RPCClient, "contract_exists"
+    ) as contract_exists_mock, patch.object(
+        RPCClient, "get_all_blocks"
+    ) as get_all_blocks_mock, patch.object(
+        FaasClient, "start_faas_campaign"
+    ) as start_faas_campaign_mock:
+        get_all_blocks_mock.return_value = get_test_case(
+            "testdata/ganache-all-blocks.json"
+        )
+        contract_exists_mock.return_value = True
+        start_faas_campaign_mock.side_effect = RequestError(
+            f"Error starting FaaS campaign."
+        )
+
+        runner = CliRunner()
+        # we call the run command without the target parameter.
+        result = runner.invoke(cli, ["fuzz", "run"])
+
+    assert (
+        "Error: Unable to submit the campaign to the faas. Are you sure the service is running on"
+        in result.output
+    )
+    assert result.exit_code != 0
 
 def test_rpc_not_running(tmp_path):
     with open(".mythx.yml", "w+") as conf_f:
