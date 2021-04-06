@@ -95,7 +95,7 @@ def test_fuzz_no_target(tmp_path):
 
 
 def test_fuzz_no_contract_at_address(tmp_path):
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
@@ -118,7 +118,7 @@ def test_fuzz_no_contract_at_address(tmp_path):
 
 
 def test_faas_not_running(tmp_path):
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
@@ -153,7 +153,7 @@ def test_faas_target_config_file(tmp_path):
     from the config file. This is possible because the faas not running error is triggered
     after the Target check. If the target was not available, a different error would be thrown
     and the test would fail"""
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
@@ -220,7 +220,7 @@ def test_rpc_not_running(tmp_path):
     ),
 )
 def test_fuzz_run(tmp_path, keyword):
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
@@ -267,26 +267,36 @@ def test_fuzz_subcommands_present(keyword):
 
     assert keyword in result.output
 
-@patch('mythx_cli.analyze.scribble.ScribbleMixin.instrument_solc_in_place')
+
+@patch("mythx_cli.analyze.scribble.ScribbleMixin.instrument_solc_in_place")
 def test_fuzz_arm(mock, tmp_path):
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     runner = CliRunner()
     result = runner.invoke(cli, ["fuzz", "arm", f"{tmp_path}/contracts/sample.sol"])
 
     mock.assert_called()
-    mock.assert_called_with(file_list=(f"{tmp_path}/contracts/sample.sol",), scribble_path='scribble', remappings=[], solc_version=None)
+    mock.assert_called_with(
+        file_list=(f"{tmp_path}/contracts/sample.sol",),
+        scribble_path="scribble",
+        remappings=[],
+        solc_version=None,
+    )
     assert result.exit_code == 0
 
 
-@patch('mythx_cli.analyze.scribble.ScribbleMixin.disarm_solc_in_place')
+@patch("mythx_cli.analyze.scribble.ScribbleMixin.disarm_solc_in_place")
 def test_fuzz_disarm(mock, tmp_path):
-    setup_brownie_project(tmp_path, compiled=False, switch_dir=False)
+    setup_brownie_project(tmp_path, switch_dir=False)
 
     runner = CliRunner()
     result = runner.invoke(cli, ["fuzz", "disarm", f"{tmp_path}/contracts/sample.sol"])
 
     mock.assert_called()
-    mock.assert_called_with(file_list=(f"{tmp_path}/contracts/sample.sol",), scribble_path='scribble', remappings=[], solc_version=None)
+    mock.assert_called_with(
+        file_list=(f"{tmp_path}/contracts/sample.sol",),
+        scribble_path="scribble",
+        remappings=[],
+        solc_version=None,
+    )
     assert result.exit_code == 0
-
