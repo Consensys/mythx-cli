@@ -66,7 +66,7 @@ def test_fuzz_no_build_dir(tmp_path):
 
     result = runner.invoke(cli, ["fuzz", "run", "contracts"])
     assert (
-        "Error: build_directory not found on .mythx.yaml config file" in result.output
+        "Error: build_directory not found on .mythx.yml config file" in result.output
     )
     assert result.exit_code != 0
 
@@ -78,7 +78,7 @@ def test_fuzz_no_deployed_address(tmp_path):
 
     result = runner.invoke(cli, ["fuzz", "run", "contracts"])
     assert (
-        "Error: deployed_contract_address not found on .mythx.yaml config file."
+        "Error: deployed_contract_address not found on .mythx.yml config file."
         in result.output
     )
     assert result.exit_code != 0
