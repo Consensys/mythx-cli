@@ -60,18 +60,18 @@ def fuzz_run(ctx, address, more_addresses, target):
     # Mandatory config parameters verification
     if "build_directory" not in config_options:
         raise click.exceptions.UsageError(
-            "build_directory not found on .mythx.yaml config file"
-            "You need to provide your project's build directory in the .mythx.yaml config file"
+            "build_directory not found on .mythx.yml config file"
+            "\nYou need to provide your project's build directory in the .mythx.yml config file"
         )
     if "deployed_contract_address" not in config_options:
         raise click.exceptions.UsageError(
-            "deployed_contract_address not found on .mythx.yaml config file."
-            "You need to provide the address where your main contract is deployed on the .mythx.yaml"
+            "deployed_contract_address not found on .mythx.yml config file."
+            "\nYou need to provide the address where your main contract is deployed on the .mythx.yml"
         )
     if not target and "targets" not in config_options:
         raise click.exceptions.UsageError(
             "Target not provided. You need to provide a target as the last parameter of the fuzz run command."
-            "\nYou can also set the target on the `fuzz` key of your .mythx.yaml config file."
+            "\nYou can also set the target on the `fuzz` key of your .mythx.yml config file."
             "\nSee https://mythx-cli.readthedocs.io/en/latest/advanced-usage.html#configuration-using-mythx-yml"
             " for more information."
         )

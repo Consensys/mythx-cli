@@ -97,7 +97,7 @@ class FaasClient:
                 instr_meta = ScribbleMixin.get_arming_instr_meta()
 
                 if instr_meta is not None:
-                    api_payload["instrumentation_metadata"] = instr_meta
+                    api_payload["instrumentationMetadata"] = instr_meta
             except Exception as e:
                 raise ScribbleMetaError(
                     f"Error getting Scribble arming metadata."
