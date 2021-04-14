@@ -53,10 +53,7 @@ class RPCClient:
             block_value = hex(block_number)
 
         block = self.call("eth_getBlockByNumber", '["' + block_value + '", true]')
-        if block is None:
-            return None
-        else:
-            return block
+        return block
 
     def get_all_blocks(self):
         """ Get all blocks from the node running at rpc_url

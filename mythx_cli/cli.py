@@ -194,7 +194,6 @@ def cli(
         ctx.obj["client"] = Client(
             username=username, password=password, middlewares=[toolname_mw]
         )
-    # elif sys.argv[1] not in ("fuzz",):
     elif "fuzz" not in sys.argv:
         # fuzz subcommand is exempt from API auth
         raise click.UsageError(

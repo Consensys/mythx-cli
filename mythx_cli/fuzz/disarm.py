@@ -58,7 +58,9 @@ def fuzz_disarm(
     solc_version = solc_version or analyze_config.get("solc") or None
     remap_import = remap_import or analyze_config.get("remappings") or []
     scribble_path = scribble_path or analyze_config.get("scribble-path") or "scribble"
-    targets = targets or analyze_config.get("targets") or None
+
+    fuzz_config = ctx.get("fuzz")
+    targets = targets or fuzz_config.get("targets") or None
 
     ScribbleMixin.disarm_solc_in_place(
         file_list=targets,

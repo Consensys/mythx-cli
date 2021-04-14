@@ -331,7 +331,6 @@ def analyze(
             swc_whitelist=swc_whitelist,
         )
         # extend response with job UUID to keep formatter logic isolated
-        # resp.uuid = uuid
         issues_list.append((uuid, resp, inp))
 
     LOGGER.debug(

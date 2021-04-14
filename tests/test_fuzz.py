@@ -65,9 +65,7 @@ def test_fuzz_no_build_dir(tmp_path):
         conf_f.write(generate_config_file(not_include=["build_directory"]))
 
     result = runner.invoke(cli, ["fuzz", "run", "contracts"])
-    assert (
-        "Error: build_directory not found on .mythx.yml config file" in result.output
-    )
+    assert "Error: build_directory not found on .mythx.yml config file" in result.output
     assert result.exit_code != 0
 
 

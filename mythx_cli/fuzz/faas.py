@@ -78,18 +78,21 @@ class FaasClient:
                 )
 
             try:
-                api_payload = {"parameters": {}}
-                api_payload["name"] = self.generate_campaign_name()
-                api_payload["parameters"][
-                    "discovery-probability-threshold"
-                ] = seed_state["discovery-probability-threshold"]
-                api_payload["parameters"]["num-cores"] = seed_state["num-cores"]
-                api_payload["parameters"]["assertion-checking-mode"] = seed_state[
-                    "assertion-checking-mode"
-                ]
-                api_payload["corpus"] = seed_state["analysis-setup"]
-                api_payload["sources"] = campaign_data.payload["sources"]
-                api_payload["contracts"] = campaign_data.payload["contracts"]
+                api_payload_params = {
+                    "discovery-probability-threshold": seed_state[
+                        "discovery-probability-threshold"
+                    ],
+                    "num-cores": seed_state["num-cores"],
+                    "assertion-checking-mode": seed_state["assertion-checking-mode"],
+                }
+
+                api_payload = {
+                    "parameters": api_payload_params,
+                    "name": self.generate_campaign_name(),
+                    "corpus": seed_state["analysis-setup"],
+                    "sources": campaign_data.payload["sources"],
+                    "contracts": campaign_data.payload["contracts"],
+                }
             except Exception:
                 raise PayloadError(f"Error extracting data from payload")
 

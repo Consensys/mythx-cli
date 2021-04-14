@@ -42,7 +42,7 @@ class TruffleJob(ScribbleMixin):
         self.dependency_map = self.build_dependency_map()
 
     def find_truffle_artifacts(
-        self,
+        self
     ) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
         """Look for a Truffle build folder and return all relevant JSON
         artifacts.
