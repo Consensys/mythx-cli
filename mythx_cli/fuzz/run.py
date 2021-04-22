@@ -93,7 +93,11 @@ def fuzz_run(ctx, address, more_addresses, target):
             " for more information."
         )
     if not target:
-        target = [analyze_config["target"]]
+        target = analyze_config["target"]
+        # Conditionally wrap target in list if it's not a list already
+        if isinstance(target, str):
+            target = [target]
+
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
     # TODO: make into ifs or use dict.update  dict.get('key', default), safe way to check it exists
