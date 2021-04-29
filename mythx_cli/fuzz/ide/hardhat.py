@@ -5,6 +5,7 @@ from typing import List
 from ...util import sol_files_by_directory
 from pathlib import Path
 from mythx_cli.fuzz.exceptions import BuildArtifactsError
+from os.path import commonpath, relpath
 
 
 class HardhatArtifacts(IDEArtifacts):
@@ -32,12 +33,15 @@ class HardhatArtifacts(IDEArtifacts):
         result_sources = {}
 
         for file_path in self._include:
-            if file_path in result_contracts:
+            cp = commonpath([self._build_dir, file_path])
+            relative_file_path = relpath(file_path, cp)
+
+            if relative_file_path in result_contracts:
                 continue
 
             file_name = Path(file_path).stem
-            file_artifact_path: Path = self._build_dir.joinpath(file_path).joinpath(f"{file_name}.json")
-            file_debug_path: Path = self._build_dir.joinpath(file_path).joinpath(f"{file_name}.dbg.json")
+            file_artifact_path: Path = self._build_dir.joinpath(relative_file_path).joinpath(f"{file_name}.json")
+            file_debug_path: Path = self._build_dir.joinpath(relative_file_path).joinpath(f"{file_name}.dbg.json")
             if not file_artifact_path.exists() or not file_debug_path.exists():
                 raise BuildArtifactsError("Could not find target artifacts")
 
@@ -46,17 +50,17 @@ class HardhatArtifacts(IDEArtifacts):
             with file_debug_path.open("r") as file:
                 file_debug_artifact = json.load(file)
             build_info_name = Path(file_debug_artifact["buildInfo"]).name
-            with self._build_dir.joinpath(f"build-info/{build_info_name}") as file:
+            with self._build_dir.joinpath(f"build-info/{build_info_name}").open("r") as file:
                 build_info = json.load(file)
 
-            result_contracts[file_path] = []
+            result_contracts[relative_file_path] = []
 
-            contracts = build_info["output"]["contracts"][file_path]
+            contracts = build_info["output"]["contracts"][relative_file_path]
 
-            for contract, data in contracts:
+            for contract, data in contracts.items():
                 if data["evm"]["bytecode"]["object"] == "":
                     continue
-                result_contracts[file_path] += [
+                result_contracts[relative_file_path] += [
                     {
                         "sourcePaths": list(build_info["output"]["contracts"].keys()),
                         "deployedSourceMap": data["evm"]["deployedBytecode"]["sourceMap"],

@@ -1,9 +1,0 @@
-fuzz:
-  deployed_contract_address: "0x7277646075fa72737e1F6114654C5d9949a67dF2"
-  number_of_cores: 1
-  campaign_name_prefix: "brownie_test"
-  rpc_url: "http://localhost:9898"
-  faas_url: "http://localhost:9899"
-  build_directory: /private/var/folders/11/8t_b_rxn4q1ddcyxnsvnkq080000gn/T/pytest-of-nuradil/pytest-15/test_fuzz_run_deployedSourceMa1/build
-  targets:
-    - "/private/var/folders/11/8t_b_rxn4q1ddcyxnsvnkq080000gn/T/pytest-of-nuradil/pytest-15/test_fuzz_run_deployedSourceMa1/contracts"

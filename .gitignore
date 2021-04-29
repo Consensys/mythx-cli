@@ -102,3 +102,5 @@ ENV/
 .mypy_cache/
 .idea/
 .vscode/
+
+.mythx.yml
