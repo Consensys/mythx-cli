@@ -72,11 +72,6 @@ class FaasClient:
         :return: Campaign ID
         """
         try:
-            if self.project_type != "brownie":
-                raise click.exceptions.UsageError(
-                    "Currently only Brownie projects are supported"
-                )
-
             try:
                 api_payload_params = {
                     "discovery-probability-threshold": seed_state[

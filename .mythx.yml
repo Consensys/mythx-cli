@@ -4,6 +4,6 @@ fuzz:
   campaign_name_prefix: "brownie_test"
   rpc_url: "http://localhost:9898"
   faas_url: "http://localhost:9899"
-  build_directory: /private/var/folders/w9/36q5pfw94rz6bh0062p2j8p40000gn/T/pytest-of-boss/pytest-34/test_fuzz_arm0/build/contracts
+  build_directory: /private/var/folders/11/8t_b_rxn4q1ddcyxnsvnkq080000gn/T/pytest-of-nuradil/pytest-15/test_fuzz_run_deployedSourceMa1/build
   targets:
-    - "/private/var/folders/w9/36q5pfw94rz6bh0062p2j8p40000gn/T/pytest-of-boss/pytest-34/test_fuzz_arm0/contracts"
+    - "/private/var/folders/11/8t_b_rxn4q1ddcyxnsvnkq080000gn/T/pytest-of-nuradil/pytest-15/test_fuzz_run_deployedSourceMa1/contracts"

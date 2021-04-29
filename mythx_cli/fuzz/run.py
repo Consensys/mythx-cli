@@ -1,21 +1,41 @@
 import logging
-import random
-import string
-
 import click
-import requests
 
 from mythx_cli.fuzz.ide.brownie import BrownieJob
-
+from mythx_cli.fuzz.ide.hardhat import HardhatJob
 from .exceptions import RPCCallError
 from .faas import FaasClient
 from .rpc import RPCClient
+from enum import Enum
+from pathlib import Path
+import os
 
 LOGGER = logging.getLogger("mythx-cli")
 
 headers = {"Content-Type": "application/json"}
 
 time_limit_seconds = 3000
+
+
+class IDE(Enum):
+    BROWNIE = 'brownie'
+    HARDHAT = 'hardhat'
+    TRUFFLE = 'truffle'
+    SOLIDITY = 'solidity'
+
+
+def determine_ide(build_directory) -> IDE:
+    root_dir = Path(build_directory).parent
+    files = list(os.walk(root_dir))[0][2]
+    if 'brownie-config.yaml' in files:
+        return IDE.BROWNIE
+    if 'hardhat.config.ts' in files:
+        return IDE.HARDHAT
+    if 'hardhat.config.js' in files:
+        return IDE.HARDHAT
+    if 'truffle-config.js' in files:
+        return IDE.TRUFFLE
+    return IDE.SOLIDITY
 
 
 @click.command("run")
@@ -120,17 +140,32 @@ def fuzz_run(ctx, address, more_addresses, target):
 
     # We get the seed state from the provided rpc endpoint
     seed_state = rpc_client.get_seed_state(contract_address, other_addresses)
-    brownie_artifacts = BrownieJob(target, analyze_config["build_directory"])
-    brownie_artifacts.generate_payload()
+
+    ide = determine_ide(analyze_config["build_directory"])
+
+    if ide == IDE.BROWNIE:
+        artifacts = BrownieJob(target, analyze_config["build_directory"])
+        artifacts.generate_payload()
+    elif ide == IDE.HARDHAT:
+        artifacts = HardhatJob(target, analyze_config["build_directory"])
+        artifacts.generate_payload()
+    elif ide == IDE.TRUFFLE:
+        raise click.exceptions.UsageError(
+            f"Projects using Truffle IDE is not supported right now"
+        )
+    else:
+        raise click.exceptions.UsageError(
+            f"Projects using plain solidity files is not supported right now"
+        )
 
     faas_client = FaasClient(
         faas_url=faas_url,
         campaign_name_prefix=campaign_name_prefix,
-        project_type="brownie",
+        project_type=ide,
     )
     try:
         campaign_id = faas_client.create_faas_campaign(
-            campaign_data=brownie_artifacts, seed_state=seed_state
+            campaign_data=artifacts, seed_state=seed_state
         )
         click.echo(
             "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)
@@ -141,5 +176,3 @@ def fuzz_run(ctx, address, more_addresses, target):
             f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
         )
 
-
-pass

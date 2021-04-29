@@ -28,6 +28,9 @@ def setup_brownie_project(base_path, switch_dir=False):
     os.makedirs(str(base_path / "build/contracts/"))
     os.makedirs(str(base_path / "contracts/"))
 
+    with open(base_path / "brownie-config.yaml", "w+") as config_f:
+        json.dump("sample", config_f)
+
     # patch brownie artifact with temp path
     BROWNIE_ARTIFACT["allSourcePaths"][0] = f"{base_path}/contracts/sample.sol"
     BROWNIE_ARTIFACT["sourcePath"] = f"{base_path}/contracts/sample.sol"
@@ -53,7 +56,7 @@ def generate_config_file(base_path="", not_include=[]):
     if "faas_url" not in not_include:
         config_file += f'\n  faas_url: "{FAAS_URL}"'
     if "build_directory" not in not_include:
-        config_file += f"\n  build_directory: {base_path}/build/contracts"
+        config_file += f"\n  build_directory: {base_path}/build"
     if "targets" not in not_include:
         config_file += f'\n  targets:\n    - "{base_path}/contracts"'
     return config_file
