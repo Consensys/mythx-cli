@@ -62,7 +62,7 @@ class HardhatArtifacts(IDEArtifacts):
                     continue
                 result_contracts[relative_file_path] += [
                     {
-                        "sourcePaths": list(build_info["output"]["contracts"].keys()),
+                        "sourcePaths": {i: k for i, k in enumerate(build_info["output"]["contracts"].keys())},
                         "deployedSourceMap": data["evm"]["deployedBytecode"]["sourceMap"],
                         "deployedBytecode": data["evm"]["deployedBytecode"]["object"],
                         "sourceMap": data["evm"]["bytecode"]["sourceMap"],

@@ -9,6 +9,7 @@ from .rpc import RPCClient
 from enum import Enum
 from pathlib import Path
 import os
+import traceback
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -171,7 +172,7 @@ def fuzz_run(ctx, address, more_addresses, target):
             "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)
         )
     except Exception as e:
-        LOGGER.warning(f"Could not submit campaign to the FaaS")
+        LOGGER.warning(f"Could not submit campaign to the FaaS\n{traceback.format_exc()}")
         raise click.exceptions.UsageError(
             f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
         )
