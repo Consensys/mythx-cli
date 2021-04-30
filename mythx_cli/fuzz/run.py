@@ -113,10 +113,10 @@ def fuzz_run(ctx, address, more_addresses, target):
             f"Unable to find a contract deployed at {contract_address}."
         )
 
-    if more_addresses is None:
-        other_addresses = []
-    else:
+    other_addresses = analyze_config.get("other_contract_addresses", [])
+    if more_addresses:
         other_addresses = more_addresses.split(",")
+
 
     # We get the seed state from the provided rpc endpoint
     seed_state = rpc_client.get_seed_state(contract_address, other_addresses)
