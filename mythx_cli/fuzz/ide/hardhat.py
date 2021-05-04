@@ -1,11 +1,12 @@
 import json
-
-from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
-from typing import List
-from ...util import sol_files_by_directory
-from pathlib import Path
-from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from os.path import commonpath, relpath
+from pathlib import Path
+from typing import List
+
+from mythx_cli.fuzz.exceptions import BuildArtifactsError
+from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
+
+from ...util import sol_files_by_directory
 
 
 class HardhatArtifacts(IDEArtifacts):
@@ -17,7 +18,7 @@ class HardhatArtifacts(IDEArtifacts):
                 include.extend(sol_files_by_directory(target))
             self._include = include
 
-        self._build_dir = Path(build_dir) or Path("./artifacts")
+        self._build_dir = Path(build_dir).absolute() or Path("./artifacts").absolute()
         self._contracts, self._sources = self.fetch_data()
 
     @property
@@ -40,8 +41,12 @@ class HardhatArtifacts(IDEArtifacts):
                 continue
 
             file_name = Path(file_path).stem
-            file_artifact_path: Path = self._build_dir.joinpath(relative_file_path).joinpath(f"{file_name}.json")
-            file_debug_path: Path = self._build_dir.joinpath(relative_file_path).joinpath(f"{file_name}.dbg.json")
+            file_artifact_path: Path = self._build_dir.joinpath(
+                relative_file_path
+            ).joinpath(f"{file_name}.json")
+            file_debug_path: Path = self._build_dir.joinpath(
+                relative_file_path
+            ).joinpath(f"{file_name}.dbg.json")
             if not file_artifact_path.exists() or not file_debug_path.exists():
                 raise BuildArtifactsError("Could not find target artifacts")
 
@@ -50,7 +55,9 @@ class HardhatArtifacts(IDEArtifacts):
             with file_debug_path.open("r") as file:
                 file_debug_artifact = json.load(file)
             build_info_name = Path(file_debug_artifact["buildInfo"]).name
-            with self._build_dir.joinpath(f"build-info/{build_info_name}").open("r") as file:
+            with self._build_dir.joinpath(f"build-info/{build_info_name}").open(
+                "r"
+            ) as file:
                 build_info = json.load(file)
 
             result_contracts[relative_file_path] = []
@@ -62,8 +69,15 @@ class HardhatArtifacts(IDEArtifacts):
                     continue
                 result_contracts[relative_file_path] += [
                     {
-                        "sourcePaths": {i: k for i, k in enumerate(build_info["output"]["contracts"].keys())},
-                        "deployedSourceMap": data["evm"]["deployedBytecode"]["sourceMap"],
+                        "sourcePaths": {
+                            i: k
+                            for i, k in enumerate(
+                                build_info["output"]["contracts"].keys()
+                            )
+                        },
+                        "deployedSourceMap": data["evm"]["deployedBytecode"][
+                            "sourceMap"
+                        ],
                         "deployedBytecode": data["evm"]["deployedBytecode"]["object"],
                         "sourceMap": data["evm"]["bytecode"]["sourceMap"],
                         "bytecode": data["evm"]["bytecode"]["object"],
@@ -78,7 +92,9 @@ class HardhatArtifacts(IDEArtifacts):
 
                 result_sources[source_file_dep] = {
                     "fileIndex": data["id"],
-                    "source": build_info["input"]["sources"][source_file_dep]["content"],
+                    "source": build_info["input"]["sources"][source_file_dep][
+                        "content"
+                    ],
                     "ast": data["ast"],
                 }
 

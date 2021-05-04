@@ -1,9 +1,7 @@
-import json
 import logging
 import random
 import string
 
-import click
 import requests
 
 from mythx_cli.analyze.scribble import ScribbleMixin

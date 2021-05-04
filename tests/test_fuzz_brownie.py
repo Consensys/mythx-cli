@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
@@ -19,27 +20,32 @@ GANACHE_URL = "http://localhost:9898"
 FAAS_URL = "http://localhost:9899"
 
 
-def setup_brownie_project(base_path, switch_dir=False):
+@pytest.fixture()
+def brownie_project(tmp_path, switch_dir=False):
     # switch to temp dir if requested
     if switch_dir:
-        os.chdir(str(base_path))
+        os.chdir(str(tmp_path))
 
     # add brownie project structure
-    os.makedirs(str(base_path / "build/contracts/"))
-    os.makedirs(str(base_path / "contracts/"))
+    os.makedirs(str(tmp_path / "build/contracts/"))
+    os.makedirs(str(tmp_path / "contracts/"))
 
-    with open(base_path / "brownie-config.yaml", "w+") as config_f:
+    with open("./brownie-config.yaml", "w+") as config_f:
         json.dump("sample", config_f)
 
     # patch brownie artifact with temp path
-    BROWNIE_ARTIFACT["allSourcePaths"][0] = f"{base_path}/contracts/sample.sol"
-    BROWNIE_ARTIFACT["sourcePath"] = f"{base_path}/contracts/sample.sol"
+    BROWNIE_ARTIFACT["allSourcePaths"][0] = f"{tmp_path}/contracts/sample.sol"
+    BROWNIE_ARTIFACT["sourcePath"] = f"{tmp_path}/contracts/sample.sol"
 
     # add sample brownie artifact
-    with open(base_path / "build/contracts/Foo.json", "w+") as artifact_f:
+    with open(tmp_path / "build/contracts/Foo.json", "w+") as artifact_f:
         json.dump(BROWNIE_ARTIFACT, artifact_f)
-    with open(base_path / "contracts/sample.sol", "w+") as sol_f:
+    with open(tmp_path / "contracts/sample.sol", "w+") as sol_f:
         sol_f.write("sol code here")
+
+    yield None
+    # cleaning up test files
+    os.remove(str(Path("./brownie-config.yaml").absolute()))
 
 
 def generate_config_file(base_path="", not_include=[]):
@@ -95,9 +101,7 @@ def test_fuzz_no_target(tmp_path):
     assert result.exit_code != 0
 
 
-def test_fuzz_no_contract_at_address(tmp_path):
-    setup_brownie_project(tmp_path, switch_dir=False)
-
+def test_fuzz_no_contract_at_address(tmp_path, brownie_project):
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
 
@@ -118,8 +122,7 @@ def test_fuzz_no_contract_at_address(tmp_path):
     assert result.exit_code != 0
 
 
-def test_faas_not_running(tmp_path):
-    setup_brownie_project(tmp_path, switch_dir=False)
+def test_faas_not_running(tmp_path, brownie_project):
 
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
@@ -149,13 +152,11 @@ def test_faas_not_running(tmp_path):
     assert result.exit_code != 0
 
 
-def test_faas_target_config_file(tmp_path):
+def test_faas_target_config_file(tmp_path, brownie_project):
     """Here we reuse the test_faas_not_running logic to check that the target is being read
     from the config file. This is possible because the faas not running error is triggered
     after the Target check. If the target was not available, a different error would be thrown
     and the test would fail"""
-    setup_brownie_project(tmp_path, switch_dir=False)
-
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
 
@@ -199,30 +200,7 @@ def test_rpc_not_running(tmp_path):
     assert result.exit_code != 0
 
 
-@pytest.mark.parametrize(
-    "keyword",
-    (
-        "parameters",
-        "name",
-        "corpus",
-        "sources",
-        "contracts",
-        "address-under-test",
-        "source",
-        "fileIndex",
-        "sourcePaths",
-        "deployedSourceMap",
-        "mainSourceFile",
-        "contractName",
-        "bytecode",
-        "deployedBytecode",
-        "sourceMap",
-        "deployedSourceMap",
-    ),
-)
-def test_fuzz_run(tmp_path, keyword):
-    setup_brownie_project(tmp_path, switch_dir=False)
-
+def test_fuzz_run(tmp_path, brownie_project):
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(generate_config_file(base_path=tmp_path))
 
@@ -256,7 +234,29 @@ def test_fuzz_run(tmp_path, keyword):
     )
 
     request_payload = json.dumps(called_with[0])
-    assert keyword in request_payload
+
+    keywords = [
+        "parameters",
+        "name",
+        "corpus",
+        "sources",
+        "contracts",
+        "address-under-test",
+        "source",
+        "fileIndex",
+        "sourcePaths",
+        "deployedSourceMap",
+        "mainSourceFile",
+        "contractName",
+        "bytecode",
+        "deployedBytecode",
+        "sourceMap",
+        "deployedSourceMap",
+    ]
+
+    for keyword in keywords:
+        assert keyword in request_payload
+
     assert result.exit_code == 0
 
 
@@ -270,9 +270,7 @@ def test_fuzz_subcommands_present(keyword):
 
 
 @patch("mythx_cli.analyze.scribble.ScribbleMixin.instrument_solc_in_place")
-def test_fuzz_arm(mock, tmp_path):
-    setup_brownie_project(tmp_path, switch_dir=False)
-
+def test_fuzz_arm(mock, tmp_path, brownie_project):
     runner = CliRunner()
     result = runner.invoke(cli, ["fuzz", "arm", f"{tmp_path}/contracts/sample.sol"])
 
@@ -287,9 +285,7 @@ def test_fuzz_arm(mock, tmp_path):
 
 
 @patch("mythx_cli.analyze.scribble.ScribbleMixin.disarm_solc_in_place")
-def test_fuzz_disarm(mock, tmp_path):
-    setup_brownie_project(tmp_path, switch_dir=False)
-
+def test_fuzz_disarm(mock, tmp_path, brownie_project):
     runner = CliRunner()
     result = runner.invoke(cli, ["fuzz", "disarm", f"{tmp_path}/contracts/sample.sol"])
 
