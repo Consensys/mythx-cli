@@ -45,10 +45,13 @@ class FaasClient:
             response_data = response.json()
             if response.status_code != requests.codes.ok:
                 raise BadStatusCode(
-                    f"Got http status code {response.status_code} for request {req_url}"
+                    f"Got http status code {response.status_code} for request {req_url}",
+                    detail=response_data["detail"],
                 )
             return response_data["id"]
         except Exception as e:
+            if isinstance(e, BadStatusCode):
+                raise e
             raise RequestError(f"Error starting FaaS campaign.")
 
     def create_faas_campaign(self, campaign_data, seed_state):

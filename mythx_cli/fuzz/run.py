@@ -9,7 +9,7 @@ import click
 from mythx_cli.fuzz.ide.brownie import BrownieJob
 from mythx_cli.fuzz.ide.hardhat import HardhatJob
 
-from .exceptions import RPCCallError
+from .exceptions import BadStatusCode, RPCCallError
 from .faas import FaasClient
 from .rpc import RPCClient
 
@@ -182,6 +182,10 @@ def fuzz_run(ctx, address, more_addresses, target, corpus_target):
         )
         click.echo(
             "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)
+        )
+    except BadStatusCode as e:
+        raise click.exceptions.UsageError(
+            f"Campaign submission error. Detail - {e.detail}"
         )
     except Exception as e:
         LOGGER.warning(
