@@ -6,8 +6,9 @@
 class FaaSError(Exception):
     """Base class for FaaS module exceptions"""
 
-    def __init__(self, message):
+    def __init__(self, message, detail=None):
         self.message = message
+        self.detail = detail
 
     pass
 

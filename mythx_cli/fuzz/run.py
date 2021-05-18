@@ -1,13 +1,15 @@
 import logging
-import random
-import string
+import os
+import traceback
+from enum import Enum
+from pathlib import Path
 
 import click
-import requests
 
 from mythx_cli.fuzz.ide.brownie import BrownieJob
+from mythx_cli.fuzz.ide.hardhat import HardhatJob
 
-from .exceptions import RPCCallError
+from .exceptions import BadStatusCode, RPCCallError
 from .faas import FaasClient
 from .rpc import RPCClient
 
@@ -16,6 +18,27 @@ LOGGER = logging.getLogger("mythx-cli")
 headers = {"Content-Type": "application/json"}
 
 time_limit_seconds = 3000
+
+
+class IDE(Enum):
+    BROWNIE = "brownie"
+    HARDHAT = "hardhat"
+    TRUFFLE = "truffle"
+    SOLIDITY = "solidity"
+
+
+def determine_ide() -> IDE:
+    root_dir = Path.cwd().absolute()
+    files = list(os.walk(root_dir))[0][2]
+    if "brownie-config.yaml" in files:
+        return IDE.BROWNIE
+    if "hardhat.config.ts" in files:
+        return IDE.HARDHAT
+    if "hardhat.config.js" in files:
+        return IDE.HARDHAT
+    if "truffle-config.js" in files:
+        return IDE.TRUFFLE
+    return IDE.SOLIDITY
 
 
 @click.command("run")
@@ -29,8 +52,17 @@ time_limit_seconds = 3000
     type=click.STRING,
     help="Addresses of other contracts to analyze, separated by commas",
 )
+@click.option(
+    "-c",
+    "--corpus-target",
+    type=click.STRING,
+    help="Project UUID, Campaign UUID or Corpus UUID to reuse the corpus from. "
+    "In case of a project, corpus from the project's latest submitted campaign will be used",
+    default=None,
+    required=False,
+)
 @click.pass_obj
-def fuzz_run(ctx, address, more_addresses, target):
+def fuzz_run(ctx, address, more_addresses, target, corpus_target):
     # read YAML config params from ctx dict, e.g. ganache rpc url
     #   Introduce a separate `fuzz` section in the YAML file
 
@@ -101,45 +133,64 @@ def fuzz_run(ctx, address, more_addresses, target):
         else default_config["campaign_name_prefix"]
     )
 
-    try:
-        rpc_client = RPCClient(rpc_url, number_of_cores)
-        contract_code_response = rpc_client.contract_exists(contract_address)
-    except RPCCallError as e:
-        raise click.exceptions.UsageError(f"RPC endpoint." f"\n{e}")
-
-    if not contract_code_response:
-        LOGGER.warning(f"Contract code not found")
-        raise click.exceptions.ClickException(
-            f"Unable to find a contract deployed at {contract_address}."
-        )
-
     if more_addresses is None:
         other_addresses = []
     else:
         other_addresses = more_addresses.split(",")
 
-    # We get the seed state from the provided rpc endpoint
-    seed_state = rpc_client.get_seed_state(contract_address, other_addresses)
-    brownie_artifacts = BrownieJob(target, analyze_config["build_directory"])
-    brownie_artifacts.generate_payload()
+    _corpus_target = corpus_target or analyze_config.get("corpus_target", None)
+
+    rpc_client = RPCClient(rpc_url, number_of_cores)
+    if not _corpus_target:
+        try:
+            contract_code_response = rpc_client.contract_exists(contract_address)
+        except RPCCallError as e:
+            raise click.exceptions.UsageError(f"RPC endpoint." f"\n{e}")
+
+        if not contract_code_response:
+            LOGGER.warning(f"Contract code not found")
+            raise click.exceptions.ClickException(
+                f"Unable to find a contract deployed at {contract_address}."
+            )
+    seed_state = rpc_client.get_seed_state(
+        contract_address, other_addresses, _corpus_target
+    )
+
+    ide = determine_ide()
+
+    if ide == IDE.BROWNIE:
+        artifacts = BrownieJob(target, analyze_config["build_directory"])
+        artifacts.generate_payload()
+    elif ide == IDE.HARDHAT:
+        artifacts = HardhatJob(target, analyze_config["build_directory"])
+        artifacts.generate_payload()
+    elif ide == IDE.TRUFFLE:
+        raise click.exceptions.UsageError(
+            f"Projects using Truffle IDE is not supported right now"
+        )
+    else:
+        raise click.exceptions.UsageError(
+            f"Projects using plain solidity files is not supported right now"
+        )
 
     faas_client = FaasClient(
-        faas_url=faas_url,
-        campaign_name_prefix=campaign_name_prefix,
-        project_type="brownie",
+        faas_url=faas_url, campaign_name_prefix=campaign_name_prefix, project_type=ide
     )
     try:
         campaign_id = faas_client.create_faas_campaign(
-            campaign_data=brownie_artifacts, seed_state=seed_state
+            campaign_data=artifacts, seed_state=seed_state
         )
         click.echo(
             "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)
         )
+    except BadStatusCode as e:
+        raise click.exceptions.UsageError(
+            f"Campaign submission error. Detail - {e.detail}"
+        )
     except Exception as e:
-        LOGGER.warning(f"Could not submit campaign to the FaaS")
+        LOGGER.warning(
+            f"Could not submit campaign to the FaaS\n{traceback.format_exc()}"
+        )
         raise click.exceptions.UsageError(
             f"Unable to submit the campaign to the faas. Are you sure the service is running on {faas_url} ?"
         )
-
-
-pass

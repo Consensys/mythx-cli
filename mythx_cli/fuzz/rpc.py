@@ -1,7 +1,5 @@
-import json
 import logging
-import os
-from pathlib import Path
+from typing import Optional
 
 import click
 import requests
@@ -78,8 +76,20 @@ class RPCClient:
             blocks.append(self.get_block(block_number=i))
         return blocks
 
-    def get_seed_state(self, address: str, other_addresses: [str]):
+    def get_seed_state(
+        self, address: str, other_addresses: [str], corpus_target: Optional[str] = None
+    ):
+        seed_state = {
+            "time-limit-secs": time_limit_seconds,
+            "discovery-probability-threshold": 0.0,
+            "assertion-checking-mode": 1,
+            "emit-mythx-report": True,
+            "num-cores": self.number_of_cores,
+        }
         """Get a seed state for the target contract to be used by Harvey"""
+        if corpus_target:
+            return dict({**seed_state, "analysis-setup": {"target": corpus_target}})
+
         try:
             blocks = self.get_all_blocks()
             processed_transactions = []
@@ -96,16 +106,7 @@ class RPCClient:
                     "other-addresses-under-test": other_addresses,
                 }
             )
-            return dict(
-                {
-                    "time-limit-secs": time_limit_seconds,
-                    "analysis-setup": setup,
-                    "discovery-probability-threshold": 0.0,
-                    "assertion-checking-mode": 1,
-                    "emit-mythx-report": True,
-                    "num-cores": self.number_of_cores,
-                }
-            )
+            return dict({**seed_state, "analysis-setup": setup})
         except Exception as e:
             LOGGER.warning(f"Could not generate seed state for address: {address}")
             raise click.exceptions.UsageError(

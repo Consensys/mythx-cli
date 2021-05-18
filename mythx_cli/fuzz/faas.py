@@ -1,9 +1,7 @@
-import json
 import logging
 import random
 import string
 
-import click
 import requests
 
 from mythx_cli.analyze.scribble import ScribbleMixin
@@ -47,10 +45,13 @@ class FaasClient:
             response_data = response.json()
             if response.status_code != requests.codes.ok:
                 raise BadStatusCode(
-                    f"Got http status code {response.status_code} for request {req_url}"
+                    f"Got http status code {response.status_code} for request {req_url}",
+                    detail=response_data["detail"],
                 )
             return response_data["id"]
         except Exception as e:
+            if isinstance(e, BadStatusCode):
+                raise e
             raise RequestError(f"Error starting FaaS campaign.")
 
     def create_faas_campaign(self, campaign_data, seed_state):
@@ -72,11 +73,6 @@ class FaasClient:
         :return: Campaign ID
         """
         try:
-            if self.project_type != "brownie":
-                raise click.exceptions.UsageError(
-                    "Currently only Brownie projects are supported"
-                )
-
             try:
                 api_payload_params = {
                     "discovery-probability-threshold": seed_state[
