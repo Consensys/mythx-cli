@@ -61,8 +61,16 @@ def determine_ide() -> IDE:
     default=None,
     required=False,
 )
+@click.option(
+    "-s",
+    "--map-to-original-source",
+    is_flag=True,
+    default=False,
+    help="Map the analyses results to the original source code, instead of the instrumented one. "
+         "This is meant to be used with Scribble.",
+)
 @click.pass_obj
-def fuzz_run(ctx, address, more_addresses, target, corpus_target):
+def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source, target):
     # read YAML config params from ctx dict, e.g. ganache rpc url
     #   Introduce a separate `fuzz` section in the YAML file
 
@@ -87,6 +95,7 @@ def fuzz_run(ctx, address, more_addresses, target, corpus_target):
         "faas_url": "http://localhost:8080",
         "harvey_num_cores": 2,
         "campaign_name_prefix": "untitled",
+        "map_to_original_source": False,
     }
     config_options = analyze_config.keys()
     # Mandatory config parameters verification
@@ -109,6 +118,12 @@ def fuzz_run(ctx, address, more_addresses, target, corpus_target):
         )
     if not target:
         target = analyze_config["targets"]
+    if not map_to_original_source:
+       map_to_original_source = (
+        analyze_config["map_to_original_source"]
+        if "map_to_original_source" in config_options
+        else default_config["map_to_original_source"]
+    )
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
     contract_address = analyze_config["deployed_contract_address"]
@@ -159,7 +174,7 @@ def fuzz_run(ctx, address, more_addresses, target, corpus_target):
     ide = determine_ide()
 
     if ide == IDE.BROWNIE:
-        artifacts = BrownieJob(target, analyze_config["build_directory"])
+        artifacts = BrownieJob(target, analyze_config["build_directory"], map_to_original_source=map_to_original_source)
         artifacts.generate_payload()
     elif ide == IDE.HARDHAT:
         artifacts = HardhatJob(target, analyze_config["build_directory"])

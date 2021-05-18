@@ -7,17 +7,25 @@ from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
 from ...util import sol_files_by_directory
+from ...util import files_by_directory
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
 class BrownieArtifacts(IDEArtifacts):
-    def __init__(self, build_dir=None, targets=None):
+    def __init__(self, build_dir=None, targets=None, map_to_original_source=False):
         self._include = []
         if targets:
             include = []
             for target in targets:
-                include.extend(sol_files_by_directory(target))
+                if not map_to_original_source:
+                    LOGGER.debug(f"Mapping instrumented code")
+                    include.extend(files_by_directory(target, ".sol"))
+                else:
+                    # We replace .sol with .sol.original in case the target is a file and not a directory
+                    target = target.replace(".sol", ".sol.original")
+                    LOGGER.debug(f"Mapping original code, {target}")
+                    include.extend(files_by_directory(target, ".sol.original"))
             self._include = include
 
         self._build_dir = build_dir or Path("./build/contracts")
@@ -122,8 +130,8 @@ class BrownieArtifacts(IDEArtifacts):
 
 
 class BrownieJob:
-    def __init__(self, target: List[str], build_dir: Path):
-        artifacts = BrownieArtifacts(build_dir, targets=target)
+    def __init__(self, target: List[str], build_dir: Path, map_to_original_source: bool):
+        artifacts = BrownieArtifacts(build_dir, targets=target, map_to_original_source=map_to_original_source)
         self._jb = JobBuilder(artifacts)
         self.payload = None
 
