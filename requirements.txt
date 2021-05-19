@@ -5,3 +5,4 @@ tabulate==0.8.9
 Jinja2==2.11.3
 htmlmin==0.1.12
 PyYAML==5.4.1
+gql==2.0.0

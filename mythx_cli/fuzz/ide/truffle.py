@@ -1,0 +1,179 @@
+import json
+from pathlib import Path
+from typing import List, Dict
+
+from mythx_cli.fuzz.exceptions import BuildArtifactsError
+from mythx_cli.fuzz.ide.generic import JobBuilder, IDEArtifacts
+from mythx_cli.util import sol_files_by_directory, LOGGER
+
+from gql import Client, gql
+from gql.transport.requests import RequestsHTTPTransport
+
+
+class TruffleArtifacts(IDEArtifacts):
+    def __init__(self, graphql_url: str, project_dir, build_dir=None, targets=None):
+        self._include = []
+        if targets:
+            include = []
+            for target in targets:
+                include.extend(sol_files_by_directory(target))
+            self._include = include
+
+        self._build_dir = build_dir or Path("./build/contracts")
+        build_files_by_source_file = self._get_build_artifacts(self._build_dir)
+        project_sources = self._get_project_sources(graphql_url, project_dir)
+
+        self._contracts, self._sources = self.fetch_data(build_files_by_source_file, project_sources)
+
+    def fetch_data(self, build_files_by_source_file, project_sources: Dict[str, List[str]]):
+        result_contracts = {}
+        result_sources = {}
+        for source_file, contracts in build_files_by_source_file.items():
+            if source_file not in self._include:
+                continue
+            result_contracts[source_file] = []
+            for contract in contracts:
+                # We get the build items from truffle and rename them into the properties used by the FaaS
+                try:
+                    result_contracts[source_file] += [
+                        {
+                            "sourcePaths": {
+                                i: k
+                                for i, k in enumerate(
+                                    project_sources[contract["contractName"]]
+                                )
+                            },
+                            "deployedSourceMap": contract["deployedSourceMap"],
+                            "deployedBytecode": contract["deployedBytecode"],
+                            "sourceMap": contract["sourceMap"],
+                            "bytecode": contract["bytecode"],
+                            "contractName": contract["contractName"],
+                            "mainSourceFile": contract["sourcePath"],
+                        }
+                    ]
+                except KeyError as e:
+                    raise BuildArtifactsError(
+                        f"Build artifact did not contain expected key. Contract: {contract}: \n{e}"
+                    )
+
+                for file_index, source_file_dep in enumerate(project_sources[contract["contractName"]]):
+                    if source_file_dep in result_sources.keys():
+                        continue
+
+                    if source_file_dep not in build_files_by_source_file:
+                        LOGGER.debug(f"{source_file} not found.")
+                        continue
+
+                    # We can select any dict on the build_files_by_source_file[source_file] array
+                    # because the .source and .ast values will be the same in all.
+                    target_file = build_files_by_source_file[source_file_dep][0]
+                    result_sources[source_file_dep] = {
+                        "fileIndex": file_index,
+                        "source": target_file["source"],
+                        "ast": target_file["ast"],
+                    }
+        return result_contracts, result_sources
+
+    @staticmethod
+    def _get_project_sources(graphql_url: str, project_dir: str) -> Dict[str, List[str]]:
+        transport = RequestsHTTPTransport(url=graphql_url)
+        client = Client(transport=transport, fetch_schema_from_transport=True)
+        get_project_id_query = gql(
+            f"""
+            query {{
+                projectId(input: {{ directory: "{project_dir}" }})
+            }}
+            """
+        )
+        result = client.execute(get_project_id_query)
+        project_id = result.get("projectId")
+
+        get_project_contracts_query = gql(
+            f"""
+            {{
+              project(id:"{project_id}") {{
+                contracts {{
+                  name
+                  compilation {{
+                    processedSources {{
+                      source {{
+                        sourcePath
+                      }}
+                    }}
+                  }}
+                }}
+              }}
+            }}
+            """
+        )
+
+        result = client.execute(get_project_contracts_query)
+
+        contracts = {}
+
+        for contract in result["project"]["contracts"]:
+            contracts[contract["name"]] = list(map(
+                lambda x: x["source"]["sourcePath"],
+                contract["compilation"]["processedSources"],
+            ))
+        return contracts
+
+    @staticmethod
+    def _get_build_artifacts(build_dir) -> Dict:
+        """Build indexes of Truffle build artifacts.
+
+        This function starts by loading the contents from the Truffle build artifacts json, found in the /build
+        folder, which contain the following data:
+
+        * :code: `deployedSourceMap`
+        * :code: `deployedBytecode`
+        * :code: `sourceMap`
+        * :code: `bytecode`
+        * :code: `contractName`
+        * :code: `sourcePath`
+
+        It then stores that data in build_files_by_source_file dictionary. The one is indexed by the
+        source file (.sol) found in the .sourcePath property of the json.
+        """
+        build_files_by_source_file = {}
+
+        build_dir = Path(build_dir)
+
+        if not build_dir.is_dir():
+            raise BuildArtifactsError("Build directory doesn't exist")
+
+        for child in build_dir.glob("**/*"):
+            if not child.is_file():
+                continue
+            if not child.name.endswith(".json"):
+                continue
+
+            data = json.loads(child.read_text("utf-8"))
+
+            source_path = data["sourcePath"]
+
+            if source_path not in build_files_by_source_file:
+                # initialize the array of contracts with a list
+                build_files_by_source_file[source_path] = []
+
+            build_files_by_source_file[source_path].append(data)
+
+        return build_files_by_source_file
+
+    @property
+    def contracts(self):
+        return self._contracts
+
+    @property
+    def sources(self):
+        return self._sources
+
+
+class TruffleJob:
+    def __init__(self, target: List[str], build_dir: Path):
+        artifacts = TruffleArtifacts(build_dir, targets=target)
+        self._jb = JobBuilder(artifacts)
+        self.payload = None
+
+    def generate_payload(self):
+        self.payload = self._jb.payload()
