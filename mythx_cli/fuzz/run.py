@@ -11,6 +11,7 @@ from mythx_cli.fuzz.ide.hardhat import HardhatJob
 
 from .exceptions import BadStatusCode, RPCCallError
 from .faas import FaasClient
+from .ide.truffle import TruffleJob
 from .rpc import RPCClient
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -180,9 +181,18 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
         artifacts = HardhatJob(target, analyze_config["build_directory"])
         artifacts.generate_payload()
     elif ide == IDE.TRUFFLE:
-        raise click.exceptions.UsageError(
-            f"Projects using Truffle IDE is not supported right now"
+        db_url = analyze_config.get("truffle_db_url", None)
+        if not db_url:
+            raise click.exceptions.UsageError(
+                f"Truffle DB URL must be specified in config file"
+            )
+        artifacts = TruffleJob(
+            db_url,
+            str(Path.cwd().absolute()),
+            target,
+            analyze_config["build_directory"],
         )
+        artifacts.generate_payload()
     else:
         raise click.exceptions.UsageError(
             f"Projects using plain solidity files is not supported right now"

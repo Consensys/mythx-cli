@@ -11,7 +11,7 @@ from gql.transport.requests import RequestsHTTPTransport
 
 
 class TruffleArtifacts(IDEArtifacts):
-    def __init__(self, graphql_url: str, project_dir, build_dir=None, targets=None):
+    def __init__(self, db_url: str, project_dir: str, build_dir=None, targets=None):
         self._include = []
         if targets:
             include = []
@@ -21,7 +21,7 @@ class TruffleArtifacts(IDEArtifacts):
 
         self._build_dir = build_dir or Path("./build/contracts")
         build_files_by_source_file = self._get_build_artifacts(self._build_dir)
-        project_sources = self._get_project_sources(graphql_url, project_dir)
+        project_sources = self._get_project_sources(db_url, project_dir)
 
         self._contracts, self._sources = self.fetch_data(build_files_by_source_file, project_sources)
 
@@ -75,8 +75,8 @@ class TruffleArtifacts(IDEArtifacts):
         return result_contracts, result_sources
 
     @staticmethod
-    def _get_project_sources(graphql_url: str, project_dir: str) -> Dict[str, List[str]]:
-        transport = RequestsHTTPTransport(url=graphql_url)
+    def _get_project_sources(db_url: str, project_dir: str) -> Dict[str, List[str]]:
+        transport = RequestsHTTPTransport(url=db_url)
         client = Client(transport=transport, fetch_schema_from_transport=True)
         get_project_id_query = gql(
             f"""
@@ -170,8 +170,8 @@ class TruffleArtifacts(IDEArtifacts):
 
 
 class TruffleJob:
-    def __init__(self, target: List[str], build_dir: Path):
-        artifacts = TruffleArtifacts(build_dir, targets=target)
+    def __init__(self, db_url: str, project_dir: str, target: List[str], build_dir: Path):
+        artifacts = TruffleArtifacts(db_url, project_dir, build_dir, targets=target)
         self._jb = JobBuilder(artifacts)
         self.payload = None
 
