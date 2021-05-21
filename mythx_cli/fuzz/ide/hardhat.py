@@ -6,7 +6,7 @@ from typing import List
 from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
-from ...util import sol_files_by_directory, LOGGER, files_by_directory, get_content_from_file
+from ...util import sol_files_by_directory, get_content_from_file
 
 
 class HardhatArtifacts(IDEArtifacts):
@@ -15,16 +15,8 @@ class HardhatArtifacts(IDEArtifacts):
         if targets:
             include = []
             for target in targets:
-                # if not map_to_original_source:
                 include.extend(sol_files_by_directory(target))
-                # else:
-                #     # We replace .sol with .sol.original in case the target is a file and not a directory
-                #     target = target.replace(".sol", ".sol.original")
-                #     LOGGER.debug(f"Mapping original code, {target}")
-                #     include.extend(files_by_directory(target, ".sol.original"))
             self._include = include
-
-        print("-----> ",self._include)
         self._build_dir = Path(build_dir).absolute() or Path("./artifacts").absolute()
         self._contracts, self._sources = self.fetch_data(map_to_original_source)
 

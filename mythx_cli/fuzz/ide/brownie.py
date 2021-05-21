@@ -7,7 +7,6 @@ from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
 from ...util import sol_files_by_directory, get_content_from_file
-from ...util import files_by_directory
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -18,14 +17,7 @@ class BrownieArtifacts(IDEArtifacts):
         if targets:
             include = []
             for target in targets:
-                # if not map_to_original_source:
-                LOGGER.debug(f"Mapping instrumented code")
-                include.extend(files_by_directory(target, ".sol"))
-                # else:
-                #     # We replace .sol with .sol.original in case the target is a file and not a directory
-                #     target = target.replace(".sol", ".sol.original")
-                #     LOGGER.debug(f"Mapping original code, {target}")
-                #     include.extend(files_by_directory(target, ".sol.original"))
+                include.extend(sol_files_by_directory(target))
             self._include = include
 
         self._build_dir = build_dir or Path("./build/contracts")
