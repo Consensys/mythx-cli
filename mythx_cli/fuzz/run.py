@@ -177,7 +177,7 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
         artifacts = BrownieJob(target, analyze_config["build_directory"], map_to_original_source=map_to_original_source)
         artifacts.generate_payload()
     elif ide == IDE.HARDHAT:
-        artifacts = HardhatJob(target, analyze_config["build_directory"])
+        artifacts = HardhatJob(target, analyze_config["build_directory"], map_to_original_source=map_to_original_source)
         artifacts.generate_payload()
     elif ide == IDE.TRUFFLE:
         raise click.exceptions.UsageError(

@@ -6,7 +6,7 @@ from typing import Dict, List
 from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
-from ...util import sol_files_by_directory
+from ...util import sol_files_by_directory, get_content_from_file
 from ...util import files_by_directory
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -18,20 +18,20 @@ class BrownieArtifacts(IDEArtifacts):
         if targets:
             include = []
             for target in targets:
-                if not map_to_original_source:
-                    LOGGER.debug(f"Mapping instrumented code")
-                    include.extend(files_by_directory(target, ".sol"))
-                else:
-                    # We replace .sol with .sol.original in case the target is a file and not a directory
-                    target = target.replace(".sol", ".sol.original")
-                    LOGGER.debug(f"Mapping original code, {target}")
-                    include.extend(files_by_directory(target, ".sol.original"))
+                # if not map_to_original_source:
+                LOGGER.debug(f"Mapping instrumented code")
+                include.extend(files_by_directory(target, ".sol"))
+                # else:
+                #     # We replace .sol with .sol.original in case the target is a file and not a directory
+                #     target = target.replace(".sol", ".sol.original")
+                #     LOGGER.debug(f"Mapping original code, {target}")
+                #     include.extend(files_by_directory(target, ".sol.original"))
             self._include = include
 
         self._build_dir = build_dir or Path("./build/contracts")
         build_files_by_source_file = self._get_build_artifacts(self._build_dir)
 
-        self._contracts, self._sources = self.fetch_data(build_files_by_source_file)
+        self._contracts, self._sources = self.fetch_data(build_files_by_source_file, map_to_original_source)
 
     @property
     def contracts(self):
@@ -41,7 +41,7 @@ class BrownieArtifacts(IDEArtifacts):
     def sources(self):
         return self._sources
 
-    def fetch_data(self, build_files_by_source_file):
+    def fetch_data(self, build_files_by_source_file, map_to_original_source=False):
         result_contracts = {}
         result_sources = {}
         for source_file, contracts in build_files_by_source_file.items():
@@ -83,6 +83,11 @@ class BrownieArtifacts(IDEArtifacts):
                         "source": target_file["source"],
                         "ast": target_file["ast"],
                     }
+
+                    if map_to_original_source and Path(source_file_dep+".original").is_file():
+                        # we check if the current source file has a non instrumented version
+                        # if it does, we include that one as the source code
+                        result_sources[source_file_dep]["source"] = get_content_from_file(source_file_dep+".original")
         return result_contracts, result_sources
 
     @staticmethod

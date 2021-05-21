@@ -6,20 +6,27 @@ from typing import List
 from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
-from ...util import sol_files_by_directory
+from ...util import sol_files_by_directory, LOGGER, files_by_directory, get_content_from_file
 
 
 class HardhatArtifacts(IDEArtifacts):
-    def __init__(self, build_dir=None, targets=None):
+    def __init__(self, build_dir=None, targets=None, map_to_original_source=False):
         self._include = []
         if targets:
             include = []
             for target in targets:
+                # if not map_to_original_source:
                 include.extend(sol_files_by_directory(target))
+                # else:
+                #     # We replace .sol with .sol.original in case the target is a file and not a directory
+                #     target = target.replace(".sol", ".sol.original")
+                #     LOGGER.debug(f"Mapping original code, {target}")
+                #     include.extend(files_by_directory(target, ".sol.original"))
             self._include = include
 
+        print("-----> ",self._include)
         self._build_dir = Path(build_dir).absolute() or Path("./artifacts").absolute()
-        self._contracts, self._sources = self.fetch_data()
+        self._contracts, self._sources = self.fetch_data(map_to_original_source)
 
     @property
     def contracts(self):
@@ -29,7 +36,7 @@ class HardhatArtifacts(IDEArtifacts):
     def sources(self):
         return self._sources
 
-    def fetch_data(self):
+    def fetch_data(self, map_to_original_source=False):
         result_contracts = {}
         result_sources = {}
 
@@ -98,12 +105,17 @@ class HardhatArtifacts(IDEArtifacts):
                     "ast": data["ast"],
                 }
 
+                if map_to_original_source and Path(source_file_dep+".original").is_file():
+                    # we check if the current source file has a non instrumented version
+                    # if it does, we include that one as the source code
+                    result_sources[source_file_dep]["source"] = get_content_from_file(source_file_dep+".original")
+
         return result_contracts, result_sources
 
 
 class HardhatJob:
-    def __init__(self, target: List[str], build_dir: Path):
-        artifacts = HardhatArtifacts(build_dir, targets=target)
+    def __init__(self, target: List[str], build_dir: Path, map_to_original_source: bool):
+        artifacts = HardhatArtifacts(build_dir, targets=target, map_to_original_source=map_to_original_source)
         self._jb = JobBuilder(artifacts)
         self.payload = None
 
