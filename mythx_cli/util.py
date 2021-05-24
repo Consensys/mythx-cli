@@ -250,6 +250,7 @@ def write_or_print(ctx, data: str, mode="a+") -> None:
         LOGGER.debug(f"Writing data to {ctx['output']}")
         outfile.write(data + "\n")
 
+
 def sol_files_by_directory(target_path: AnyStr) -> List:
     """Gathers all the .sol files inside the target path
     including sub-directories and returns them as a List.
@@ -259,6 +260,7 @@ def sol_files_by_directory(target_path: AnyStr) -> List:
     :return:
     """
     return files_by_directory(target_path, ".sol")
+
 
 def files_by_directory(target_path: AnyStr, extension: AnyStr) -> List:
     """Gathers all the target extension files inside the target path
@@ -281,7 +283,7 @@ def files_by_directory(target_path: AnyStr, extension: AnyStr) -> List:
         else:
             """ If it's a valid target extension file there is no need to search further and we just append it to our
             list to be returned, removing the .original extension, leaving only the .sol """
-            target_files.append(target_path.replace(".original",""))
+            target_files.append(target_path.replace(".original", ""))
     source_dir = os.walk(target_path)
     for sub_dir in source_dir:
         if len(sub_dir[2]) > 0:
@@ -298,5 +300,5 @@ def files_by_directory(target_path: AnyStr, extension: AnyStr) -> List:
                 file_name = file_prefix + "/" + file
                 LOGGER.debug(f"Found target extension file: {file_name}")
                 # We remove the .original extension, added by Scribble
-                target_files.append(file_name.replace(".original",""))
+                target_files.append(file_name.replace(".original", ""))
     return target_files

@@ -6,8 +6,7 @@ from typing import Dict, List
 from mythx_cli.fuzz.exceptions import BuildArtifactsError
 from mythx_cli.fuzz.ide.generic import IDEArtifacts, JobBuilder
 
-from ...util import sol_files_by_directory
-from ...util import files_by_directory
+from ...util import files_by_directory, sol_files_by_directory
 
 LOGGER = logging.getLogger("mythx-cli")
 
@@ -130,8 +129,12 @@ class BrownieArtifacts(IDEArtifacts):
 
 
 class BrownieJob:
-    def __init__(self, target: List[str], build_dir: Path, map_to_original_source: bool):
-        artifacts = BrownieArtifacts(build_dir, targets=target, map_to_original_source=map_to_original_source)
+    def __init__(
+        self, target: List[str], build_dir: Path, map_to_original_source: bool
+    ):
+        artifacts = BrownieArtifacts(
+            build_dir, targets=target, map_to_original_source=map_to_original_source
+        )
         self._jb = JobBuilder(artifacts)
         self.payload = None
 
