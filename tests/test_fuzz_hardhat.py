@@ -20,6 +20,9 @@ HARDHAT_BUILD_INFO_ARTIFACT = get_test_case("testdata/hardhat-build-info-artifac
 GANACHE_URL = "http://localhost:9898"
 FAAS_URL = "http://localhost:9899"
 
+INSTRUMENTED_SOL_CODE = "sol code here"
+ORIGINAL_SOL_CODE = "original sol code here"
+
 
 @pytest.fixture()
 def hardhat_project(tmp_path, switch_dir=False):
@@ -48,10 +51,16 @@ def hardhat_project(tmp_path, switch_dir=False):
             json.dump(content, sol_f)
 
     with open(tmp_path / "contracts/MasterChefV2.sol", "w+") as sol_f:
-        sol_f.write("sol code here")
+        sol_f.write(INSTRUMENTED_SOL_CODE)
 
-        with open(tmp_path / "contracts/sample.sol", "w+") as sol_f:
-            sol_f.write("sol code here")
+    with open(tmp_path / "contracts/sample.sol", "w+") as sol_f:
+        sol_f.write(INSTRUMENTED_SOL_CODE)
+
+    with open(tmp_path / "contracts/MasterChefV2.sol.original", "w+") as sol_f:
+        sol_f.write(ORIGINAL_SOL_CODE)
+
+    with open(tmp_path / "contracts/sample.sol.original", "w+") as sol_f:
+        sol_f.write(ORIGINAL_SOL_CODE)
 
     yield None
 
