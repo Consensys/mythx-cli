@@ -57,7 +57,7 @@ def determine_ide() -> IDE:
     "--corpus-target",
     type=click.STRING,
     help="Project UUID, Campaign UUID or Corpus UUID to reuse the corpus from. "
-    "In case of a project, corpus from the project's latest submitted campaign will be used",
+         "In case of a project, corpus from the project's latest submitted campaign will be used",
     default=None,
     required=False,
 )
@@ -69,8 +69,16 @@ def determine_ide() -> IDE:
     help="Map the analyses results to the original source code, instead of the instrumented one. "
          "This is meant to be used with Scribble.",
 )
+
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Outputs the data to be sent to the FaaS API without making the request.",
+)
+
 @click.pass_obj
-def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source, target):
+def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source, dry_run, target):
     # read YAML config params from ctx dict, e.g. ganache rpc url
     #   Introduce a separate `fuzz` section in the YAML file
 
@@ -119,11 +127,11 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
     if not target:
         target = analyze_config["targets"]
     if not map_to_original_source:
-       map_to_original_source = (
-        analyze_config["map_to_original_source"]
-        if "map_to_original_source" in config_options
-        else default_config["map_to_original_source"]
-    )
+        map_to_original_source = (
+            analyze_config["map_to_original_source"]
+            if "map_to_original_source" in config_options
+            else default_config["map_to_original_source"]
+        )
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
     contract_address = analyze_config["deployed_contract_address"]
@@ -193,7 +201,7 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
     )
     try:
         campaign_id = faas_client.create_faas_campaign(
-            campaign_data=artifacts, seed_state=seed_state
+            campaign_data=artifacts, seed_state=seed_state, dry_run=dry_run
         )
         click.echo(
             "You can view campaign here: " + faas_url + "/campaigns/" + str(campaign_id)

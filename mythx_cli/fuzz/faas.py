@@ -1,3 +1,4 @@
+import json
 import logging
 import random
 import string
@@ -54,7 +55,7 @@ class FaasClient:
                 raise e
             raise RequestError(f"Error starting FaaS campaign.")
 
-    def create_faas_campaign(self, campaign_data, seed_state):
+    def create_faas_campaign(self, campaign_data, seed_state, dry_run = False):
         """Submit a campaign to the FaaS and start that campaign.
 
         This function takes a FaaS payload and makes an HTTP request to the Faas backend, which
@@ -102,6 +103,11 @@ class FaasClient:
                     f"Error getting Scribble arming metadata."
                 ) from e
 
+            if dry_run:
+                print("Printing output \n --------")
+                print(f"{json.dumps(api_payload)}")
+                print("End of output \n --------")
+                return "campaign not started due to --dry-run option"
             campaign_id = self.start_faas_campaign(api_payload)
 
             return campaign_id
