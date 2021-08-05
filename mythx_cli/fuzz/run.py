@@ -77,8 +77,16 @@ def determine_ide() -> IDE:
     help="Outputs the data to be sent to the FaaS API without making the request.",
 )
 
+@click.option(
+    "-k",
+    "--api-key",
+    type=click.STRING,
+    help="API key, can be created on the FaaS Dashboard. ",
+    default=None,
+    required=False,
+)
 @click.pass_obj
-def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source, dry_run, target):
+def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source, dry_run, api_key, target):
     # read YAML config params from ctx dict, e.g. ganache rpc url
     #   Introduce a separate `fuzz` section in the YAML file
 
@@ -131,6 +139,12 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
             analyze_config["map_to_original_source"]
             if "map_to_original_source" in config_options
             else default_config["map_to_original_source"]
+        )
+    if not api_key:
+        api_key = (
+            analyze_config["api_key"]
+            if "api_key" in config_options
+            else None
         )
     # Optional config parameters
     # Here we parse the config parameters from the config file and use defaults for non available values
@@ -197,7 +211,7 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
         )
 
     faas_client = FaasClient(
-        faas_url=faas_url, campaign_name_prefix=campaign_name_prefix, project_type=ide
+        faas_url=faas_url, campaign_name_prefix=campaign_name_prefix, project_type=ide, api_key=api_key
     )
     try:
         campaign_id = faas_client.create_faas_campaign(
