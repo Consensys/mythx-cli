@@ -108,7 +108,7 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
 
     default_config = {
         "rpc_url": "http://localhost:7545",
-        "faas_url": "http://localhost:8080",
+        "faas_url": "https://fuzzing-staging.diligence.tools",
         "harvey_num_cores": 2,
         "campaign_name_prefix": "untitled",
         "map_to_original_source": False,
