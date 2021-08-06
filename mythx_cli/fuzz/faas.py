@@ -1,8 +1,10 @@
+import json
 import logging
 import random
 import string
 
 import requests
+from requests.structures import CaseInsensitiveDict
 
 from mythx_cli.analyze.scribble import ScribbleMixin
 
@@ -16,8 +18,6 @@ from .exceptions import (
 
 LOGGER = logging.getLogger("mythx-cli")
 
-headers = {"Content-Type": "application/json"}
-
 
 class FaasClient:
     """ A client to interact with the FaaS API.
@@ -26,10 +26,14 @@ class FaasClient:
     API can consume and submits it, also triggering the start of a Campaign.
     """
 
-    def __init__(self, faas_url, campaign_name_prefix, project_type):
+    def __init__(self, faas_url, campaign_name_prefix, project_type, api_key):
         self.faas_url = faas_url
         self.campaign_name_prefix = campaign_name_prefix
         self.project_type = project_type
+        self.api_key = api_key
+        self.headers = CaseInsensitiveDict()
+        self.headers["Content-Type"] = "application/json"
+        self.headers["Authorization"] = "Bearer " + str(self.api_key)
 
     def generate_campaign_name(self):
         """Return a random name with the provided prefix self.campaign_name_prefix."""
@@ -40,10 +44,11 @@ class FaasClient:
     def start_faas_campaign(self, payload):
         """Make HTTP request to the faas"""
         try:
-            req_url = f"{self.faas_url}/api/campaigns?start_immediately=true"
-            response = requests.post(req_url, json=payload, headers=headers)
+            req_url = f"{self.faas_url}/api/campaigns/?start_immediately=true"
+            response = requests.post(req_url, json=payload, headers=self.headers)
             response_data = response.json()
             if response.status_code != requests.codes.ok:
+                print(response.text)
                 raise BadStatusCode(
                     f"Got http status code {response.status_code} for request {req_url}",
                     detail=response_data["detail"],
@@ -54,7 +59,7 @@ class FaasClient:
                 raise e
             raise RequestError(f"Error starting FaaS campaign.")
 
-    def create_faas_campaign(self, campaign_data, seed_state):
+    def create_faas_campaign(self, campaign_data, seed_state, dry_run=False):
         """Submit a campaign to the FaaS and start that campaign.
 
         This function takes a FaaS payload and makes an HTTP request to the Faas backend, which
@@ -102,6 +107,11 @@ class FaasClient:
                     f"Error getting Scribble arming metadata."
                 ) from e
 
+            if dry_run:
+                print("Printing output \n --------")
+                print(f"{json.dumps(api_payload)}")
+                print("End of output \n --------")
+                return "campaign not started due to --dry-run option"
             campaign_id = self.start_faas_campaign(api_payload)
 
             return campaign_id

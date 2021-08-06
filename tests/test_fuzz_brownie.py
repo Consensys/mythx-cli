@@ -19,6 +19,9 @@ BROWNIE_ARTIFACT = get_test_case("testdata/brownie-artifact.json")
 GANACHE_URL = "http://localhost:9898"
 FAAS_URL = "http://localhost:9899"
 
+INSTRUMENTED_SOL_CODE = "sol code here"
+ORIGINAL_SOL_CODE = "original sol code here"
+
 
 @pytest.fixture()
 def brownie_project(tmp_path, switch_dir=False):
@@ -41,7 +44,9 @@ def brownie_project(tmp_path, switch_dir=False):
     with open(tmp_path / "build/contracts/Foo.json", "w+") as artifact_f:
         json.dump(BROWNIE_ARTIFACT, artifact_f)
     with open(tmp_path / "contracts/sample.sol", "w+") as sol_f:
-        sol_f.write("sol code here")
+        sol_f.write(INSTRUMENTED_SOL_CODE)
+    with open(tmp_path / "contracts/sample.sol.original", "w+") as sol_f:
+        sol_f.write(ORIGINAL_SOL_CODE)
 
     yield None
     # cleaning up test files
@@ -259,6 +264,68 @@ def test_fuzz_run(tmp_path, brownie_project):
 
     assert result.exit_code == 0
 
+def test_fuzz_run_map_to_original_source(tmp_path, brownie_project):
+    with open(".mythx.yml", "w+") as conf_f:
+        conf_f.write(generate_config_file(base_path=tmp_path))
+
+    with patch.object(
+        RPCClient, "contract_exists"
+    ) as contract_exists_mock, patch.object(
+        RPCClient, "get_all_blocks"
+    ) as get_all_blocks_mock, patch.object(
+        FaasClient, "start_faas_campaign"
+    ) as start_faas_campaign_mock:
+        get_all_blocks_mock.return_value = get_test_case(
+            "testdata/ganache-all-blocks.json"
+        )
+        contract_exists_mock.return_value = True
+        campaign_id = "560ba03a-8744-4da6-aeaa-a62568ccbf44"
+        start_faas_campaign_mock.return_value = campaign_id
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["fuzz", "run", "--map-to-original-source",f"{tmp_path}/contracts"])
+
+    contract_exists_mock.assert_called_with(
+        "0x7277646075fa72737e1F6114654C5d9949a67dF2"
+    )
+    contract_exists_mock.assert_called_once()
+    get_all_blocks_mock.assert_called_once()
+    start_faas_campaign_mock.assert_called_once()
+    called_with = start_faas_campaign_mock.call_args
+    assert (
+        f"You can view campaign here: {FAAS_URL}/campaigns/{campaign_id}"
+        in result.output
+    )
+
+    request_payload = json.dumps(called_with[0])
+
+    assert ORIGINAL_SOL_CODE in request_payload
+
+    keywords = [
+        "parameters",
+        "name",
+        "corpus",
+        "sources",
+        "contracts",
+        "address-under-test",
+        "source",
+        "fileIndex",
+        "sourcePaths",
+        "deployedSourceMap",
+        "mainSourceFile",
+        "contractName",
+        "bytecode",
+        "deployedBytecode",
+        "sourceMap",
+        "deployedSourceMap",
+    ]
+
+    for keyword in keywords:
+        assert keyword in request_payload
+
+
+
+    assert result.exit_code == 0
 
 @pytest.mark.parametrize("keyword", ("run", "disarm", "arm", "run"))
 def test_fuzz_subcommands_present(keyword):

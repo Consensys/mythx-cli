@@ -302,3 +302,12 @@ def files_by_directory(target_path: AnyStr, extension: AnyStr) -> List:
                 # We remove the .original extension, added by Scribble
                 target_files.append(file_name.replace(".original", ""))
     return target_files
+
+
+def get_content_from_file(file_path: AnyStr) -> AnyStr:
+    reader = open(file_path)
+    try:
+        source_code = reader.read()
+    finally:
+        reader.close()
+    return source_code
