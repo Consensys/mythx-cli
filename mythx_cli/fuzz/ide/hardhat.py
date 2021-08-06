@@ -1,5 +1,5 @@
 import json
-from os.path import commonpath, relpath
+from os.path import abspath, commonpath, relpath
 from pathlib import Path
 from typing import List
 
@@ -15,7 +15,9 @@ class HardhatArtifacts(IDEArtifacts):
         if targets:
             include = []
             for target in targets:
-                include.extend(sol_files_by_directory(target))
+                include.extend(
+                    [abspath(file_path) for file_path in sol_files_by_directory(target)]
+                )
             self._include = include
         self._build_dir = Path(build_dir).absolute() or Path("./artifacts").absolute()
         self._contracts, self._sources = self.fetch_data(map_to_original_source)

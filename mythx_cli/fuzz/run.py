@@ -11,6 +11,7 @@ from mythx_cli.fuzz.ide.hardhat import HardhatJob
 
 from .exceptions import BadStatusCode, RPCCallError
 from .faas import FaasClient
+from .ide.truffle import TruffleJob
 from .rpc import RPCClient
 
 LOGGER = logging.getLogger("mythx-cli")
@@ -67,7 +68,7 @@ def determine_ide() -> IDE:
     is_flag=True,
     default=False,
     help="Map the analyses results to the original source code, instead of the instrumented one. "
-         "This is meant to be used with Scribble.",
+    "This is meant to be used with Scribble.",
 )
 
 @click.option(
@@ -196,15 +197,20 @@ def fuzz_run(ctx, address, more_addresses, corpus_target, map_to_original_source
     ide = determine_ide()
 
     if ide == IDE.BROWNIE:
-        artifacts = BrownieJob(target, analyze_config["build_directory"], map_to_original_source=map_to_original_source)
+        artifacts = BrownieJob(
+            target,
+            analyze_config["build_directory"],
+            map_to_original_source=map_to_original_source,
+        )
         artifacts.generate_payload()
     elif ide == IDE.HARDHAT:
         artifacts = HardhatJob(target, analyze_config["build_directory"], map_to_original_source=map_to_original_source)
         artifacts.generate_payload()
     elif ide == IDE.TRUFFLE:
-        raise click.exceptions.UsageError(
-            f"Projects using Truffle IDE is not supported right now"
+        artifacts = TruffleJob(
+            str(Path.cwd().absolute()), target, analyze_config["build_directory"]
         )
+        artifacts.generate_payload()
     else:
         raise click.exceptions.UsageError(
             f"Projects using plain solidity files is not supported right now"
