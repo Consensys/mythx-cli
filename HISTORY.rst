@@ -3,10 +3,18 @@ History
 =======
 
 
+0.6.23 (2022-04-07)
+-------------------
+
+- Add compatibility fix for Scribble compilation artifacts processing (prior :code:`eth-scribble@0.3.5`)
+
+- Fix :code:`MarkupSafe` to 2.0.1 due to breaking changes (https://github.com/pallets/markupsafe/pull/261)
+
+
 0.6.22 (2020-10-05)
 -------------------
 
-- Catch AttributeError on fauly Truffle artifact schema
+- Catch AttributeError on faulty Truffle artifact schema
 
 - Update :code:`pytest` to 6.1.1
 - Update :code:`isort` to 5.5.4
