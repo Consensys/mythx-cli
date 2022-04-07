@@ -47,7 +47,10 @@ class SolidityJob(ScribbleMixin):
 
             if scribble_file is not None:
                 # add source from scribble return value
-                payload_dict["source"] = compiled_sources["source"]
+                if "source" in compiled_sources:  # COMPATIBILITY: for eth-scribble <= 0.3.4
+                    payload_dict["source"] = compiled_sources["source"]
+                else:
+                    payload_dict["source"] = compiled_sources[file_path]["source"]
             else:
                 # add source from file path
                 with open(file_path, newline="") as source_f:
