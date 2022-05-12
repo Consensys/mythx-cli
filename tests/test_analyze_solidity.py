@@ -252,10 +252,6 @@ def test_parameters(tmp_path, params, value, contained, retval):
     with mock_context():
         result = runner.invoke(cli, params, input="y\n")
 
-    import traceback
-
-    traceback.print_exception(*result.exc_info)
-
     if contained:
         assert value in result.output
     else:

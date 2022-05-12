@@ -103,7 +103,7 @@ def filter_report(
 
     min_severity = min_severity = (
         SEVERITY(min_severity.title()) if min_severity else SEVERITY.UNKNOWN
-    )  # SEVERITY_ORDER.index(min_severity) if min_severity else SEVERITY_ORDER[0]
+    )
     swc_blacklist = normalize_swc_list(swc_blacklist)
     swc_whitelist = normalize_swc_list(swc_whitelist)
 
