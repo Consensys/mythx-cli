@@ -25,16 +25,17 @@ def test_status_tabular():
             cli, ["analysis", "status", "381eff48-04db-4f81-a417-8394b6614472"]
         )
 
-        assert result.output == ANALYSIS_STATUS_TABLE
-        assert result.exit_code == 0
+    assert result.output == ANALYSIS_STATUS_TABLE
+    assert result.exit_code == 0
 
 
 def test_group_status_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["group", "status", "5dd40ca50d861d001101e888"])
-        assert result.output == GROUP_STATUS_TABLE
-        assert result.exit_code == 0
+
+    assert result.output == GROUP_STATUS_TABLE
+    assert result.exit_code == 0
 
 
 def test_status_json():

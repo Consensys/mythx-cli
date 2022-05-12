@@ -52,7 +52,7 @@ class TabularFormatter(BaseFormatter):
                 group.identifier,
                 group.status,
                 ",".join([basename(x) for x in group.main_source_files]),
-                group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                group.created_at,
             )
             for group in resp.groups
         ]
@@ -68,7 +68,7 @@ class TabularFormatter(BaseFormatter):
                 ("Name", resp.name or "<unnamed>"),
                 (
                     "Creation Date",
-                    resp.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                    resp.created_at,
                 ),
                 ("Created By", resp.created_by),
                 ("Progress", "{}/100".format(resp.progress)),
@@ -107,7 +107,22 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         """Format an analysis status response to a tabular representation."""
 
-        data = ((k, v) for k, v in resp.analysis.dict().items())
+        data = (
+            ("UUID", resp.uuid),
+            ("API Version", resp.api_version),
+            ("Harvey Version", resp.harvey_version),
+            ("Maru Version", resp.maru_version),
+            ("Mythril Version", resp.mythril_version),
+            ("Queue Time", resp.queue_time),
+            ("Run Time", resp.run_time),
+            ("Status", resp.status),
+            ("Submitted At", resp.submitted_at),
+            ("Submitted By", resp.submitted_by),
+            ("Tool Name", resp.client_tool_name),
+            ("Group ID", resp.group_id),
+            ("Group Name", resp.group_name),
+            ("Analysis Mode", resp.analysis_mode),
+        )
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod

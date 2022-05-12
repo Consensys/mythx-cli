@@ -8,8 +8,8 @@ from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
-    Severity,
 )
+from mythx_models.response.issue import SEVERITY
 
 from mythx_cli.cli import cli
 
@@ -53,7 +53,7 @@ def setup_truffle_project(base_path, compiled=True, switch_dir=False):
 
 def get_high_severity_report():
     issues_resp = deepcopy(ISSUES_RESPONSE)
-    issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+    issues_resp.issue_reports[0].issues[0].severity = SEVERITY.HIGH
     return issues_resp
 
 
