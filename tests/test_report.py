@@ -108,7 +108,7 @@ def test_report_json():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.to_json())
+        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.json())
         assert result.exit_code == 0
 
 
@@ -192,7 +192,7 @@ def test_report_json_pretty():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.to_json())
+        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.json())
         assert result.exit_code == 0
 
 

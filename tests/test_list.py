@@ -40,7 +40,7 @@ def test_list_json():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "analysis", "list"])
 
-        assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
+        assert json.loads(result.output) == ANALYSIS_LIST.dict()
         assert result.exit_code == 0
 
 
@@ -49,7 +49,7 @@ def test_group_list_json():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "group", "list"])
 
-        assert json.loads(result.output) == GROUP_LIST.to_dict()
+        assert json.loads(result.output) == GROUP_LIST.dict()
         assert result.exit_code == 0
 
 
@@ -58,7 +58,7 @@ def test_list_json_pretty():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "analysis", "list"])
 
-        assert json.loads(result.output) == ANALYSIS_LIST.to_dict()
+        assert json.loads(result.output) == ANALYSIS_LIST.dict()
         assert result.exit_code == 0
 
 
@@ -67,7 +67,7 @@ def test_group_list_json_pretty():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "group", "list"])
 
-        assert json.loads(result.output) == GROUP_LIST.to_dict()
+        assert json.loads(result.output) == GROUP_LIST.dict()
         assert result.exit_code == 0
 
 

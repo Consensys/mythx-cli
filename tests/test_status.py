@@ -51,7 +51,7 @@ def test_status_json():
             ],
         )
 
-        assert json.loads(result.output) == ANALYSIS_STATUS.to_dict()
+        assert json.loads(result.output) == ANALYSIS_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -62,7 +62,7 @@ def test_group_status_json():
             cli, ["--format", "json", "group", "status", "5dd40ca50d861d001101e888"]
         )
 
-        assert json.loads(result.output) == GROUP_STATUS.to_dict()
+        assert json.loads(result.output) == GROUP_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -80,7 +80,7 @@ def test_status_json_pretty():
             ],
         )
 
-        assert json.loads(result.output) == ANALYSIS_STATUS.to_dict()
+        assert json.loads(result.output) == ANALYSIS_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -92,7 +92,7 @@ def test_group_status_json_pretty():
             ["--format", "json-pretty", "group", "status", "5dd40ca50d861d001101e888"],
         )
 
-        assert json.loads(result.output) == GROUP_STATUS.to_dict()
+        assert json.loads(result.output) == GROUP_STATUS.dict()
         assert result.exit_code == 0
 
 

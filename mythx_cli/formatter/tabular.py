@@ -109,7 +109,7 @@ class TabularFormatter(BaseFormatter):
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         """Format an analysis status response to a tabular representation."""
 
-        data = ((k, v) for k, v in resp.analysis.to_dict().items())
+        data = ((k, v) for k, v in resp.analysis.dict().items())
         return tabulate(data, tablefmt="fancy_grid")
 
     @staticmethod
@@ -167,5 +167,5 @@ class TabularFormatter(BaseFormatter):
     def format_version(resp: VersionResponse) -> str:
         """Format a version response to a tabular representation."""
 
-        data = ((k.title(), v) for k, v in resp.to_dict().items())
+        data = ((k.title(), v) for k, v in resp.dict().items())
         return tabulate(data, tablefmt="fancy_grid")
