@@ -1,6 +1,5 @@
 [{
     "issues": [{
-            "uuid": null,
             "swcID": "SWC-110",
             "swcTitle": "Assert Violation",
             "description": {
@@ -189,7 +188,6 @@
             }
         },
         {
-            "uuid": null,
             "swcID": "",
             "swcTitle": "",
             "description": {

@@ -46,10 +46,10 @@ class SimpleFormatter(BaseFormatter):
         """Format a group status response to a simple text representation."""
 
         res = [
-            "ID: {}".format(resp.group.identifier),
-            "Name: {}".format(resp.group.name or "<unnamed>"),
-            "Created on: {}".format(resp.group.created_at),
-            "Status: {}".format(resp.group.status),
+            "ID: {}".format(resp.identifier),
+            "Name: {}".format(resp.name or "<unnamed>"),
+            "Created on: {}".format(resp.created_at),
+            "Status: {}".format(resp.status),
             "",
         ]
         return "\n".join(res)

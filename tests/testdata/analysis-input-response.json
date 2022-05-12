@@ -20,8 +20,7 @@
                 },
                 "id": 1222,
                 "nodeType": "SourceUnit",
-                "nodes": [
-                    {
+                "nodes": [{
                         "id": 1123,
                         "literals": [
                             "solidity",
@@ -44,8 +43,7 @@
                         ],
                         "name": "LANDRegistry",
                         "nodeType": "ContractDefinition",
-                        "nodes": [
-                            {
+                        "nodes": [{
                                 "body": null,
                                 "documentation": null,
                                 "id": 1132,
@@ -58,42 +56,39 @@
                                 "parameters": {
                                     "id": 1126,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1125,
-                                            "name": "value",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1132,
-                                            "src": "76:10:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1125,
+                                        "name": "value",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1132,
+                                        "src": "76:10:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1124,
+                                            "name": "uint",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "76:4:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1124,
-                                                "name": "uint",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "76:4:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "75:12:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1131,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1128,
                                             "name": "",
@@ -167,8 +162,7 @@
                                 "parameters": {
                                     "id": 1139,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1134,
                                             "name": "x",
@@ -275,8 +269,7 @@
                                 "parameters": {
                                     "id": 1146,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1143,
                                             "name": "assetId",
@@ -386,68 +379,64 @@
                                 "parameters": {
                                     "id": 1154,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1153,
-                                            "name": "tokenId",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1158,
-                                            "src": "304:15:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1153,
+                                        "name": "tokenId",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1158,
+                                        "src": "304:15:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1152,
+                                            "name": "uint256",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "304:7:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1152,
-                                                "name": "uint256",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "304:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "303:17:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1157,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1156,
-                                            "name": "",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1158,
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1156,
+                                        "name": "",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1158,
+                                        "src": "337:7:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                        },
+                                        "typeName": {
+                                            "id": 1155,
+                                            "name": "address",
+                                            "nodeType": "ElementaryTypeName",
                                             "src": "337:7:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_address",
                                                 "typeString": "address"
-                                            },
-                                            "typeName": {
-                                                "id": 1155,
-                                                "name": "address",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "337:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_address",
-                                                    "typeString": "address"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "336:9:2"
                                 },
                                 "scope": 1175,
@@ -469,8 +458,7 @@
                                 "parameters": {
                                     "id": 1165,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1160,
                                             "name": "",
@@ -577,68 +565,64 @@
                                 "parameters": {
                                     "id": 1170,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1169,
-                                            "name": "landId",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1174,
-                                            "src": "436:14:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1169,
+                                        "name": "landId",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1174,
+                                        "src": "436:14:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1168,
+                                            "name": "uint256",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "436:7:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1168,
-                                                "name": "uint256",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "436:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "435:16:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1173,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1172,
-                                            "name": "",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1174,
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1172,
+                                        "name": "",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1174,
+                                        "src": "468:7:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                        },
+                                        "typeName": {
+                                            "id": 1171,
+                                            "name": "address",
+                                            "nodeType": "ElementaryTypeName",
                                             "src": "468:7:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_address",
                                                 "typeString": "address"
-                                            },
-                                            "typeName": {
-                                                "id": 1171,
-                                                "name": "address",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "468:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_address",
-                                                    "typeString": "address"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "467:9:2"
                                 },
                                 "scope": 1175,
@@ -663,8 +647,7 @@
                         ],
                         "name": "EstateStorage",
                         "nodeType": "ContractDefinition",
-                        "nodes": [
-                            {
+                        "nodes": [{
                                 "constant": true,
                                 "id": 1182,
                                 "name": "InterfaceId_GetMetadata",
@@ -689,69 +672,61 @@
                                 },
                                 "value": {
                                     "argumentTypes": null,
-                                    "arguments": [
-                                        {
+                                    "arguments": [{
+                                        "argumentTypes": null,
+                                        "arguments": [{
                                             "argumentTypes": null,
-                                            "arguments": [
-                                                {
-                                                    "argumentTypes": null,
-                                                    "hexValue": "6765744d657461646174612875696e7432353629",
-                                                    "id": 1179,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": true,
-                                                    "kind": "string",
-                                                    "lValueRequested": false,
-                                                    "nodeType": "Literal",
-                                                    "src": "577:22:2",
-                                                    "subdenomination": null,
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
-                                                        "typeString": "literal_string \"getMetadata(uint256)\""
-                                                    },
-                                                    "value": "getMetadata(uint256)"
-                                                }
-                                            ],
-                                            "expression": {
-                                                "argumentTypes": [
-                                                    {
-                                                        "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
-                                                        "typeString": "literal_string \"getMetadata(uint256)\""
-                                                    }
-                                                ],
-                                                "id": 1178,
-                                                "name": "keccak256",
-                                                "nodeType": "Identifier",
-                                                "overloadedDeclarations": [],
-                                                "referencedDeclaration": 6208,
-                                                "src": "567:9:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                                                    "typeString": "function () pure returns (bytes32)"
-                                                }
-                                            },
-                                            "id": 1180,
+                                            "hexValue": "6765744d657461646174612875696e7432353629",
+                                            "id": 1179,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
-                                            "kind": "functionCall",
+                                            "kind": "string",
                                             "lValueRequested": false,
-                                            "names": [],
-                                            "nodeType": "FunctionCall",
-                                            "src": "567:33:2",
+                                            "nodeType": "Literal",
+                                            "src": "577:22:2",
+                                            "subdenomination": null,
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
+                                                "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
+                                                "typeString": "literal_string \"getMetadata(uint256)\""
+                                            },
+                                            "value": "getMetadata(uint256)"
+                                        }],
+                                        "expression": {
+                                            "argumentTypes": [{
+                                                "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
+                                                "typeString": "literal_string \"getMetadata(uint256)\""
+                                            }],
+                                            "id": 1178,
+                                            "name": "keccak256",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 6208,
+                                            "src": "567:9:2",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                                                "typeString": "function () pure returns (bytes32)"
                                             }
+                                        },
+                                        "id": 1180,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": true,
+                                        "kind": "functionCall",
+                                        "lValueRequested": false,
+                                        "names": [],
+                                        "nodeType": "FunctionCall",
+                                        "src": "567:33:2",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
                                         }
-                                    ],
+                                    }],
                                     "expression": {
-                                        "argumentTypes": [
-                                            {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
-                                            }
-                                        ],
+                                        "argumentTypes": [{
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
+                                        }],
                                         "id": 1177,
                                         "isConstant": false,
                                         "isLValue": false,
@@ -806,69 +781,61 @@
                                 },
                                 "value": {
                                     "argumentTypes": null,
-                                    "arguments": [
-                                        {
+                                    "arguments": [{
+                                        "argumentTypes": null,
+                                        "arguments": [{
                                             "argumentTypes": null,
-                                            "arguments": [
-                                                {
-                                                    "argumentTypes": null,
-                                                    "hexValue": "76657269667946696e6765727072696e742875696e743235362c627974657329",
-                                                    "id": 1186,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": true,
-                                                    "kind": "string",
-                                                    "lValueRequested": false,
-                                                    "nodeType": "Literal",
-                                                    "src": "684:34:2",
-                                                    "subdenomination": null,
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
-                                                        "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
-                                                    },
-                                                    "value": "verifyFingerprint(uint256,bytes)"
-                                                }
-                                            ],
-                                            "expression": {
-                                                "argumentTypes": [
-                                                    {
-                                                        "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
-                                                        "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
-                                                    }
-                                                ],
-                                                "id": 1185,
-                                                "name": "keccak256",
-                                                "nodeType": "Identifier",
-                                                "overloadedDeclarations": [],
-                                                "referencedDeclaration": 6208,
-                                                "src": "674:9:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                                                    "typeString": "function () pure returns (bytes32)"
-                                                }
-                                            },
-                                            "id": 1187,
+                                            "hexValue": "76657269667946696e6765727072696e742875696e743235362c627974657329",
+                                            "id": 1186,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
-                                            "kind": "functionCall",
+                                            "kind": "string",
                                             "lValueRequested": false,
-                                            "names": [],
-                                            "nodeType": "FunctionCall",
-                                            "src": "674:45:2",
+                                            "nodeType": "Literal",
+                                            "src": "684:34:2",
+                                            "subdenomination": null,
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
+                                                "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
+                                                "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
+                                            },
+                                            "value": "verifyFingerprint(uint256,bytes)"
+                                        }],
+                                        "expression": {
+                                            "argumentTypes": [{
+                                                "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
+                                                "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
+                                            }],
+                                            "id": 1185,
+                                            "name": "keccak256",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 6208,
+                                            "src": "674:9:2",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                                                "typeString": "function () pure returns (bytes32)"
                                             }
+                                        },
+                                        "id": 1187,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": true,
+                                        "kind": "functionCall",
+                                        "lValueRequested": false,
+                                        "names": [],
+                                        "nodeType": "FunctionCall",
+                                        "src": "674:45:2",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
                                         }
-                                    ],
+                                    }],
                                     "expression": {
-                                        "argumentTypes": [
-                                            {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
-                                            }
-                                        ],
+                                        "argumentTypes": [{
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
+                                        }],
                                         "id": 1184,
                                         "isConstant": false,
                                         "isLValue": false,
@@ -1263,8 +1230,7 @@
                 },
                 "id": 1222,
                 "nodeType": "SourceUnit",
-                "nodes": [
-                    {
+                "nodes": [{
                         "id": 1123,
                         "literals": [
                             "solidity",
@@ -1287,8 +1253,7 @@
                         ],
                         "name": "LANDRegistry",
                         "nodeType": "ContractDefinition",
-                        "nodes": [
-                            {
+                        "nodes": [{
                                 "body": null,
                                 "documentation": null,
                                 "id": 1132,
@@ -1301,42 +1266,39 @@
                                 "parameters": {
                                     "id": 1126,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1125,
-                                            "name": "value",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1132,
-                                            "src": "76:10:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1125,
+                                        "name": "value",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1132,
+                                        "src": "76:10:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1124,
+                                            "name": "uint",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "76:4:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1124,
-                                                "name": "uint",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "76:4:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "75:12:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1131,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1128,
                                             "name": "",
@@ -1410,8 +1372,7 @@
                                 "parameters": {
                                     "id": 1139,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1134,
                                             "name": "x",
@@ -1518,8 +1479,7 @@
                                 "parameters": {
                                     "id": 1146,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1143,
                                             "name": "assetId",
@@ -1629,68 +1589,64 @@
                                 "parameters": {
                                     "id": 1154,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1153,
-                                            "name": "tokenId",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1158,
-                                            "src": "304:15:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1153,
+                                        "name": "tokenId",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1158,
+                                        "src": "304:15:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1152,
+                                            "name": "uint256",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "304:7:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1152,
-                                                "name": "uint256",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "304:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "303:17:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1157,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1156,
-                                            "name": "",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1158,
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1156,
+                                        "name": "",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1158,
+                                        "src": "337:7:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                        },
+                                        "typeName": {
+                                            "id": 1155,
+                                            "name": "address",
+                                            "nodeType": "ElementaryTypeName",
                                             "src": "337:7:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_address",
                                                 "typeString": "address"
-                                            },
-                                            "typeName": {
-                                                "id": 1155,
-                                                "name": "address",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "337:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_address",
-                                                    "typeString": "address"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "336:9:2"
                                 },
                                 "scope": 1175,
@@ -1712,8 +1668,7 @@
                                 "parameters": {
                                     "id": 1165,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
+                                    "parameters": [{
                                             "constant": false,
                                             "id": 1160,
                                             "name": "",
@@ -1820,68 +1775,64 @@
                                 "parameters": {
                                     "id": 1170,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1169,
-                                            "name": "landId",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1174,
-                                            "src": "436:14:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1169,
+                                        "name": "landId",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1174,
+                                        "src": "436:14:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_uint256",
+                                            "typeString": "uint256"
+                                        },
+                                        "typeName": {
+                                            "id": 1168,
+                                            "name": "uint256",
+                                            "nodeType": "ElementaryTypeName",
+                                            "src": "436:7:2",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_uint256",
                                                 "typeString": "uint256"
-                                            },
-                                            "typeName": {
-                                                "id": 1168,
-                                                "name": "uint256",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "436:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_uint256",
-                                                    "typeString": "uint256"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "435:16:2"
                                 },
                                 "payable": false,
                                 "returnParameters": {
                                     "id": 1173,
                                     "nodeType": "ParameterList",
-                                    "parameters": [
-                                        {
-                                            "constant": false,
-                                            "id": 1172,
-                                            "name": "",
-                                            "nodeType": "VariableDeclaration",
-                                            "scope": 1174,
+                                    "parameters": [{
+                                        "constant": false,
+                                        "id": 1172,
+                                        "name": "",
+                                        "nodeType": "VariableDeclaration",
+                                        "scope": 1174,
+                                        "src": "468:7:2",
+                                        "stateVariable": false,
+                                        "storageLocation": "default",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_address",
+                                            "typeString": "address"
+                                        },
+                                        "typeName": {
+                                            "id": 1171,
+                                            "name": "address",
+                                            "nodeType": "ElementaryTypeName",
                                             "src": "468:7:2",
-                                            "stateVariable": false,
-                                            "storageLocation": "default",
                                             "typeDescriptions": {
                                                 "typeIdentifier": "t_address",
                                                 "typeString": "address"
-                                            },
-                                            "typeName": {
-                                                "id": 1171,
-                                                "name": "address",
-                                                "nodeType": "ElementaryTypeName",
-                                                "src": "468:7:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_address",
-                                                    "typeString": "address"
-                                                }
-                                            },
-                                            "value": null,
-                                            "visibility": "internal"
-                                        }
-                                    ],
+                                            }
+                                        },
+                                        "value": null,
+                                        "visibility": "internal"
+                                    }],
                                     "src": "467:9:2"
                                 },
                                 "scope": 1175,
@@ -1906,8 +1857,7 @@
                         ],
                         "name": "EstateStorage",
                         "nodeType": "ContractDefinition",
-                        "nodes": [
-                            {
+                        "nodes": [{
                                 "constant": true,
                                 "id": 1182,
                                 "name": "InterfaceId_GetMetadata",
@@ -1932,69 +1882,61 @@
                                 },
                                 "value": {
                                     "argumentTypes": null,
-                                    "arguments": [
-                                        {
+                                    "arguments": [{
+                                        "argumentTypes": null,
+                                        "arguments": [{
                                             "argumentTypes": null,
-                                            "arguments": [
-                                                {
-                                                    "argumentTypes": null,
-                                                    "hexValue": "6765744d657461646174612875696e7432353629",
-                                                    "id": 1179,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": true,
-                                                    "kind": "string",
-                                                    "lValueRequested": false,
-                                                    "nodeType": "Literal",
-                                                    "src": "577:22:2",
-                                                    "subdenomination": null,
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
-                                                        "typeString": "literal_string \"getMetadata(uint256)\""
-                                                    },
-                                                    "value": "getMetadata(uint256)"
-                                                }
-                                            ],
-                                            "expression": {
-                                                "argumentTypes": [
-                                                    {
-                                                        "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
-                                                        "typeString": "literal_string \"getMetadata(uint256)\""
-                                                    }
-                                                ],
-                                                "id": 1178,
-                                                "name": "keccak256",
-                                                "nodeType": "Identifier",
-                                                "overloadedDeclarations": [],
-                                                "referencedDeclaration": 6208,
-                                                "src": "567:9:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                                                    "typeString": "function () pure returns (bytes32)"
-                                                }
-                                            },
-                                            "id": 1180,
+                                            "hexValue": "6765744d657461646174612875696e7432353629",
+                                            "id": 1179,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
-                                            "kind": "functionCall",
+                                            "kind": "string",
                                             "lValueRequested": false,
-                                            "names": [],
-                                            "nodeType": "FunctionCall",
-                                            "src": "567:33:2",
+                                            "nodeType": "Literal",
+                                            "src": "577:22:2",
+                                            "subdenomination": null,
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
+                                                "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
+                                                "typeString": "literal_string \"getMetadata(uint256)\""
+                                            },
+                                            "value": "getMetadata(uint256)"
+                                        }],
+                                        "expression": {
+                                            "argumentTypes": [{
+                                                "typeIdentifier": "t_stringliteral_a574cea40cdd0a08ff0bc728ff4c5c786aa5857d851fdb93fd18cd5b4db07388",
+                                                "typeString": "literal_string \"getMetadata(uint256)\""
+                                            }],
+                                            "id": 1178,
+                                            "name": "keccak256",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 6208,
+                                            "src": "567:9:2",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                                                "typeString": "function () pure returns (bytes32)"
                                             }
+                                        },
+                                        "id": 1180,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": true,
+                                        "kind": "functionCall",
+                                        "lValueRequested": false,
+                                        "names": [],
+                                        "nodeType": "FunctionCall",
+                                        "src": "567:33:2",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
                                         }
-                                    ],
+                                    }],
                                     "expression": {
-                                        "argumentTypes": [
-                                            {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
-                                            }
-                                        ],
+                                        "argumentTypes": [{
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
+                                        }],
                                         "id": 1177,
                                         "isConstant": false,
                                         "isLValue": false,
@@ -2049,69 +1991,61 @@
                                 },
                                 "value": {
                                     "argumentTypes": null,
-                                    "arguments": [
-                                        {
+                                    "arguments": [{
+                                        "argumentTypes": null,
+                                        "arguments": [{
                                             "argumentTypes": null,
-                                            "arguments": [
-                                                {
-                                                    "argumentTypes": null,
-                                                    "hexValue": "76657269667946696e6765727072696e742875696e743235362c627974657329",
-                                                    "id": 1186,
-                                                    "isConstant": false,
-                                                    "isLValue": false,
-                                                    "isPure": true,
-                                                    "kind": "string",
-                                                    "lValueRequested": false,
-                                                    "nodeType": "Literal",
-                                                    "src": "684:34:2",
-                                                    "subdenomination": null,
-                                                    "typeDescriptions": {
-                                                        "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
-                                                        "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
-                                                    },
-                                                    "value": "verifyFingerprint(uint256,bytes)"
-                                                }
-                                            ],
-                                            "expression": {
-                                                "argumentTypes": [
-                                                    {
-                                                        "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
-                                                        "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
-                                                    }
-                                                ],
-                                                "id": 1185,
-                                                "name": "keccak256",
-                                                "nodeType": "Identifier",
-                                                "overloadedDeclarations": [],
-                                                "referencedDeclaration": 6208,
-                                                "src": "674:9:2",
-                                                "typeDescriptions": {
-                                                    "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
-                                                    "typeString": "function () pure returns (bytes32)"
-                                                }
-                                            },
-                                            "id": 1187,
+                                            "hexValue": "76657269667946696e6765727072696e742875696e743235362c627974657329",
+                                            "id": 1186,
                                             "isConstant": false,
                                             "isLValue": false,
                                             "isPure": true,
-                                            "kind": "functionCall",
+                                            "kind": "string",
                                             "lValueRequested": false,
-                                            "names": [],
-                                            "nodeType": "FunctionCall",
-                                            "src": "674:45:2",
+                                            "nodeType": "Literal",
+                                            "src": "684:34:2",
+                                            "subdenomination": null,
                                             "typeDescriptions": {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
+                                                "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
+                                                "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
+                                            },
+                                            "value": "verifyFingerprint(uint256,bytes)"
+                                        }],
+                                        "expression": {
+                                            "argumentTypes": [{
+                                                "typeIdentifier": "t_stringliteral_8f9f4b63fb27ea36c52c6e650320201c8f2c6d7c1dfa95f40f5d5da523920168",
+                                                "typeString": "literal_string \"verifyFingerprint(uint256,bytes)\""
+                                            }],
+                                            "id": 1185,
+                                            "name": "keccak256",
+                                            "nodeType": "Identifier",
+                                            "overloadedDeclarations": [],
+                                            "referencedDeclaration": 6208,
+                                            "src": "674:9:2",
+                                            "typeDescriptions": {
+                                                "typeIdentifier": "t_function_sha3_pure$__$returns$_t_bytes32_$",
+                                                "typeString": "function () pure returns (bytes32)"
                                             }
+                                        },
+                                        "id": 1187,
+                                        "isConstant": false,
+                                        "isLValue": false,
+                                        "isPure": true,
+                                        "kind": "functionCall",
+                                        "lValueRequested": false,
+                                        "names": [],
+                                        "nodeType": "FunctionCall",
+                                        "src": "674:45:2",
+                                        "typeDescriptions": {
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
                                         }
-                                    ],
+                                    }],
                                     "expression": {
-                                        "argumentTypes": [
-                                            {
-                                                "typeIdentifier": "t_bytes32",
-                                                "typeString": "bytes32"
-                                            }
-                                        ],
+                                        "argumentTypes": [{
+                                            "typeIdentifier": "t_bytes32",
+                                            "typeString": "bytes32"
+                                        }],
                                         "id": 1184,
                                         "isConstant": false,
                                         "isLValue": false,

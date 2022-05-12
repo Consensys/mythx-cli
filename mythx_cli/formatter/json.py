@@ -87,9 +87,12 @@ class PrettyJSONFormatter(BaseFormatter):
 
         json_args = {"indent": 2, "sort_keys": True}
         if report_mode:
-            return json.dumps(
-                [resp.dict(as_list=True) for resp, _ in obj], **json_args
-            )
+            output = []
+            for uuid, resp, _ in obj:
+                d = resp.dict()
+                d["uuid"] = uuid
+                output.append(d)
+            return json.dumps(output, **json_args)
         return json.dumps(obj.dict(), **json_args)
 
     @staticmethod

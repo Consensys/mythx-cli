@@ -6,8 +6,13 @@ import click
 from mythx_models.response import DetectedIssuesResponse
 from mythx_models.response.issue import SEVERITY
 
-
-SEVERITY_ORDER = [SEVERITY.UNKNOWN, SEVERITY.NONE, SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH]
+SEVERITY_ORDER = (
+    SEVERITY.UNKNOWN,
+    SEVERITY.NONE,
+    SEVERITY.LOW,
+    SEVERITY.MEDIUM,
+    SEVERITY.HIGH,
+)
 
 
 def get_source_location_by_offset(source: str, offset: int) -> int:
@@ -96,7 +101,9 @@ def filter_report(
     :return: The filtered issue report
     """
 
-    min_severity = SEVERITY_ORDER.index(min_severity) if min_severity else SEVERITY_ORDER[0]
+    min_severity = min_severity = (
+        SEVERITY(min_severity.title()) if min_severity else SEVERITY.UNKNOWN
+    )  # SEVERITY_ORDER.index(min_severity) if min_severity else SEVERITY_ORDER[0]
     swc_blacklist = normalize_swc_list(swc_blacklist)
     swc_whitelist = normalize_swc_list(swc_whitelist)
 

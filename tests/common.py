@@ -27,10 +27,10 @@ def get_test_case(path: str, obj=None, raw=False):
         return dict_data
 
     if obj is DetectedIssuesResponse:
-        obj.parse_obj({"issue_reports": dict_data})
+        return obj.parse_obj({"issue_reports": dict_data})
 
     if type(dict_data) is list:
-        return 
+        return
 
     return obj.parse_obj(dict_data)
 
@@ -75,6 +75,7 @@ def mock_context(
         report_patch.return_value = deepcopy(issues_response) or get_test_case(
             "testdata/detected-issues-response.json", DetectedIssuesResponse
         )
+
         input_patch.return_value = input_response or get_test_case(
             "testdata/analysis-input-response.json", AnalysisInputResponse
         )

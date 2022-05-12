@@ -5,13 +5,16 @@ from typing import Any, List, Optional, Tuple
 import click
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 from mythx_models.response.issue import SourceMap
+
 from mythx_cli.formatter.util import get_source_location_by_offset
 
 LOGGER = logging.getLogger("mythx-cli")
 
 
 def index_by_filename(
-    issues_list: List[Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    issues_list: List[
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+    ]
 ):
     """Index the given report/input responses by filename.
 

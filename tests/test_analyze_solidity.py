@@ -3,13 +3,14 @@ from copy import deepcopy
 from unittest import mock
 
 import pytest
+from black import out
 from click.testing import CliRunner
 from mythx_models.response import (
     AnalysisInputResponse,
     AnalysisSubmissionResponse,
     DetectedIssuesResponse,
-    Severity,
 )
+from mythx_models.response.issue import SEVERITY
 
 from mythx_cli.cli import cli
 
@@ -39,7 +40,7 @@ contract OutdatedCompilerVersion {
 
 def get_high_severity_report():
     issues_resp = deepcopy(ISSUES_RESPONSE)
-    issues_resp.issue_reports[0].issues[0].severity = Severity.HIGH
+    issues_resp.issue_reports[0].issues[0].severity = SEVERITY.HIGH
     return issues_resp
 
 
@@ -62,7 +63,7 @@ def test_analyze(tmp_path):
     runner = CliRunner()
 
     with mock_context():
-        result = runner.invoke(cli, ["analyze", "outdated.sol"], input="y\n")
+        result = runner.invoke(cli, ["--debug", "analyze", "outdated.sol"], input="y\n")
 
     assert ISSUES_TABLE in result.output
     assert result.exit_code == 0
@@ -74,7 +75,9 @@ def test_property_checking(tmp_path):
 
     with mock_context():
         result = runner.invoke(
-            cli, ["analyze", "--check-properties", "outdated.sol"], input="y\n"
+            cli,
+            ["--debug", "analyze", "--check-properties", "outdated.sol"],
+            input="y\n",
         )
 
     assert ISSUES_TABLE in result.output
@@ -87,7 +90,7 @@ def test_blocking_ci(tmp_path):
 
     with mock_context() as patches:
         patches[2].return_value = get_high_severity_report()
-        result = runner.invoke(cli, ["--ci", "analyze"], input="y\n")
+        result = runner.invoke(cli, ["--debug", "--ci", "analyze"], input="y\n")
 
     assert "Assert Violation" in result.output
     assert INPUT_RESPONSE.source_list[0] in result.output
@@ -101,7 +104,7 @@ def test_missing_version_error(tmp_path):
     runner = CliRunner()
 
     with mock_context():
-        result = runner.invoke(cli, ["analyze", "outdated.sol"])
+        result = runner.invoke(cli, ["--debug", "analyze", "outdated.sol"])
 
     assert PRAGMA_ERROR in result.output
     assert result.exit_code == 2
@@ -115,7 +118,9 @@ def test_user_solc_version(tmp_path):
 
     with mock_context():
         result = runner.invoke(
-            cli, ["analyze", "--solc-version", "0.4.13", "outdated.sol"], input="y\n"
+            cli,
+            ["--debug", "analyze", "--solc-version", "0.4.13", "outdated.sol"],
+            input="y\n",
         )
 
     assert ISSUES_TABLE in result.output
@@ -130,8 +135,8 @@ def test_config_solc_version(tmp_path):
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write("analyze:\n  solc: 0.4.13\n")
 
-    with mock_context():
-        result = runner.invoke(cli, ["analyze", "outdated.sol"], input="y\n")
+    with mock_context() as m:
+        result = runner.invoke(cli, ["--debug", "analyze", "outdated.sol"], input="y\n")
 
     assert ISSUES_TABLE in result.output
     assert result.exit_code == 0
@@ -146,7 +151,9 @@ def test_default_recursive_blacklist(tmp_path):
         os.mkdir("./node_modules")
         setup_solidity_file(tmp_path, name="node_modules/outdated2.sol")
 
-        result = runner.invoke(cli, ["analyze", "--create-group", "."], input="y\n")
+        result = runner.invoke(
+            cli, ["--debug", "analyze", "--create-group", "."], input="y\n"
+        )
 
     assert ISSUES_TABLE in result.output
     assert result.exit_code == 0
@@ -156,7 +163,7 @@ def test_default_recursive_blacklist(tmp_path):
     "params,value,contained,retval",
     (
         pytest.param(
-            ["analyze", "--async"],
+            ["--debug", "analyze", "--async"],
             SUBMISSION_RESPONSE.uuid,
             True,
             0,
@@ -164,71 +171,73 @@ def test_default_recursive_blacklist(tmp_path):
         ),
         pytest.param(["analyze"], ISSUES_TABLE, True, 0, id="issue table no params"),
         pytest.param(
-            ["analyze", "--swc-blacklist", "SWC-110"],
+            ["--debug", "analyze", "--swc-blacklist", "SWC-110"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
             id="blacklist 110",
         ),
         pytest.param(
-            ["analyze", "--min-severity", "high"],
+            ["--debug", "analyze", "--min-severity", "high"],
             INPUT_RESPONSE.source_list[0],
             False,
             0,
             id="high sev filter",
         ),
         pytest.param(
-            ["analyze", "outdated.sol"],
+            ["--debug", "analyze", "outdated.sol"],
             ISSUES_TABLE,
             True,
             0,
             id="issue table file param",
         ),
         pytest.param(
-            ["analyze", "--create-group", "outdated.sol"],
+            ["--debug", "analyze", "--create-group", "outdated.sol"],
             ISSUES_TABLE,
             True,
             0,
             id="create group",
         ),
-        pytest.param(["analyze", "."], ISSUES_TABLE, True, 0, id="explicit cwd"),
         pytest.param(
-            ["analyze", ".:OutdatedCompilerVersion"],
+            ["--debug", "analyze", "."], ISSUES_TABLE, True, 0, id="explicit cwd"
+        ),
+        pytest.param(
+            ["--debug", "analyze", ".:OutdatedCompilerVersion"],
             ISSUES_TABLE,
             True,
             0,
             id="explicit cwd with include",
         ),
         pytest.param(
-            ["analyze", "outdated.sol:OutdatedCompilerVersion"],
+            ["--debug", "analyze", "outdated.sol:OutdatedCompilerVersion"],
             INPUT_RESPONSE.source_list[0],
             True,
             0,
             id="valid include path syntax",
         ),
         pytest.param(
-            ["analyze", "outdated.sol:invalid"],
+            ["--debug", "analyze", "outdated.sol:invalid"],
             INPUT_RESPONSE.source_list[0],
             False,
             2,
             id="invalid include path syntax",
         ),
         pytest.param(
-            ["analyze", "--include", "OutdatedCompilerVersion"],
+            ["--debug", "analyze", "--include", "OutdatedCompilerVersion"],
             INPUT_RESPONSE.source_list[0],
             True,
             0,
             id="recursive valid include",
         ),
         pytest.param(
-            ["analyze", "--include", "invalid"],
+            ["--debug", "analyze", "--include", "invalid"],
             INPUT_RESPONSE.source_list[0],
             False,
             2,
             id="recursive invalid include",
         ),
         pytest.param(
-            ["analyze", "--solc-version", "9001", "outdated.sol"],
+            ["--debug", "analyze", "--solc-version", "9001", "outdated.sol"],
             VERSION_ERROR,
             True,
             2,
@@ -242,6 +251,10 @@ def test_parameters(tmp_path, params, value, contained, retval):
 
     with mock_context():
         result = runner.invoke(cli, params, input="y\n")
+
+    import traceback
+
+    traceback.print_exception(*result.exc_info)
 
     if contained:
         assert value in result.output
@@ -266,7 +279,9 @@ def test_scribble_errors(fake_process, tmp_path, retval, stdout):
     )
     runner = CliRunner()
 
-    result = runner.invoke(cli, ["analyze", "--scribble", "outdated.sol"], input="y\n")
+    result = runner.invoke(
+        cli, ["--debug", "analyze", "--scribble", "outdated.sol"], input="y\n"
+    )
 
     assert stdout in result.output
     assert result.exit_code == retval

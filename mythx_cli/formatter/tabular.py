@@ -64,42 +64,40 @@ class TabularFormatter(BaseFormatter):
 
         data = (
             (
-                ("ID", resp.group.identifier),
-                ("Name", resp.group.name or "<unnamed>"),
+                ("ID", resp.identifier),
+                ("Name", resp.name or "<unnamed>"),
                 (
                     "Creation Date",
-                    resp.group.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
+                    resp.created_at.strftime("%Y-%m-%d %H:%M:%S%z"),
                 ),
-                ("Created By", resp.group.created_by),
-                ("Progress", "{}/100".format(resp.group.progress)),
+                ("Created By", resp.created_by),
+                ("Progress", "{}/100".format(resp.progress)),
             )
             + tuple(
-                zip_longest(
-                    ("Main Sources",), resp.group.main_source_files, fillvalue=""
-                )
+                zip_longest(("Main Sources",), resp.main_source_files, fillvalue="")
             )
             + (
-                ("Status", resp.group.status.title()),
-                ("Queued Analyses", resp.group.analysis_statistics.queued or 0),
-                ("Running Analyses", resp.group.analysis_statistics.running or 0),
-                ("Failed Analyses", resp.group.analysis_statistics.failed or 0),
-                ("Finished Analyses", resp.group.analysis_statistics.finished or 0),
-                ("Total Analyses", resp.group.analysis_statistics.total or 0),
+                ("Status", resp.status.title()),
+                ("Queued Analyses", resp.analysis_statistics.queued or 0),
+                ("Running Analyses", resp.analysis_statistics.running or 0),
+                ("Failed Analyses", resp.analysis_statistics.failed or 0),
+                ("Finished Analyses", resp.analysis_statistics.finished or 0),
+                ("Total Analyses", resp.analysis_statistics.total or 0),
                 (
                     "High Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.high or 0,
+                    resp.vulnerability_statistics.high or 0,
                 ),
                 (
                     "Medium Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.medium or 0,
+                    resp.vulnerability_statistics.medium or 0,
                 ),
                 (
                     "Low Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.low or 0,
+                    resp.vulnerability_statistics.low or 0,
                 ),
                 (
                     "Unknown Severity Vulnerabilities",
-                    resp.group.vulnerability_statistics.none or 0,
+                    resp.vulnerability_statistics.none or 0,
                 ),
             )
         )
