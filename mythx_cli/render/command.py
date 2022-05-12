@@ -102,7 +102,7 @@ def render(
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
-        autoescape=True,
+        autoescape=jinja2.select_autoescape(default=True),
     )
     template = env.get_template(template_name)
 

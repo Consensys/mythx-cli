@@ -5,14 +5,6 @@ from typing import List, Union
 import click
 from mythx_models.response import DetectedIssuesResponse, Severity
 
-SEVERITY_ORDER = (
-    Severity.UNKNOWN,
-    Severity.NONE,
-    Severity.LOW,
-    Severity.MEDIUM,
-    Severity.HIGH,
-)
-
 
 def get_source_location_by_offset(source: str, offset: int) -> int:
     """Retrieve the Solidity source code location based on the source map
@@ -100,14 +92,14 @@ def filter_report(
     :return: The filtered issue report
     """
 
-    min_severity = Severity(min_severity.title()) if min_severity else Severity.UNKNOWN
+    min_severity = Severity.index(min_severity) if min_severity else Severity[0]
     swc_blacklist = normalize_swc_list(swc_blacklist)
     swc_whitelist = normalize_swc_list(swc_whitelist)
 
     new_issues = []
     for report in resp.issue_reports:
         for issue in report.issues:
-            is_severe = SEVERITY_ORDER.index(issue.severity) >= SEVERITY_ORDER.index(
+            is_severe = Severity.index(issue.severity) >= Severity.index(
                 min_severity
             )
             not_blacklisted = issue.swc_id not in swc_blacklist

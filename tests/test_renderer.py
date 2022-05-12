@@ -1,6 +1,6 @@
 import pytest
 from click.testing import CliRunner
-from jinja2 import escape
+from markupsafe import escape
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 
 from mythx_cli.cli import cli

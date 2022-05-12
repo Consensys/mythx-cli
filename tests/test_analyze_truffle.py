@@ -146,7 +146,7 @@ def test_param_yaml_override(tmp_path):
     (
         pytest.param(
             ["analyze", "--async"],
-            SUBMISSION_RESPONSE.analysis.uuid,
+            SUBMISSION_RESPONSE.uuid,
             True,
             0,
             id="async",

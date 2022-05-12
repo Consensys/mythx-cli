@@ -157,7 +157,7 @@ def test_default_recursive_blacklist(tmp_path):
     (
         pytest.param(
             ["analyze", "--async"],
-            SUBMISSION_RESPONSE.analysis.uuid,
+            SUBMISSION_RESPONSE.uuid,
             True,
             0,
             id="analyze async",
