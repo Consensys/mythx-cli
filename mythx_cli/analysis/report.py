@@ -59,7 +59,7 @@ def analysis_report(
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
         LOGGER.debug(f"{uuid}: Fetching report")
-        resp = ctx["client"].report(uuid)
+        resp: DetectedIssuesResponse = ctx["client"].report(uuid)
         LOGGER.debug(f"{uuid}: Fetching input")
         inp = (
             ctx["client"].request_by_uuid(uuid)
@@ -74,8 +74,7 @@ def analysis_report(
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
         )
-        resp.uuid = uuid
-        issues_list.append((resp, inp))
+        issues_list.append((uuid, resp, inp))
 
     LOGGER.debug(
         f"{uuid}: Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""

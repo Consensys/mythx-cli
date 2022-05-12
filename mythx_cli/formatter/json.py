@@ -52,13 +52,16 @@ class JSONFormatter(BaseFormatter):
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:
         """Format an issue report response as compressed JSON."""
-
-        output = [resp.dict(as_list=True) for resp, _ in issues_list]
+        output = []
+        for uuid, resp, _ in issues_list:
+            d = resp.dict()
+            d["uuid"] = uuid
+            output.append(d)
         return json.dumps(output)
 
     @staticmethod
@@ -116,7 +119,7 @@ class PrettyJSONFormatter(BaseFormatter):
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:

@@ -11,7 +11,7 @@ LOGGER = logging.getLogger("mythx-cli")
 
 
 def index_by_filename(
-    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    issues_list: List[Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
 ):
     """Index the given report/input responses by filename.
 
@@ -28,7 +28,7 @@ def index_by_filename(
     """
 
     report_context = defaultdict(list)
-    for resp, inp in issues_list:
+    for uuid, resp, inp in issues_list:
         # initialize context with source line objects
         for filename, file_data in inp.sources.items():
             source = file_data.get("source")
@@ -45,7 +45,7 @@ def index_by_filename(
         for report in resp.issue_reports:
             for issue in report.issues:
                 issue_entry = {
-                    "uuid": resp.uuid,
+                    "uuid": uuid,
                     "swcID": issue.swc_id,
                     "swcTitle": issue.swc_title,
                     "description": {
