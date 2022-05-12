@@ -113,10 +113,10 @@ class SimpleFormatter(BaseFormatter):
 
         return "\n".join(
             [
-                "API: {}".format(resp.api_version),
-                "Harvey: {}".format(resp.harvey_version),
-                "Maru: {}".format(resp.maru_version),
-                "Mythril: {}".format(resp.mythril_version),
-                "Hashed: {}".format(resp.hashed_version),
+                "API: {}".format(resp.api),
+                "Harvey: {}".format(resp.harvey),
+                "Maru: {}".format(resp.maru),
+                "Mythril: {}".format(resp.mythril),
+                "Hashed: {}".format(resp.hash),
             ]
         )
