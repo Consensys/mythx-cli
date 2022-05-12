@@ -7,10 +7,10 @@ from mythx_cli.cli import cli
 
 from .common import get_test_case, mock_context
 
-INPUT_RESPONSE = get_test_case(
+INPUT_RESPONSE: AnalysisInputResponse = get_test_case(
     "testdata/analysis-input-response.json", AnalysisInputResponse
 )
-ISSUES_RESPONSE = get_test_case(
+ISSUES_RESPONSE: DetectedIssuesResponse = get_test_case(
     "testdata/detected-issues-response.json", DetectedIssuesResponse
 )
 ISSUES_SIMPLE = get_test_case("testdata/detected-issues-simple.txt", raw=True)
@@ -108,7 +108,7 @@ def test_report_json():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.json())
+        assert json.loads(result.output)[0]["issue_reports"] == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
         assert result.exit_code == 0
 
 
@@ -128,9 +128,11 @@ def test_report_json_blacklist():
             ],
         )
 
-        assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                assert issue["swc_id"] != "SWC-110"
+        
         assert result.exit_code == 0
 
 
@@ -150,9 +152,11 @@ def test_report_json_whitelist():
             ],
         )
 
-        assert all(
-            x["swcID"] == "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                assert issue["swc_id"] == "SWC-110"
+
         assert result.exit_code == 0
 
 
@@ -162,6 +166,7 @@ def test_report_json_filter():
         result = runner.invoke(
             cli,
             [
+                "--debug",
                 "--format",
                 "json",
                 "analysis",
@@ -172,9 +177,11 @@ def test_report_json_filter():
             ],
         )
 
-        assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                assert issue["swc_id"] != "SWC-110"
+
         assert result.exit_code == 0
 
 
@@ -192,7 +199,7 @@ def test_report_json_pretty():
             ],
         )
 
-        assert json.loads(result.output)[0] == json.loads(ISSUES_RESPONSE.json())
+        assert json.loads(result.output)[0]["issue_reports"] == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
         assert result.exit_code == 0
 
 
@@ -212,9 +219,11 @@ def test_report_json_pretty_blacklist():
             ],
         )
 
-        assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                assert issue["swc_id"] != "SWC-110"
+        
         assert result.exit_code == 0
 
 
@@ -234,9 +243,12 @@ def test_report_json_pretty_whitelist():
             ],
         )
 
-        assert all(
-            x["swcID"] == "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                print(issue)
+                assert issue["swc_id"] == "SWC-110"
+            
         assert result.exit_code == 0
 
 
@@ -256,9 +268,11 @@ def test_report_json_pretty_filter():
             ],
         )
 
-        assert all(
-            x["swcID"] != "SWC-110" for x in json.loads(result.output)[0][0]["issues"]
-        )
+        reports = json.loads(result.output)[0]["issue_reports"]
+        for report in reports:
+            for issue in report["issues"]:
+                assert issue["swc_id"] != "SWC-110"
+
         assert result.exit_code == 0
 
 
