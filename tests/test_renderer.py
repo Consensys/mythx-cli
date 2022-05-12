@@ -28,9 +28,10 @@ def assert_content(data, ident, is_template):
         for source in map(lambda x: x["source"], INPUT_RESPONSE.sources.values()):
             for line in source.split("\n"):
                 assert escape(line.strip()) in data
-        for issue in ISSUES_RESPONSE:
-            assert issue.swc_id in data
-            assert issue.swc_title in data
+        for report in ISSUES_RESPONSE.issue_reports:
+            for issue in report.issues:
+                assert issue.swc_id in data
+                assert issue.swc_title in data
     else:
         assert data.strip() != ""
 
@@ -63,6 +64,7 @@ def test_renderer_group(ident, template):
         else:
             arg_list = ["--output=test.html", "render", ident]
         result = runner.invoke(cli, arg_list)
+
         with open("test.html") as f:
             data = f.read()
 

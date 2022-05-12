@@ -124,25 +124,25 @@ def render(
             click.echo(
                 "Fetching report for analysis {}".format(analysis.uuid), err=True
             )
-            _, resp, inp = get_analysis_info(
+            uuid, _, resp, inp = get_analysis_info(
                 client=client,
                 uuid=analysis.uuid,
                 min_severity=min_severity,
                 swc_blacklist=swc_blacklist,
                 swc_whitelist=swc_whitelist,
             )
-            issues_list.append((resp, inp))
+            issues_list.append((uuid, resp, inp))
     elif len(target) == 36:
         LOGGER.debug(f"Identified analysis target {target}")
         click.echo("Fetching report for analysis {}".format(target), err=True)
-        _, resp, inp = get_analysis_info(
+        uuid, _, resp, inp = get_analysis_info(
             client=client,
             uuid=target,
             min_severity=min_severity,
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
         )
-        issues_list.append((resp, inp))
+        issues_list.append((uuid, resp, inp))
     else:
         LOGGER.debug(f"Could not identify target with length {len(target)}")
         raise click.UsageError(
