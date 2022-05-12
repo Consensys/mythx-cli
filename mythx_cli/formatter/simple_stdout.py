@@ -33,7 +33,7 @@ class SimpleFormatter(BaseFormatter):
         """Format an analysis list response to a simple text representation."""
 
         res = []
-        for analysis in resp:
+        for analysis in resp.analyses:
             res.append("UUID: {}".format(analysis.uuid))
             res.append("Submitted at: {}".format(analysis.submitted_at))
             res.append("Status: {}".format(analysis.status))
@@ -60,7 +60,7 @@ class SimpleFormatter(BaseFormatter):
         representation."""
 
         res = []
-        for group in resp:
+        for group in resp.groups:
             res.append("ID: {}".format(group.identifier))
             res.append("Name: {}".format(group.name or "<unnamed>"))
             res.append("Created on: {}".format(group.created_at))

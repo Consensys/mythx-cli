@@ -108,7 +108,10 @@ def test_report_json():
             ],
         )
 
-        assert json.loads(result.output)[0]["issue_reports"] == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
+        assert (
+            json.loads(result.output)[0]["issue_reports"]
+            == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
+        )
         assert result.exit_code == 0
 
 
@@ -132,7 +135,7 @@ def test_report_json_blacklist():
         for report in reports:
             for issue in report["issues"]:
                 assert issue["swc_id"] != "SWC-110"
-        
+
         assert result.exit_code == 0
 
 
@@ -199,7 +202,10 @@ def test_report_json_pretty():
             ],
         )
 
-        assert json.loads(result.output)[0]["issue_reports"] == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
+        assert (
+            json.loads(result.output)[0]["issue_reports"]
+            == json.loads(ISSUES_RESPONSE.json())["issue_reports"]
+        )
         assert result.exit_code == 0
 
 
@@ -223,7 +229,7 @@ def test_report_json_pretty_blacklist():
         for report in reports:
             for issue in report["issues"]:
                 assert issue["swc_id"] != "SWC-110"
-        
+
         assert result.exit_code == 0
 
 
@@ -248,7 +254,7 @@ def test_report_json_pretty_whitelist():
             for issue in report["issues"]:
                 print(issue)
                 assert issue["swc_id"] == "SWC-110"
-            
+
         assert result.exit_code == 0
 
 
