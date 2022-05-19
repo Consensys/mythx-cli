@@ -36,7 +36,7 @@ def test_version_json():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json", "version", "--api"])
 
-        assert json.loads(result.output) == VERSION_RESPONSE.to_dict()
+        assert json.loads(result.output) == VERSION_RESPONSE.dict()
         assert result.exit_code == 0
 
 
@@ -45,7 +45,7 @@ def test_version_json_pretty():
     with mock_context():
         result = runner.invoke(cli, ["--format", "json-pretty", "version", "--api"])
 
-        assert json.loads(result.output) == VERSION_RESPONSE.to_dict()
+        assert json.loads(result.output) == VERSION_RESPONSE.dict()
         assert result.exit_code == 0
 
 

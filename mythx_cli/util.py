@@ -4,6 +4,7 @@ from typing import Any, List, Optional, Tuple
 
 import click
 from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
+from mythx_models.response.issue import SourceMap
 
 from mythx_cli.formatter.util import get_source_location_by_offset
 
@@ -11,7 +12,9 @@ LOGGER = logging.getLogger("mythx-cli")
 
 
 def index_by_filename(
-    issues_list: List[Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]]
+    issues_list: List[
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+    ]
 ):
     """Index the given report/input responses by filename.
 
@@ -28,7 +31,7 @@ def index_by_filename(
     """
 
     report_context = defaultdict(list)
-    for resp, inp in issues_list:
+    for uuid, resp, inp in issues_list:
         # initialize context with source line objects
         for filename, file_data in inp.sources.items():
             source = file_data.get("source")
@@ -45,15 +48,15 @@ def index_by_filename(
         for report in resp.issue_reports:
             for issue in report.issues:
                 issue_entry = {
-                    "uuid": resp.uuid,
+                    "uuid": uuid,
                     "swcID": issue.swc_id,
                     "swcTitle": issue.swc_title,
                     "description": {
-                        "head": issue.description_short,
-                        "tail": issue.description_long,
+                        "head": issue.description.head,
+                        "tail": issue.description.tail,
                     },
                     "severity": issue.severity,
-                    "testCases": issue.extra_data.get("testCases", []),
+                    "testCases": issue.extra.get("testCases", []),
                 }
 
                 if issue.swc_id == "" or issue.swc_title == "" or not issue.locations:
@@ -65,8 +68,7 @@ def index_by_filename(
                     if loc.source_format != "text" and "text" in source_formats:
                         # skip non-text locations when we have one attached to the issue
                         continue
-
-                    for c in loc.source_map.components:
+                    for c in SourceMap.decompress(loc.source_map):
                         source_list = loc.source_list or report.source_list
                         if not (source_list and 0 <= c.file_id < len(source_list)):
                             # skip issues whose srcmap file ID if out of range of the source list

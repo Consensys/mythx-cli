@@ -3,14 +3,15 @@
 from typing import List, Union
 
 import click
-from mythx_models.response import DetectedIssuesResponse, Severity
+from mythx_models.response import DetectedIssuesResponse
+from mythx_models.response.issue import SEVERITY
 
 SEVERITY_ORDER = (
-    Severity.UNKNOWN,
-    Severity.NONE,
-    Severity.LOW,
-    Severity.MEDIUM,
-    Severity.HIGH,
+    SEVERITY.UNKNOWN,
+    SEVERITY.NONE,
+    SEVERITY.LOW,
+    SEVERITY.MEDIUM,
+    SEVERITY.HIGH,
 )
 
 
@@ -79,7 +80,7 @@ def set_ci_failure() -> None:
 
 def filter_report(
     resp: DetectedIssuesResponse,
-    min_severity: Union[str, Severity] = None,
+    min_severity: Union[str, SEVERITY] = None,
     swc_blacklist: Union[str, List[str]] = None,
     swc_whitelist: Union[str, List[str]] = None,
 ) -> DetectedIssuesResponse:
@@ -100,7 +101,9 @@ def filter_report(
     :return: The filtered issue report
     """
 
-    min_severity = Severity(min_severity.title()) if min_severity else Severity.UNKNOWN
+    min_severity = min_severity = (
+        SEVERITY(min_severity.title()) if min_severity else SEVERITY.UNKNOWN
+    )
     swc_blacklist = normalize_swc_list(swc_blacklist)
     swc_whitelist = normalize_swc_list(swc_whitelist)
 

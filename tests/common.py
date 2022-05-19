@@ -25,7 +25,14 @@ def get_test_case(path: str, obj=None, raw=False):
 
     if obj is None:
         return dict_data
-    return obj.from_dict(dict_data)
+
+    if obj is DetectedIssuesResponse:
+        return obj.parse_obj({"issue_reports": dict_data})
+
+    if type(dict_data) is list:
+        return
+
+    return obj.parse_obj(dict_data)
 
 
 AST = get_test_case("testdata/test-ast.json")
@@ -53,7 +60,7 @@ def mock_context(
     ) as analysis_list_patch, patch(
         "pythx.Client.group_list"
     ) as group_list_patch, patch(
-        "pythx.Client.status"
+        "pythx.Client.analysis_status"
     ) as status_patch, patch(
         "pythx.Client.group_status"
     ) as group_status_patch, patch(
@@ -68,6 +75,7 @@ def mock_context(
         report_patch.return_value = deepcopy(issues_response) or get_test_case(
             "testdata/detected-issues-response.json", DetectedIssuesResponse
         )
+
         input_patch.return_value = input_response or get_test_case(
             "testdata/analysis-input-response.json", AnalysisInputResponse
         )

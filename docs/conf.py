@@ -48,9 +48,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"MythX CLI"
-copyright = u"2019, Dominik Muhs"
-author = u"Dominik Muhs"
+project = "MythX CLI"
+copyright = "2019, Dominik Muhs"
+author = "Dominik Muhs"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -127,7 +127,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass
 # [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, "mythx_cli.tex", u"MythX CLI Documentation", u"Dominik Muhs", "manual")
+    (master_doc, "mythx_cli.tex", "MythX CLI Documentation", "Dominik Muhs", "manual")
 ]
 
 
@@ -135,7 +135,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "mythx_cli", u"MythX CLI Documentation", [author], 1)]
+man_pages = [(master_doc, "mythx_cli", "MythX CLI Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------
@@ -147,7 +147,7 @@ texinfo_documents = [
     (
         master_doc,
         "mythx_cli",
-        u"MythX CLI Documentation",
+        "MythX CLI Documentation",
         author,
         "mythx_cli",
         "One line description of project.",

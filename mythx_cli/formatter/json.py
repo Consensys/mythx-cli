@@ -29,43 +29,46 @@ class JSONFormatter(BaseFormatter):
     def format_group_status(resp: GroupStatusResponse) -> str:
         """Format a group status response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json()
 
     @staticmethod
     def format_group_list(resp: GroupListResponse) -> str:
         """Format a group list response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json()
 
     @staticmethod
     def format_analysis_list(resp: AnalysisListResponse) -> str:
         """Format an analysis list response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json()
 
     @staticmethod
     def format_analysis_status(resp: AnalysisStatusResponse) -> str:
         """Format an analysis status response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json()
 
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:
         """Format an issue report response as compressed JSON."""
-
-        output = [resp.to_dict(as_list=True) for resp, _ in issues_list]
+        output = []
+        for uuid, resp, _ in issues_list:
+            d = resp.dict()
+            d["uuid"] = uuid
+            output.append(d)
         return json.dumps(output)
 
     @staticmethod
     def format_version(resp: VersionResponse) -> str:
         """Format a version response as compressed JSON."""
 
-        return resp.to_json()
+        return resp.json()
 
 
 class PrettyJSONFormatter(BaseFormatter):
@@ -84,10 +87,13 @@ class PrettyJSONFormatter(BaseFormatter):
 
         json_args = {"indent": 2, "sort_keys": True}
         if report_mode:
-            return json.dumps(
-                [resp.to_dict(as_list=True) for resp, _ in obj], **json_args
-            )
-        return json.dumps(obj.to_dict(), **json_args)
+            output = []
+            for uuid, resp, _ in obj:
+                d = resp.dict()
+                d["uuid"] = uuid
+                output.append(d)
+            return json.dumps(output, **json_args)
+        return json.dumps(obj.dict(), **json_args)
 
     @staticmethod
     def format_group_status(resp: GroupStatusResponse) -> str:
@@ -116,7 +122,7 @@ class PrettyJSONFormatter(BaseFormatter):
     @staticmethod
     def format_detected_issues(
         issues_list: List[
-            Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+            Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
         ],
         **kwargs,
     ) -> str:

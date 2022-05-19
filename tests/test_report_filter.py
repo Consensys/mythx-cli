@@ -8,7 +8,7 @@ from mythx_cli.formatter.util import filter_report
 from .common import get_test_case
 
 # contains SWC-110
-RESPONSE = get_test_case(
+RESPONSE: DetectedIssuesResponse = get_test_case(
     "testdata/detected-issues-response.json", DetectedIssuesResponse
 )
 
@@ -88,7 +88,12 @@ def test_report_filter_blacklist(blacklist, whitelist, severity, contained):
         resp, swc_blacklist=blacklist, swc_whitelist=whitelist, min_severity=severity
     )
 
+    swcs = []
+    for report in resp.issue_reports:
+        for issue in report.issues:
+            swcs.append(issue.swc_id)
+
     if contained:
-        assert "SWC-110" in resp
+        assert "SWC-110" in swcs
     else:
-        assert "SWC-110" not in resp
+        assert "SWC-110" not in swcs

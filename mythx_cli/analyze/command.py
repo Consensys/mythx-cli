@@ -206,8 +206,8 @@ def analyze(
 
     if create_group:
         resp: GroupCreationResponse = ctx["client"].create_group(group_name=group_name)
-        group_id = resp.group.identifier
-        group_name = resp.group.name or ""
+        group_id = resp.identifier
+        group_name = resp.name or ""
 
     if group_id:
         # associate all following analyses to the passed or newly created group
@@ -319,9 +319,11 @@ def analyze(
         LOGGER.debug(f"{uuid}: Fetching report")
         resp: DetectedIssuesResponse = ctx["client"].report(uuid)
         LOGGER.debug(f"{uuid}: Fetching input")
-        inp: Optional[AnalysisInputResponse] = ctx["client"].request_by_uuid(
-            uuid
-        ) if formatter.report_requires_input else None
+        inp: Optional[AnalysisInputResponse] = (
+            ctx["client"].request_by_uuid(uuid)
+            if formatter.report_requires_input
+            else None
+        )
 
         LOGGER.debug(f"{uuid}: Applying SWC filters")
         util.filter_report(
@@ -330,9 +332,7 @@ def analyze(
             swc_blacklist=swc_blacklist,
             swc_whitelist=swc_whitelist,
         )
-        # extend response with job UUID to keep formatter logic isolated
-        resp.uuid = uuid
-        issues_list.append((resp, inp))
+        issues_list.append((uuid, resp, inp))
 
     LOGGER.debug(
         f"Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""

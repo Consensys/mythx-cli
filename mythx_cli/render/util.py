@@ -32,7 +32,7 @@ def get_analysis_info(
     LOGGER.debug(f"{uuid}: Fetching input")
     inp: Optional[AnalysisInputResponse] = client.request_by_uuid(uuid)
     LOGGER.debug(f"{uuid}: Fetching status")
-    status: AnalysisStatusResponse = client.status(uuid)
+    status: AnalysisStatusResponse = client.analysis_status(uuid)
 
     LOGGER.debug(f"{uuid}: Applying SWC filters")
     util.filter_report(
@@ -41,7 +41,5 @@ def get_analysis_info(
         swc_blacklist=swc_blacklist,
         swc_whitelist=swc_whitelist,
     )
-    # extend response with job UUID to keep formatter logic isolated
-    resp.uuid = uuid
 
-    return status, resp, inp
+    return uuid, status, resp, inp

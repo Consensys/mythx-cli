@@ -25,16 +25,17 @@ def test_status_tabular():
             cli, ["analysis", "status", "381eff48-04db-4f81-a417-8394b6614472"]
         )
 
-        assert result.output == ANALYSIS_STATUS_TABLE
-        assert result.exit_code == 0
+    assert result.output == ANALYSIS_STATUS_TABLE
+    assert result.exit_code == 0
 
 
 def test_group_status_tabular():
     runner = CliRunner()
     with mock_context():
         result = runner.invoke(cli, ["group", "status", "5dd40ca50d861d001101e888"])
-        assert result.output == GROUP_STATUS_TABLE
-        assert result.exit_code == 0
+
+    assert result.output == GROUP_STATUS_TABLE
+    assert result.exit_code == 0
 
 
 def test_status_json():
@@ -51,7 +52,7 @@ def test_status_json():
             ],
         )
 
-        assert json.loads(result.output) == ANALYSIS_STATUS.to_dict()
+        assert json.loads(result.output) == ANALYSIS_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -62,7 +63,7 @@ def test_group_status_json():
             cli, ["--format", "json", "group", "status", "5dd40ca50d861d001101e888"]
         )
 
-        assert json.loads(result.output) == GROUP_STATUS.to_dict()
+        assert json.loads(result.output) == GROUP_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -80,7 +81,7 @@ def test_status_json_pretty():
             ],
         )
 
-        assert json.loads(result.output) == ANALYSIS_STATUS.to_dict()
+        assert json.loads(result.output) == ANALYSIS_STATUS.dict()
         assert result.exit_code == 0
 
 
@@ -92,7 +93,7 @@ def test_group_status_json_pretty():
             ["--format", "json-pretty", "group", "status", "5dd40ca50d861d001101e888"],
         )
 
-        assert json.loads(result.output) == GROUP_STATUS.to_dict()
+        assert json.loads(result.output) == GROUP_STATUS.dict()
         assert result.exit_code == 0
 
 
