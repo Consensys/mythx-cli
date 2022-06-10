@@ -5,4 +5,4 @@ tabulate==0.8.9
 Jinja2==3.1.1
 htmlmin==0.1.12
 PyYAML==6.0
-MarkupSafe==2.0.1
+MarkupSafe==2.1.1
