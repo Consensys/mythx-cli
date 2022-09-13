@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import click
 from mythx_models.response import (
     AnalysisInputResponse,
+    AnalysisSubmissionResponse,
     DetectedIssuesResponse,
     GroupCreationResponse,
 )
@@ -209,7 +210,7 @@ def analyze(
         group_id = resp.identifier
         group_name = resp.name or ""
 
-    if group_id:
+    if group_id or group_name:
         # associate all following analyses to the passed or newly created group
         group_mw = GroupDataMiddleware(group_id=group_id, group_name=group_name)
         ctx["client"].handler.middlewares.append(group_mw)
@@ -297,7 +298,7 @@ def analyze(
         for job in bar:
             # attach execution mode, submit, poll
             job.update({"analysis_mode": mode})
-            resp = ctx["client"].analyze(**job)
+            resp: AnalysisSubmissionResponse = ctx["client"].analyze(**job)
             uuids.append(resp.uuid)
 
     if async_flag:
@@ -308,7 +309,7 @@ def analyze(
         return
 
     issues_list: List[
-        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
     ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:

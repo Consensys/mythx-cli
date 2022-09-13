@@ -18,7 +18,7 @@ def get_analysis_info(
     min_severity: Optional[str],
     swc_blacklist: Optional[List[str]],
     swc_whitelist: Optional[List[str]],
-) -> Tuple[AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
+) -> Tuple[str, AnalysisStatusResponse, DetectedIssuesResponse, AnalysisInputResponse]:
     """Fetch information related to the specified analysis job UUID.
 
     Given a UUID, this function will query the MythX API for the

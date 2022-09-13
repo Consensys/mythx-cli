@@ -1,9 +1,7 @@
 import os
 from copy import deepcopy
-from unittest import mock
 
 import pytest
-from black import out
 from click.testing import CliRunner
 from mythx_models.response import (
     AnalysisInputResponse,

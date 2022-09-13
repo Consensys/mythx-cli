@@ -5,11 +5,7 @@ from typing import List, Optional, Tuple
 import click
 import htmlmin
 import jinja2
-from mythx_models.response import (
-    AnalysisInputResponse,
-    AnalysisStatusResponse,
-    DetectedIssuesResponse,
-)
+from mythx_models.response import AnalysisInputResponse, DetectedIssuesResponse
 from pythx import Client
 
 from mythx_cli.render.util import get_analysis_info
@@ -107,7 +103,7 @@ def render(
     template = env.get_template(template_name)
 
     issues_list: List[
-        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
     ] = []
     if len(target) == 24:
         LOGGER.debug(f"Identified group target {target}")

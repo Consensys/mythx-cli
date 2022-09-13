@@ -49,12 +49,11 @@ def analysis_report(
     :param min_severity: Ignore SWC IDs below the designated level
     :param swc_blacklist: A comma-separated list of SWC IDs to ignore
     :param swc_whitelist: A comma-separated list of SWC IDs to include
-    :param table_sort_key: The column to sort the default table output by
     :return:
     """
 
     issues_list: List[
-        Tuple[DetectedIssuesResponse, Optional[AnalysisInputResponse]]
+        Tuple[str, DetectedIssuesResponse, Optional[AnalysisInputResponse]]
     ] = []
     formatter: BaseFormatter = FORMAT_RESOLVER[ctx["fmt"]]
     for uuid in uuids:
@@ -77,7 +76,7 @@ def analysis_report(
         issues_list.append((uuid, resp, inp))
 
     LOGGER.debug(
-        f"{uuid}: Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""
+        f"Printing report for {len(issues_list)} issue items with sort key \"{ctx['table_sort_key']}\""
     )
     write_or_print(
         formatter.format_detected_issues(

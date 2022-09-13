@@ -1,5 +1,4 @@
 import json
-from unittest.mock import patch
 
 from click.testing import CliRunner
 from mythx_models.response import AnalysisStatusResponse, GroupStatusResponse
