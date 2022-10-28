@@ -262,13 +262,13 @@ def analyze(
     # reduce to whitelisted contract names
     if include:
         LOGGER.debug(f"Filtering {len(jobs)} job(s) for contracts to be included")
-        found_contracts = {job["contract_name"] for job in jobs}
+        found_contracts = {job["contract_name"] for job in jobs if "contract_name" in job}
         overlap = set(include).difference(found_contracts)
         if overlap:
             raise click.UsageError(
                 f"The following contracts could not be found: {', '.join(overlap)}"
             )
-        jobs = [job for job in jobs if job["contract_name"] in include]
+        jobs = [job for job in jobs if "contract_name" in job if job["contract_name"] in include]
 
     # filter jobs where no bytecode was produced
     LOGGER.debug(f"Filtering {len(jobs)} job(s) for empty bytecode")
