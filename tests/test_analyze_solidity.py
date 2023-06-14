@@ -176,7 +176,7 @@ def test_config_solc_optimizer(tmp_path):
     runner = CliRunner()
     with open(".mythx.yml", "w+") as conf_f:
         conf_f.write(
-            "analyze:\n  solc: 0.4.13\n  optimizer: true\n  optimizer_runs: 1000\n  viaIR: true\n"
+            "analyze:\n  solc: 0.4.13\n  optimizer: true\n  optimizer-runs: 1000\n  viaIR: true\n"
         )
 
     with mock_context() as m:
