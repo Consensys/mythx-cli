@@ -140,6 +140,52 @@ def test_config_solc_version(tmp_path):
     assert result.exit_code == 0
 
 
+def test_user_solc_optimizer(tmp_path):
+    setup_solidity_file(
+        tmp_path, name="outdated.sol", switch_dir=True, hide_pragma=True
+    )
+    runner = CliRunner()
+
+    with mock_context():
+        result = runner.invoke(
+            cli,
+            [
+                "--debug",
+                "analyze",
+                "--solc-version",
+                "0.4.13",
+                "--solc-optimizer",
+                "true",
+                "--solc-optimizer-runs",
+                "1000",
+                "--solc-via-ir",
+                "true",
+                "outdated.sol",
+            ],
+            input="y\n",
+        )
+
+    assert ISSUES_TABLE in result.output
+    assert result.exit_code == 0
+
+
+def test_config_solc_optimizer(tmp_path):
+    setup_solidity_file(
+        tmp_path, name="outdated.sol", switch_dir=True, hide_pragma=True
+    )
+    runner = CliRunner()
+    with open(".mythx.yml", "w+") as conf_f:
+        conf_f.write(
+            "analyze:\n  solc: 0.4.13\n  optimizer: true\n  optimizer-runs: 1000\n  viaIR: true\n"
+        )
+
+    with mock_context() as m:
+        result = runner.invoke(cli, ["--debug", "analyze", "outdated.sol"], input="y\n")
+
+    assert ISSUES_TABLE in result.output
+    assert result.exit_code == 0
+
+
 def test_default_recursive_blacklist(tmp_path):
     setup_solidity_file(tmp_path, name="outdated.sol", switch_dir=True)
     runner = CliRunner()

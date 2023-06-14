@@ -92,6 +92,21 @@ LOGGER = logging.getLogger("mythx-cli")
     help="Path to a custom solc executable",
 )
 @click.option(
+    "--solc-optimizer", type=click.BOOL, default=True, help="Enable the solc optimizer"
+)
+@click.option(
+    "--solc-optimizer-runs",
+    type=click.INT,
+    default=200,
+    help="Set the number of runs for the optimizer",
+)
+@click.option(
+    "--solc-via-ir",
+    type=click.BOOL,
+    default=False,
+    help="Set the solc compiler to run viaIR",
+)
+@click.option(
     "--include",
     type=click.STRING,
     multiple=True,
@@ -144,6 +159,9 @@ def analyze(
     swc_whitelist: str,
     solc_version: str,
     solc_path: str,
+    solc_optimizer: bool,
+    solc_optimizer_runs: int,
+    solc_via_ir: bool,
     include: Tuple[str],
     remap_import: Tuple[str],
     check_properties: bool,
@@ -167,6 +185,9 @@ def analyze(
     :param swc_whitelist: A comma-separated list of SWC IDs to include
     :param solc_version: The solc version to use for Solidity compilation
     :param solc_path: The path to a custom solc executable
+    :param solc_optimizer: Enable the optimizer (default True)
+    :param solc_optimizer_runs: Set the number of runs for the optimizer (default 200)
+    :param solc_via_ir: Enable solc compilation viaIR (default False)
     :param include: List of contract names to send - exclude everything else
     :param remap_import: List of import remappings to pass on to solc
     :param check_properties: Enable property verification mode
@@ -189,6 +210,11 @@ def analyze(
     swc_blacklist = swc_blacklist or analyze_config.get("blacklist") or None
     swc_whitelist = swc_whitelist or analyze_config.get("whitelist") or None
     solc_version = solc_version or analyze_config.get("solc") or None
+    solc_optimizer = solc_optimizer or analyze_config.get("optimizer") or False
+    solc_optimizer_runs = (
+        solc_optimizer_runs or analyze_config.get("optimizer-runs") or 200
+    )
+    solc_via_ir = solc_via_ir or analyze_config.get("viaIR") or False
     include = include or analyze_config.get("contracts") or []
     remap_import = remap_import or analyze_config.get("remappings") or []
     check_properties = (
@@ -235,6 +261,9 @@ def analyze(
                 SolidityJob.walk_solidity_files(
                     solc_version=solc_version,
                     solc_path=solc_path,
+                    solc_optimizer=solc_optimizer,
+                    solc_optimizer_runs=solc_optimizer_runs,
+                    solc_via_ir=solc_via_ir,
                     base_path=element,
                     remappings=remap_import,
                     enable_scribble=enable_scribble,
@@ -252,6 +281,9 @@ def analyze(
             job.generate_payloads(
                 version=solc_version,
                 solc_path=solc_path,
+                solc_optimizer=solc_optimizer,
+                solc_optimizer_runs=solc_optimizer_runs,
+                solc_via_ir=solc_via_ir,
                 contract=contract or None,
                 remappings=remap_import,
                 enable_scribble=enable_scribble,
