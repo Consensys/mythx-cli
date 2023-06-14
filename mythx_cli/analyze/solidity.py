@@ -172,8 +172,8 @@ class SolidityJob(ScribbleMixin):
                     "optimizer": {
                         "enabled": solc_optimizer,
                         "runs": solc_optimizer_runs,
-                        "viaIR": solc_via_ir,
                     },
+                    "viaIR": solc_via_ir,
                 },
             },
             # if scribble enabled, allow access to temporary file

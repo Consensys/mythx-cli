@@ -212,7 +212,7 @@ def analyze(
     solc_version = solc_version or analyze_config.get("solc") or None
     solc_optimizer = solc_optimizer or analyze_config.get("optimizer") or False
     solc_optimizer_runs = (
-        solc_optimizer_runs or analyze_config.get("optimizer_runs") or 200
+        solc_optimizer_runs or analyze_config.get("optimizer-runs") or 200
     )
     solc_via_ir = solc_via_ir or analyze_config.get("viaIR") or False
     include = include or analyze_config.get("contracts") or []
