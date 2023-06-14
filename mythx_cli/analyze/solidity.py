@@ -139,6 +139,9 @@ class SolidityJob(ScribbleMixin):
         enable_scribble: bool,
         scribble_file: str = None,
         solc_path: str = None,
+        solc_optimizer: bool = True,
+        solc_optimizer_runs: int = 200,
+        solc_via_ir: bool = False,
     ) -> Dict:
         return solcx.compile_standard(
             solc_binary=solc_path,
@@ -166,7 +169,11 @@ class SolidityJob(ScribbleMixin):
                             "": ["ast"],
                         }
                     },
-                    "optimizer": {"enabled": True, "runs": 200},
+                    "optimizer": {
+                        "enabled": solc_optimizer,
+                        "runs": solc_optimizer_runs,
+                        "viaIR": solc_via_ir,
+                    },
                 },
             },
             # if scribble enabled, allow access to temporary file
@@ -177,6 +184,9 @@ class SolidityJob(ScribbleMixin):
         self,
         version: Optional[str],
         solc_path: Optional[str] = None,
+        solc_optimizer: Optional[bool] = True,
+        solc_optimizer_runs: Optional[int] = 200,
+        solc_via_ir: Optional[bool] = False,
         contract: str = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -201,6 +211,9 @@ class SolidityJob(ScribbleMixin):
 
         :param version: The solc version to use for compilation
         :param solc_path: The path to a custom solc executable
+        :param solc_optimizer: Enable the optimizer (default True)
+        :param solc_optimizer_runs: Set the number of runs for the optimizer (default 200)
+        :param solc_via_ir: Enable solc compilation viaIR (default False)
         :param contract: The contract name(s) to submit
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -231,6 +244,9 @@ class SolidityJob(ScribbleMixin):
                     remappings=remappings,
                     enable_scribble=enable_scribble,
                     solc_path=solc_path,
+                    solc_optimizer=solc_optimizer,
+                    solc_optimizer_runs=solc_optimizer_runs,
+                    solc_via_ir=solc_via_ir,
                 )
             except solcx.exceptions.SolcError as e:
                 raise click.exceptions.UsageError(
@@ -283,6 +299,9 @@ class SolidityJob(ScribbleMixin):
         cls,
         solc_version: str,
         solc_path: Optional[str] = None,
+        solc_optimizer: Optional[bool] = True,
+        solc_optimizer_runs: Optional[int] = 200,
+        solc_via_ir: Optional[bool] = False,
         base_path: Optional[str] = None,
         remappings: Tuple[str] = None,
         enable_scribble: bool = False,
@@ -296,6 +315,9 @@ class SolidityJob(ScribbleMixin):
 
         :param solc_version: The solc version to use for Solidity compilation
         :param solc_path: The path to a custom solc executable
+        :param solc_optimizer: Enable the optimizer (default True)
+        :param solc_optimizer_runs: Set the number of runs for the optimizer (default 200)
+        :param solc_via_ir: Enable solc compilation viaIR (default False)
         :param base_path: The base path to walk through from
         :param remappings: Import remappings to pass to solcx
         :param enable_scribble: Enable instrumentation with scribble
@@ -321,6 +343,9 @@ class SolidityJob(ScribbleMixin):
             job.generate_payloads(
                 version=solc_version,
                 solc_path=solc_path,
+                solc_optimizer=solc_optimizer,
+                solc_optimizer_runs=solc_optimizer_runs,
+                solc_via_ir=solc_via_ir,
                 remappings=remappings,
                 enable_scribble=enable_scribble,
                 scribble_path=scribble_path,
